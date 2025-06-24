@@ -9,9 +9,9 @@ import pandas as pd
 
 # --- 全局配置 ---
 # 將並發限制從 10 調降到 5，以避免觸發幣安的速率限制
-SEMAPHORE_LIMIT = 5  # 同時運行的最大異步任務數
+SEMAPHORE_LIMIT = 2  # 同時運行的最大異步任務數
 MAX_RETRIES = 3      # API請求失敗時的最大重試次數
-RETRY_DELAY = 5      # 重試前的延遲秒數 (從2秒增加到5秒，給伺服器更多喘息時間)
+RETRY_DELAY = 15      # 重試前的延遲秒數 (從2秒增加到5秒，給伺服器更多喘息時間)
 
 # --- 新增：處理 Python 3.12 的 sqlite3 日期時間 DeprecationWarning ---
 # 1. 定義一個新的 adapter，將 python datetime 物件轉換為 ISO 8601 字串
