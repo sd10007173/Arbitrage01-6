@@ -24,6 +24,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from database_operations import DatabaseManager
 from factor_strategies.factor_library import *
+from factor_strategies.factor_library import standardize_factor_scores
 from factor_strategies.factor_strategy_config import FACTOR_STRATEGIES
 
 class FactorEngine:
@@ -181,33 +182,55 @@ class FactorEngine:
         trading_pairs = df['trading_pair'].unique()
         print(f"📊 計算 {len(trading_pairs)} 個交易對的因子分數...")
         
-        # 計算每個交易對的因子分數
-        results = []
+        # 第一階段：計算所有交易對的原始因子分數
+        all_factor_scores = {}
         
         for pair in trading_pairs:
             pair_data = df[df['trading_pair'] == pair].sort_values('date')
             
             # 計算所有因子分數
             factor_scores = {}
-            component_scores = {}
             
             for factor_name, factor_config in strategy_config['factors'].items():
                 try:
                     score = self.calculate_factor_for_trading_pair(pair_data, factor_config)
                     factor_scores[factor_name] = score
-                    component_scores[factor_name] = score
                 except Exception as e:
                     print(f"⚠️ 計算 {pair} 的因子 {factor_name} 時出錯: {e}")
                     factor_scores[factor_name] = np.nan
-                    component_scores[factor_name] = np.nan
             
             # 檢查是否有有效的因子分數
             valid_scores = [s for s in factor_scores.values() if not np.isnan(s)]
-            if not valid_scores:
-                continue
+            if valid_scores:  # 只保留有有效分數的交易對
+                all_factor_scores[pair] = factor_scores
+        
+        if not all_factor_scores:
+            print("⚠️ 沒有計算出任何有效的因子分數")
+            return pd.DataFrame()
+        
+        print(f"📊 第一階段完成：計算 {len(all_factor_scores)} 個交易對的原始因子分數")
+        
+        # 第二階段：Z-Score標準化
+        print("🔄 第二階段：應用Z-Score標準化...")
+        standardized_scores, factor_stats = standardize_factor_scores(all_factor_scores)
+        
+        # 顯示標準化統計信息
+        print("📈 各因子標準化統計:")
+        for factor_name, stats in factor_stats.items():
+            print(f"   {factor_name}: μ={stats['mean']:.5f}, σ={stats['std']:.5f}")
+        
+        # 第三階段：計算最終排名分數
+        print("⚖️  第三階段：計算加權最終分數...")
+        results = []
+        
+        for pair in standardized_scores.keys():
+            # 計算最終排名分數（使用標準化後的分數）
+            final_score, calculation_record = self._calculate_final_score_with_standardization(
+                standardized_scores[pair], strategy_config['ranking_logic']
+            )
             
-            # 計算最終排名分數
-            final_score, calculation_record = self._calculate_final_score(factor_scores, strategy_config['ranking_logic'])
+            # 保留原始分數用於component_scores
+            component_scores = all_factor_scores[pair]
             
             results.append({
                 'trading_pair': pair,
@@ -231,7 +254,7 @@ class FactorEngine:
         result_df = result_df.sort_values('final_ranking_score', ascending=False)
         result_df['rank_position'] = range(1, len(result_df) + 1)
         
-        print(f"✅ 完成因子策略計算，共 {len(result_df)} 個交易對")
+        print(f"✅ 完成Z-Score標準化因子策略計算，共 {len(result_df)} 個交易對")
         return result_df
     
     def _calculate_final_score(self, factor_scores: Dict[str, float], ranking_logic: Dict[str, Any]) -> tuple[float, str]:
@@ -280,6 +303,58 @@ class FactorEngine:
         
         # 生成最終的計算記錄
         calculation_record = " | ".join(calculation_parts) + f" | Final: {' + '.join([p.split(' = ')[1] for p in calculation_parts if 'NaN' not in p and 'Missing' not in p])} = {final_score:.5f}"
+        
+        return final_score, calculation_record
+    
+    def _calculate_final_score_with_standardization(self, standardized_factor_scores: Dict[str, Dict[str, float]], ranking_logic: Dict[str, Any]) -> tuple[float, str]:
+        """
+        使用標準化後的因子分數計算最終排名分數並生成計算過程記錄
+        
+        Args:
+            standardized_factor_scores: 標準化後的因子分數字典，格式為 {factor_name: {'raw': raw_value, 'z_score': z_value}}
+            ranking_logic: 排名邏輯配置
+            
+        Returns:
+            (最終分數, 計算過程記錄)
+        """
+        indicators = ranking_logic['indicators']
+        weights = ranking_logic['weights']
+        
+        if len(indicators) != len(weights):
+            raise ValueError("因子數量與權重數量不匹配")
+        
+        # 計算加權分數和生成計算記錄
+        weighted_sum = 0.0
+        total_weight = 0.0
+        calculation_parts = []
+        
+        for indicator, weight in zip(indicators, weights):
+            if indicator in standardized_factor_scores:
+                raw_value = standardized_factor_scores[indicator]['raw']
+                z_score = standardized_factor_scores[indicator]['z_score']
+                
+                if not np.isnan(raw_value) and not np.isnan(z_score):
+                    weighted_value = z_score * weight
+                    weighted_sum += weighted_value
+                    total_weight += weight
+                    
+                    # 生成計算記錄部分：顯示「原始值→標準化值 × 權重 = 加權值」
+                    calculation_parts.append(f"{indicator}: {raw_value:.5f}→{z_score:.3f} × {weight:.2f} = {weighted_value:.5f}")
+                else:
+                    calculation_parts.append(f"{indicator}: NaN→0.000 × {weight:.2f} = 0.0")
+            else:
+                calculation_parts.append(f"{indicator}: Missing→0.000 × {weight:.2f} = 0.0")
+        
+        if total_weight == 0:
+            calculation_record = " | ".join(calculation_parts) + " | Final: No valid factors"
+            return np.nan, calculation_record
+        
+        # 正規化權重
+        final_score = weighted_sum / total_weight
+        
+        # 生成最終的計算記錄
+        valid_weighted_values = [p.split(' = ')[1] for p in calculation_parts if 'NaN' not in p and 'Missing' not in p]
+        calculation_record = " | ".join(calculation_parts) + f" | Final: {' + '.join(valid_weighted_values)} = {final_score:.5f}"
         
         return final_score, calculation_record
     

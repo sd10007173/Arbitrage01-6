@@ -130,7 +130,166 @@ FACTOR_STRATEGIES = {
             'weights': [0.35, 0.25, 0.25, 0.15]
         }
     },
+    'sharp_only_v1': {
+        'name': 'sharp only v1',
+        'description': '純sharp ratio。',
 
+        # --- 數據准入規則 ---
+        'data_requirements': {
+            'min_data_days': 30,         # 最少需要30天的歷史數據
+            'skip_first_n_days': 3,      # 跳過前3天的數據（新幣穩定期）
+        },
+
+        # --- 因子定義 (此策略需要哪些因子以及如何計算) ---
+        'factors': {
+            # 因子名稱: {計算細節}
+            'F_sharpe': {
+                'function': 'calculate_sharpe_ratio',
+                'window': 60,
+                'input_col': 'roi_1d',                   # 使用1日ROI計算夏普比率
+                'params': {'annualizing_factor': 365}    # 傳遞給計算函式的額外參數
+            },
+        },
+
+        'ranking_logic': {
+            'indicators': ['F_sharpe'], # 必須與上面定義的因子名稱對應
+            'weights': [1.0]            # 權重總和應為1
+        }
+    },
+
+    'sharp_only_v2': {
+        'name': 'sharp only v2',
+        'description': '純sharp ratio。',
+
+        # --- 數據准入規則 ---
+        'data_requirements': {
+            'min_data_days': 30,         # 最少需要30天的歷史數據
+            'skip_first_n_days': 3,      # 跳過前3天的數據（新幣穩定期）
+        },
+
+        # --- 因子定義 (此策略需要哪些因子以及如何計算) ---
+        'factors': {
+            # 因子名稱: {計算細節}
+            'F_sharpe': {
+                'function': 'calculate_sharpe_ratio',
+                'window': 30,
+                'input_col': 'roi_1d',                   # 使用1日ROI計算夏普比率
+                'params': {'annualizing_factor': 365}    # 傳遞給計算函式的額外參數
+            },
+        },
+
+        'ranking_logic': {
+            'indicators': ['F_sharpe'], # 必須與上面定義的因子名稱對應
+            'weights': [1.0]            # 權重總和應為1
+        }
+    },
+
+    'sharp_only_v3': {
+        'name': 'sharp only v3',
+        'description': '純sharp ratio。',
+
+        # --- 數據准入規則 ---
+        'data_requirements': {
+            'min_data_days': 10,         # 最少需要30天的歷史數據
+            'skip_first_n_days': 3,      # 跳過前3天的數據（新幣穩定期）
+        },
+
+        # --- 因子定義 (此策略需要哪些因子以及如何計算) ---
+        'factors': {
+            # 因子名稱: {計算細節}
+            'F_sharpe': {
+                'function': 'calculate_sharpe_ratio',
+                'window': 10,
+                'input_col': 'roi_1d',                   # 使用1日ROI計算夏普比率
+                'params': {'annualizing_factor': 365}    # 傳遞給計算函式的額外參數
+            },
+        },
+
+        'ranking_logic': {
+            'indicators': ['F_sharpe'], # 必須與上面定義的因子名稱對應
+            'weights': [1.0]            # 權重總和應為1
+        }
+    },
+
+    'sharp_only_v4': {
+        'name': 'sharp only v4',
+        'description': '純sharp ratio。',
+
+        # --- 數據准入規則 ---
+        'data_requirements': {
+            'min_data_days': 90,         # 最少需要30天的歷史數據
+            'skip_first_n_days': 3,      # 跳過前3天的數據（新幣穩定期）
+        },
+
+        # --- 因子定義 (此策略需要哪些因子以及如何計算) ---
+        'factors': {
+            # 因子名稱: {計算細節}
+            'F_sharpe': {
+                'function': 'calculate_sharpe_ratio',
+                'window': 90,
+                'input_col': 'roi_1d',                   # 使用1日ROI計算夏普比率
+                'params': {'annualizing_factor': 365}    # 傳遞給計算函式的額外參數
+            },
+        },
+
+        'ranking_logic': {
+            'indicators': ['F_sharpe'], # 必須與上面定義的因子名稱對應
+            'weights': [1.0]            # 權重總和應為1
+        }
+    },
+
+
+    'trend_only_v1': {
+        'name': 'trend only v1.0',
+        'description': '無。',
+
+        # --- 數據准入規則 ---
+        'data_requirements': {
+            'min_data_days': 30,         # 最少需要30天的歷史數據
+            'skip_first_n_days': 3,      # 跳過前3天的數據（新幣穩定期）
+        },
+
+        # --- 因子定義 (此策略需要哪些因子以及如何計算) ---
+        'factors': {
+            # 因子名稱: {計算細節}
+            'F_trend': {
+                'function': 'calculate_trend_slope',     # 對應 factor_library.py 中的函式名
+                'window': 60,                            # 計算所需的回看天數
+                'input_col': 'roi_1d',                   # 計算所需的數據欄位（數據庫版本）
+            },
+        },
+        # --- 最終排名邏輯 (如何組合這些因子) ---
+        'ranking_logic': {
+            'indicators': ['F_trend'], # 必須與上面定義的因子名稱對應
+            'weights': [1.0]                               # 權重總和應為1
+        }
+    },
+
+    'trend_only_v2': {
+        'name': 'trend only v2.0',
+        'description': '無。',
+
+        # --- 數據准入規則 ---
+        'data_requirements': {
+            'min_data_days': 30,         # 最少需要30天的歷史數據
+            'skip_first_n_days': 3,      # 跳過前3天的數據（新幣穩定期）
+        },
+
+        # --- 因子定義 (此策略需要哪些因子以及如何計算) ---
+        'factors': {
+            # 因子名稱: {計算細節}
+            'F_trend': {
+                'function': 'calculate_trend_slope',     # 對應 factor_library.py 中的函式名
+                'window': 30,                            # 計算所需的回看天數
+                'input_col': 'roi_1d',                   # 計算所需的數據欄位（數據庫版本）
+            },
+        },
+        # --- 最終排名邏輯 (如何組合這些因子) ---
+        'ranking_logic': {
+            'indicators': ['F_trend'], # 必須與上面定義的因子名稱對應
+            'weights': [1.0]                               # 權重總和應為1
+        }
+    },
     # --- 測試專用策略 ---
     'test_factor_simple': {
         'name': 'Simple Factor Test Strategy',
@@ -151,4 +310,4 @@ FACTOR_STRATEGIES = {
             'weights': [1.0]                             # 權重為1，結果就是因子本身
         }
     }
-} 
+}
