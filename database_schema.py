@@ -151,18 +151,18 @@ class FundingRateDB:
                 entry_top_n INTEGER,             -- 進場條件：前N名
                 exit_threshold INTEGER,          -- 離場條件：排名跌出前N名
                 
-                -- 回測結果
+                -- 回測結果（調整欄位順序）
                 final_balance REAL,
                 total_return REAL,               -- 總收益率
                 roi REAL,                        -- 年化收益率 (ROI)
                 total_days INTEGER,              -- 回測總天數
+                sharpe_ratio REAL,               -- 夏普比率
                 max_drawdown REAL,               -- 最大回撤
                 win_rate REAL,                   -- 勝率
                 total_trades INTEGER,            -- 總交易次數
                 profit_days INTEGER,             -- 獲利天數
                 loss_days INTEGER,               -- 虧損天數
                 avg_holding_days REAL,           -- 平均持倉天數
-                sharpe_ratio REAL,               -- 夏普比率
                 
                 -- 其他信息
                 config_params TEXT,              -- JSON格式存儲完整配置
