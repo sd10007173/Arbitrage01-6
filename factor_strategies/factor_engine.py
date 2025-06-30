@@ -9,7 +9,7 @@
 
 數據庫版本修改：
 - 數據來源：return_metrics 表
-- 數據輸出：factor_strategy_ranking 表
+- 數據輸出：strategy_ranking 表
 - 使用 database_operations.py 進行數據庫操作
 """
 
@@ -207,7 +207,7 @@ class FactorEngine:
                 continue
             
             # 計算最終排名分數
-            final_score = self._calculate_final_score(factor_scores, strategy_config['ranking_logic'])
+            final_score, calculation_record = self._calculate_final_score(factor_scores, strategy_config['ranking_logic'])
             
             results.append({
                 'trading_pair': pair,
@@ -217,7 +217,7 @@ class FactorEngine:
                 'long_term_score': final_score,  # 暫時使用最終分數
                 'short_term_score': final_score,  # 暫時使用最終分數
                 'combined_roi_z_score': final_score,  # 暫時使用最終分數
-                'final_combination_value': f"Factors: {list(factor_scores.keys())}"
+                'final_combination_value': calculation_record
             })
         
         # 轉換為 DataFrame
@@ -234,16 +234,16 @@ class FactorEngine:
         print(f"✅ 完成因子策略計算，共 {len(result_df)} 個交易對")
         return result_df
     
-    def _calculate_final_score(self, factor_scores: Dict[str, float], ranking_logic: Dict[str, Any]) -> float:
+    def _calculate_final_score(self, factor_scores: Dict[str, float], ranking_logic: Dict[str, Any]) -> tuple[float, str]:
         """
-        計算最終排名分數
+        計算最終排名分數並生成計算過程記錄
         
         Args:
             factor_scores: 各因子分數字典
             ranking_logic: 排名邏輯配置
             
         Returns:
-            最終分數
+            (最終分數, 計算過程記錄)
         """
         indicators = ranking_logic['indicators']
         weights = ranking_logic['weights']
@@ -251,24 +251,37 @@ class FactorEngine:
         if len(indicators) != len(weights):
             raise ValueError("因子數量與權重數量不匹配")
         
-        # 計算加權分數
+        # 計算加權分數和生成計算記錄
         weighted_sum = 0.0
         total_weight = 0.0
+        calculation_parts = []
         
         for indicator, weight in zip(indicators, weights):
             if indicator in factor_scores:
                 score = factor_scores[indicator]
                 if not np.isnan(score):
-                    weighted_sum += score * weight
+                    weighted_value = score * weight
+                    weighted_sum += weighted_value
                     total_weight += weight
+                    
+                    # 生成計算記錄部分
+                    calculation_parts.append(f"{indicator}: {score:.5f} × {weight:.2f} = {weighted_value:.5f}")
+                else:
+                    calculation_parts.append(f"{indicator}: NaN × {weight:.2f} = 0.0")
+            else:
+                calculation_parts.append(f"{indicator}: Missing × {weight:.2f} = 0.0")
         
         if total_weight == 0:
-            return np.nan
+            calculation_record = " | ".join(calculation_parts) + " | Final: No valid factors"
+            return np.nan, calculation_record
         
         # 正規化權重
         final_score = weighted_sum / total_weight
         
-        return final_score
+        # 生成最終的計算記錄
+        calculation_record = " | ".join(calculation_parts) + f" | Final: {' + '.join([p.split(' = ')[1] for p in calculation_parts if 'NaN' not in p and 'Missing' not in p])} = {final_score:.5f}"
+        
+        return final_score, calculation_record
     
     def check_data_sufficiency(self, strategy_name: str, target_date: str = None) -> tuple[bool, str]:
         """

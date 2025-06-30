@@ -510,11 +510,18 @@ class DatabaseManager(FundingRateDB):
             # 選擇並排序數據庫表格對應的列
             required_columns = [
                 'strategy_name', 'trading_pair', 'date', 
-                'final_ranking_score', 'rank_position'
+                'final_ranking_score', 'rank_position', 'final_combination_value'
             ]
             
-            # 檢查所有必需的列是否存在
+            # 檢查並處理必需的列
             missing_cols = [col for col in required_columns if col not in db_df.columns]
+            
+            # 如果缺少 final_combination_value，加上預設值
+            if 'final_combination_value' in missing_cols:
+                db_df['final_combination_value'] = ''
+                missing_cols.remove('final_combination_value')
+            
+            # 檢查是否還有其他缺少的列
             if missing_cols:
                 print(f"❌ DataFrame 中缺少必需的列: {', '.join(missing_cols)}")
                 return 0
@@ -529,7 +536,7 @@ class DatabaseManager(FundingRateDB):
                 records = data_to_insert.to_records(index=False).tolist()
                 
                 # 使用 executemany 進行批量插入
-                insert_query = f"INSERT INTO strategy_ranking ({', '.join(required_columns)}) VALUES (?, ?, ?, ?, ?)"
+                insert_query = f"INSERT INTO strategy_ranking ({', '.join(required_columns)}) VALUES (?, ?, ?, ?, ?, ?)"
                 cursor.executemany(insert_query, records)
                 
                 # 提交事務

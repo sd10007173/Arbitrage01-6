@@ -13,7 +13,7 @@
 
 數據庫版本修改：
 - 數據來源：從 return_metrics 表讀取
-- 數據輸出：寫入 factor_strategy_ranking 表
+- 數據輸出：寫入 strategy_ranking 表
 - 使用 database_operations.py 的函數進行數據庫操作
 """
 

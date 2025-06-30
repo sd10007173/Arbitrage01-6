@@ -310,13 +310,7 @@ class FundingRateDB:
             # trading_pair_top_ranking_days 索引
             "CREATE INDEX IF NOT EXISTS idx_ranking_persistence_strategy ON trading_pair_top_ranking_days (strategy)",
             "CREATE INDEX IF NOT EXISTS idx_ranking_persistence_pair ON trading_pair_top_ranking_days (trading_pair)",
-            
-            # 因子策略排行榜索引
-            "CREATE INDEX IF NOT EXISTS idx_factor_strategy_ranking_date ON factor_strategy_ranking(date)",
-            "CREATE INDEX IF NOT EXISTS idx_factor_strategy_ranking_strategy ON factor_strategy_ranking(strategy_name)",
-            "CREATE INDEX IF NOT EXISTS idx_factor_strategy_ranking_strategy_date ON factor_strategy_ranking(strategy_name, date)",
-            "CREATE INDEX IF NOT EXISTS idx_factor_strategy_ranking_rank ON factor_strategy_ranking(rank_position)",
-            "CREATE INDEX IF NOT EXISTS idx_factor_strategy_ranking_date_rank ON factor_strategy_ranking (date, rank_position)",
+
         ]
         
         for index_sql in indexes:

@@ -1,19 +1,22 @@
 """
-因子策略執行腳本 (Run Factor Strategies) - 智能日期範圍版本
+因子策略執行腳本 (Run Factor Strategies) - 智能日期偵測版本
 
-此腳本提供簡化的交互式界面來執行因子策略系統。
-自動從數據庫檢測可用日期範圍，支持單個策略執行、批量執行、結果查看等功能。
+此腳本提供完整的命令行界面來執行因子策略系統，具備智能日期偵測功能。
+參考 strategy_ranking.py 的設計，支持單日、日期範圍、所有日期等多種處理模式。
 
 使用方法：
-    python factor_strategies/run_factor_strategies.py
+    python factor_strategies/run_factor_strategies.py                    # 預設處理所有可用日期
+    python factor_strategies/run_factor_strategies.py --date 2025-01-31 # 處理單個日期
+    python factor_strategies/run_factor_strategies.py --start_date 2025-01-01 --end_date 2025-01-31 # 日期範圍
+    python factor_strategies/run_factor_strategies.py --all             # 明確指定所有日期
+    python factor_strategies/run_factor_strategies.py --strategy cerebrum_core # 指定策略
 
 主要特性：
-- 自動從 return_metrics 表檢測可用日期範圍
-- 智能預設值，預設執行最新日期
+- 智能從 return_metrics 表檢測可用日期範圍
+- 支持單日、日期範圍、所有日期的處理模式
 - 結果保存到 strategy_ranking 表（與既有系統整合）
-- 支持批量日期範圍執行
 - 完整的日期和數據驗證
-- 直觀的結果查看界面
+- 統一的批量處理邏輯
 """
 
 import sys
@@ -31,350 +34,312 @@ from database_operations import DatabaseManager
 
 def print_header():
     """打印程式標題"""
-    print("=" * 60)
+    print("\n" + "="*60)
     print("🧠 因子策略系統 (Factor Strategy System)")
-    print("   智能日期範圍版本 - 自動檢測可用數據")
-    print("=" * 60)
+    print("   智能日期偵測版本 - 參考 strategy_ranking.py 設計")
+    print("="*60)
+
+def get_available_dates_from_database():
+    """
+    從數據庫獲取所有可用的日期
+    參考 strategy_ranking.py 的實現
+    
+    Returns:
+        list: 可用日期字符串列表 (YYYY-MM-DD 格式)
+    """
+    try:
+        # 使用與 FactorEngine 相同的數據庫路徑
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        project_root = os.path.dirname(current_dir)
+        db_path = os.path.join(project_root, "data", "funding_rate.db")
+        
+        db = DatabaseManager(db_path)
+        with db.get_connection() as conn:
+            query = "SELECT DISTINCT date FROM return_metrics ORDER BY date"
+            result = pd.read_sql_query(query, conn)
+        
+        if result.empty:
+            print("📊 數據庫中沒有 return_metrics 數據")
+            return []
+        
+        dates = result['date'].tolist()
+        print(f"📊 數據庫中找到 {len(dates)} 個可用日期")
+        print(f"   日期範圍: {dates[0]} 到 {dates[-1]}")
+        
+        return dates
+        
+    except Exception as e:
+        print(f"❌ 獲取可用日期時出錯: {e}")
+        return []
+
+def generate_date_range(start_date, end_date):
+    """
+    生成日期範圍
+    參考 strategy_ranking.py 的實現
+    
+    Args:
+        start_date: 開始日期 (YYYY-MM-DD)
+        end_date: 結束日期 (YYYY-MM-DD)
+    
+    Returns:
+        list: 日期字符串列表
+    """
+    start_dt = datetime.strptime(start_date, '%Y-%m-%d')
+    end_dt = datetime.strptime(end_date, '%Y-%m-%d')
+    
+    dates = []
+    current_dt = start_dt
+    
+    while current_dt <= end_dt:
+        dates.append(current_dt.strftime('%Y-%m-%d'))
+        current_dt += timedelta(days=1)
+    
+    return dates
 
 def print_available_strategies():
     """顯示所有可用策略"""
     print("\n📋 可用的因子策略:")
     print("-" * 50)
     for i, (key, config) in enumerate(FACTOR_STRATEGIES.items(), 1):
-        print(f"{i:2d}. {key}")
-        print(f"    名稱: {config['name']}")
-        print(f"    描述: {config['description']}")
-        print(f"    因子數量: {len(config['factors'])}")
-        print()
+        print(f"{i:2d}. {key} - {config['name']}")
 
-def select_strategy_interactively():
-    """交互式選擇策略"""
+def select_strategies_interactively():
+    """
+    交互式選擇策略
+    參考 strategy_ranking.py 的邏輯
+    
+    Returns:
+        list: 選中的策略名稱列表
+    """
     print_available_strategies()
     
-    # 獲取策略列表
-    from factor_strategies.factor_strategy_config import FACTOR_STRATEGIES
-    
     while True:
-        strategy_input = input("\n請選擇要執行的策略 (輸入策略名稱或 'all' 執行所有策略): ").strip()
+        strategy_input = input("\n請選擇要執行的策略 (輸入策略名稱、編號，或 'all' 執行所有策略): ").strip()
         
         if strategy_input.lower() == 'all':
-            return 'all'
+            return list(FACTOR_STRATEGIES.keys())
         elif strategy_input in FACTOR_STRATEGIES:
-            return strategy_input
+            return [strategy_input]
         else:
             # 嘗試按編號選擇
             try:
                 strategies = list(FACTOR_STRATEGIES.keys())
                 choice_num = int(strategy_input)
                 if 1 <= choice_num <= len(strategies):
-                    return strategies[choice_num - 1]
+                    return [strategies[choice_num - 1]]
                 else:
                     print(f"❌ 請輸入 1-{len(strategies)} 之間的數字，或策略名稱，或 'all'")
             except ValueError:
                 print(f"❌ 無效輸入。可用策略: {list(FACTOR_STRATEGIES.keys())} 或 'all'")
 
-def run_single_strategy(engine: FactorEngine, strategy_name: str, target_date: str):
-    """執行單個策略"""
-    print(f"\n🚀 執行策略: {strategy_name}")
-    print(f"📅 目標日期: {target_date}")
+def run_strategy_for_date(engine: FactorEngine, strategy_name: str, target_date: str):
+    """
+    為特定日期執行單個策略
     
-    # 預檢查數據是否充足
-    print("\n🔍 檢查數據充足性...")
-    is_sufficient, message = engine.check_data_sufficiency(strategy_name, target_date)
-    
-    if not is_sufficient:
-        print(f"❌ 數據量檢查失敗: {message}")
-        print("\n💡 建議:")
-        print("   • 選擇較晚的日期 (如最新日期)")
-        print("   • 選擇數據要求較低的策略")
-        print("   • 確認是否有足夠的歷史數據")
+    Args:
+        engine: FactorEngine 實例
+        strategy_name: 策略名稱
+        target_date: 目標日期
         
-        # 詢問用戶是否要查看策略要求
-        show_req = input("\n❓ 是否查看策略數據要求? (y/n): ").strip().lower()
-        if show_req in ['y', 'yes']:
-            from factor_strategies.factor_strategy_config import FACTOR_STRATEGIES
-            config = FACTOR_STRATEGIES[strategy_name]
-            print(f"\n📋 {config['name']} 策略要求:")
-            print(f"   • 最少數據天數: {config['data_requirements']['min_data_days']} 天")
-            print(f"   • 跳過前幾天: {config['data_requirements']['skip_first_n_days']} 天")
-            print(f"   • 總計需要: {config['data_requirements']['min_data_days'] + config['data_requirements']['skip_first_n_days']} 天")
-            
-            # 顯示因子窗口要求
-            print(f"   • 因子窗口:")
-            for factor_name, factor_config in config['factors'].items():
-                print(f"     - {factor_name}: {factor_config['window']} 天")
-        
-        return
-    
-    print(f"✅ 數據量檢查通過: {message}")
-    
+    Returns:
+        bool: 是否執行成功
+    """
     try:
+        # 預檢查數據是否充足
+        is_sufficient, message = engine.check_data_sufficiency(strategy_name, target_date)
+        
+        if not is_sufficient:
+            print(f"⚠️ 跳過 {target_date}: {message}")
+            return False
+        
+        # 執行策略
         result = engine.run_strategy(strategy_name, target_date)
         
         if not result.empty:
-            print(f"\n✅ 策略 '{strategy_name}' 執行成功!")
-            print(f"📊 共計算 {len(result)} 個交易對")
-            
-            # 顯示統計信息
-            print(f"\n📈 分數統計:")
-            print(f"   最高分: {result['final_ranking_score'].max():.6f}")
-            print(f"   最低分: {result['final_ranking_score'].min():.6f}")
-            print(f"   平均分: {result['final_ranking_score'].mean():.6f}")
-            
+            print(f"✅ {target_date}: {len(result)} 個交易對")
+            return True
         else:
-            print(f"⚠️ 策略 '{strategy_name}' 沒有產生結果")
+            print(f"❌ {target_date}: 沒有結果")
+            return False
             
     except Exception as e:
-        print(f"❌ 策略執行失敗: {e}")
-        import traceback
-        traceback.print_exc()
+        print(f"❌ {target_date}: 執行失敗 - {e}")
+        return False
 
-def run_all_strategies(engine: FactorEngine, target_date: str):
-    """執行所有策略"""
-    print(f"\n🚀 執行所有策略")
-    print(f"📅 目標日期: {target_date}")
+def process_date_with_selected_strategies(target_date, selected_strategies):
+    """
+    處理指定日期的所有選中策略
+    參考 strategy_ranking.py 的邏輯
     
-    results = engine.run_all_strategies(target_date)
+    Args:
+        target_date: 目標日期
+        selected_strategies: 策略列表
+        
+    Returns:
+        int: 成功執行的策略數量
+    """
+    print(f"\n📅 處理日期: {target_date}")
     
-    # 統計結果
-    success_count = sum(1 for df in results.values() if not df.empty)
-    total_count = len(results)
-    
-    print(f"\n📊 執行結果摘要:")
-    print(f"   成功: {success_count}/{total_count} 個策略")
-    
-    for strategy_name, result_df in results.items():
-        if not result_df.empty:
-            print(f"   ✅ {strategy_name}: {len(result_df)} 個交易對")
-        else:
-            print(f"   ❌ {strategy_name}: 執行失敗")
-
-def run_date_range(engine: FactorEngine, strategy_name: str, start_date: str, end_date: str):
-    """執行日期範圍內的策略計算"""
-    print(f"\n🚀 執行策略: {strategy_name}")
-    print(f"📅 日期範圍: {start_date} 到 {end_date}")
-    
-    # 生成日期列表
-    start_date_obj = pd.to_datetime(start_date)
-    end_date_obj = pd.to_datetime(end_date)
-    date_range = pd.date_range(start=start_date_obj, end=end_date_obj, freq='D')
+    try:
+        engine = FactorEngine()
+    except Exception as e:
+        print(f"❌ 初始化 FactorEngine 失敗: {e}")
+        return 0
     
     success_count = 0
-    total_count = len(date_range)
     
-    for current_date in date_range:
-        current_date_str = current_date.strftime('%Y-%m-%d')
-        print(f"\n📅 處理日期: {current_date_str}")
+    for strategy_name in selected_strategies:
+        print(f"🚀 執行策略: {strategy_name}")
         
-        try:
-            # 檢查數據充足性
-            is_sufficient, message = engine.check_data_sufficiency(strategy_name, current_date_str)
-            
-            if not is_sufficient:
-                print(f"⚠️ 跳過: {message}")
-                continue
-            
-            # 執行策略
-            result = engine.run_strategy(strategy_name, current_date_str)
-            
-            if not result.empty:
-                success_count += 1
-                print(f"✅ 成功: {len(result)} 個交易對")
-            else:
-                print("❌ 沒有結果")
-                
-        except Exception as e:
-            print(f"❌ 失敗: {e}")
+        if run_strategy_for_date(engine, strategy_name, target_date):
+            success_count += 1
     
-    print(f"\n📊 執行完成: {success_count}/{total_count} 天成功")
+    if success_count > 0:
+        print(f"✅ 日期 {target_date} 完成: {success_count}/{len(selected_strategies)} 個策略成功")
+    else:
+        print(f"❌ 日期 {target_date}: 沒有策略成功執行")
+    
+    return success_count
 
 def main():
-    """主函數 - 智能日期範圍版本"""
-    print_header()
-    
-    # 添加命令行參數支持
-    parser = argparse.ArgumentParser(description="因子策略執行系統 - 智能日期範圍版本")
-    parser.add_argument("--start_date", help="開始日期 (YYYY-MM-DD)")
-    parser.add_argument("--end_date", help="結束日期 (YYYY-MM-DD)")
-    parser.add_argument("--strategy", help="指定策略名稱 (或 'all' 執行所有策略)")
-    parser.add_argument("--interactive", action="store_true", help="強制進入交互模式")
+    """主函數 - 智能日期偵測版本"""
+    parser = argparse.ArgumentParser(description='因子策略執行系統 - 智能日期偵測版本')
+    parser.add_argument('--date', help='指定日期 (YYYY-MM-DD)')
+    parser.add_argument('--start_date', help='開始日期 (YYYY-MM-DD)')
+    parser.add_argument('--end_date', help='結束日期 (YYYY-MM-DD)')
+    parser.add_argument('--all', action='store_true', help='處理所有可用日期')
+    parser.add_argument('--strategy', help='指定策略名稱 (或 "all" 執行所有策略)')
+    parser.add_argument('--auto', action='store_true', help='自動模式 (不互動選擇)')
     
     args = parser.parse_args()
     
-    # 初始化引擎
-    try:
-        engine = FactorEngine()
-        db_manager = engine.db_manager
-    except Exception as e:
-        print(f"❌ 初始化失敗: {e}")
-        return
+    print_header()
     
-    # 1. 自動獲取可用的日期範圍
-    print("ℹ️ 正在從數據庫檢測可用日期範圍...")
-    db_start_date, db_end_date = db_manager.get_return_metrics_date_range()
+    # 確定要處理的策略
+    selected_strategies = []
     
-    if not db_start_date or not db_end_date:
-        print("❌ 數據庫中沒有 return_metrics 數據，請先確保數據已導入")
-        return
-    
-    print(f"✅ 檢測到數據日期範圍: {db_start_date} 到 {db_end_date}")
-    
-    # 2. 確定日期範圍
-    if args.start_date or args.end_date or args.interactive:
-        # 如果有命令行參數或強制交互模式，使用指定的日期或進入交互模式
-        start_date = args.start_date
-        end_date = args.end_date
-        
-        if not start_date or not end_date:
-            print(f"\n📅 設定執行日期範圍:")
-            print(f"   數據庫可用範圍: {db_start_date} 到 {db_end_date}")
-            
-            # 智能預設值
-            default_end_date = db_end_date
-            default_start_date = db_end_date  # 預設只執行最新一天
-            
-            if not start_date:
-                while True:
-                    start_input = input(f"請輸入起始日期 (YYYY-MM-DD, 預設: {default_start_date}): ").strip()
-                    if not start_input:
-                        start_date = default_start_date
-                        break
-                    else:
-                        try:
-                            # 驗證日期格式和範圍
-                            start_date_obj = pd.to_datetime(start_input)
-                            db_start_obj = pd.to_datetime(db_start_date)
-                            db_end_obj = pd.to_datetime(db_end_date)
-                            
-                            if start_date_obj < db_start_obj:
-                                print(f"❌ 起始日期不能早於數據庫最早日期 {db_start_date}")
-                                continue
-                            elif start_date_obj > db_end_obj:
-                                print(f"❌ 起始日期不能晚於數據庫最晚日期 {db_end_date}")
-                                continue
-                            else:
-                                start_date = start_input
-                                break
-                        except:
-                            print("❌ 日期格式錯誤，請使用 YYYY-MM-DD 格式")
-                            continue
-            
-            if not end_date:
-                while True:
-                    end_input = input(f"請輸入結束日期 (YYYY-MM-DD, 預設: {default_end_date}): ").strip()
-                    if not end_input:
-                        end_date = default_end_date
-                        break
-                    else:
-                        try:
-                            # 驗證日期格式和範圍
-                            end_date_obj = pd.to_datetime(end_input)
-                            start_date_obj = pd.to_datetime(start_date)
-                            db_start_obj = pd.to_datetime(db_start_date)
-                            db_end_obj = pd.to_datetime(db_end_date)
-                            
-                            if end_date_obj < db_start_obj:
-                                print(f"❌ 結束日期不能早於數據庫最早日期 {db_start_date}")
-                                continue
-                            elif end_date_obj > db_end_obj:
-                                print(f"❌ 結束日期不能晚於數據庫最晚日期 {db_end_date}")
-                                continue
-                            elif end_date_obj < start_date_obj:
-                                print(f"❌ 結束日期不能早於起始日期 {start_date}")
-                                continue
-                            else:
-                                end_date = end_input
-                                break
-                        except:
-                            print("❌ 日期格式錯誤，請使用 YYYY-MM-DD 格式")
-                            continue
-    else:
-        # 智能模式：直接使用最新日期
-        start_date = db_end_date
-        end_date = db_end_date
-        print(f"🤖 智能模式：自動使用最新日期 {db_end_date}")
-    
-    # 3. 確定策略
     if args.strategy:
-        strategy_name = args.strategy
-        print(f"✅ 指定策略: {strategy_name}")
+        # 命令行指定策略
+        if args.strategy == 'all':
+            selected_strategies = list(FACTOR_STRATEGIES.keys())
+            print(f"✅ 命令行指定: 所有策略 ({len(selected_strategies)} 個)")
+        elif args.strategy in FACTOR_STRATEGIES:
+            selected_strategies = [args.strategy]
+            print(f"✅ 命令行指定策略: {args.strategy}")
+        else:
+            print(f"❌ 策略 {args.strategy} 不存在")
+            print(f"可用策略: {list(FACTOR_STRATEGIES.keys())}")
+            return
+    elif args.auto:
+        # 自動模式 - 處理所有策略
+        selected_strategies = list(FACTOR_STRATEGIES.keys())
+        print("🤖 自動模式：處理所有策略")
     else:
-        strategy_name = select_strategy_interactively()
+        # 互動式選擇策略
+        selected_strategies = select_strategies_interactively()
+        
+        if not selected_strategies:
+            return
     
-    # 4. 確認執行參數
-    print(f"\n🚀 執行參數確認:")
-    print(f"   策略: {strategy_name}")
-    print(f"   日期範圍: {start_date} 到 {end_date}")
+    # 確定要處理的日期
+    dates_to_process = []
     
-    # 計算執行天數
-    date_range = pd.date_range(start=start_date, end=end_date, freq='D')
-    total_days = len(date_range)
-    print(f"   執行天數: {total_days} 天")
+    if args.date:
+        dates_to_process = [args.date]
+        print(f"📅 指定日期: {args.date}")
+    elif args.start_date and args.end_date:
+        # 生成日期範圍
+        dates_to_process = generate_date_range(args.start_date, args.end_date)
+        print(f"📅 生成日期範圍: {args.start_date} 到 {args.end_date} ({len(dates_to_process)} 天)")
+    elif args.all:
+        dates_to_process = get_available_dates_from_database()
+        print(f"📅 處理所有可用日期: {len(dates_to_process)} 天")
+    else:
+        # 預設處理所有可用日期（參考 strategy_ranking.py 的邏輯）
+        print("沒有指定日期參數，預設處理所有可用日期...")
+        dates_to_process = get_available_dates_from_database()
+        
+        if not dates_to_process:
+            print("❌ 沒有找到任何 return_metrics 數據")
+            print("請先運行 calculate_FR_return_list_v2.py 生成收益數據")
+            print("\n可用參數:")
+            print("  --date YYYY-MM-DD  (處理單個日期)")
+            print("  --start_date YYYY-MM-DD --end_date YYYY-MM-DD  (處理日期範圍)")
+            print("  --all  (處理所有可用日期)")
+            print("  --strategy 策略名稱  (指定特定策略)")
+            print("  --auto  (自動模式，處理所有策略)")
+            return
     
-    # 如果是批量執行多天，給出提醒
-    if total_days > 7:
-        confirm = input(f"\n⚠️ 將執行 {total_days} 天的數據，可能需要較長時間。是否繼續? (y/n): ").strip().lower()
+    if not dates_to_process:
+        print("❌ 沒有找到要處理的日期")
+        return
+    
+    # 執行摘要
+    print(f"\n📊 執行摘要:")
+    print(f"   日期數: {len(dates_to_process)}")
+    print(f"   策略數: {len(selected_strategies)}")
+    print(f"   總組合: {len(dates_to_process) * len(selected_strategies)}")
+    
+    if len(dates_to_process) <= 10:
+        print(f"   日期: {', '.join(dates_to_process)}")
+    else:
+        print(f"   日期範圍: {dates_to_process[0]} 到 {dates_to_process[-1]}")
+    
+    print(f"   策略: {', '.join(selected_strategies)}")
+    
+    # 大量處理提醒
+    total_combinations = len(dates_to_process) * len(selected_strategies)
+    if total_combinations > 50:
+        confirm = input(f"\n⚠️ 將處理 {total_combinations} 個(日期,策略)組合，可能需要較長時間。是否繼續? (y/n): ").strip().lower()
         if confirm not in ['y', 'yes']:
             print("已取消執行")
             return
     
-    # 5. 執行策略
-    if strategy_name == 'all':
-        print(f"\n正在執行所有策略從 {start_date} 到 {end_date}...")
-        # 執行所有策略
-        from factor_strategies.factor_strategy_config import FACTOR_STRATEGIES
-        for strategy in FACTOR_STRATEGIES.keys():
-            print(f"\n執行策略: {strategy}")
-            run_date_range(engine, strategy, start_date, end_date)
-            print(f"策略 {strategy} 執行完成")
-        print(f"\n所有策略執行完成！")
-    else:
-        # 執行單個策略
-        print(f"\n正在執行策略 '{strategy_name}' 從 {start_date} 到 {end_date}...")
-        run_date_range(engine, strategy_name, start_date, end_date)
-        print(f"\n策略執行完成！")
+    # 處理每個日期
+    print(f"\n🚀 開始執行...")
+    total_successful = 0
+    total_dates_processed = 0
     
-    # 6. 自動顯示執行結果
-    print("\n📊 執行結果:")
+    for date in dates_to_process:
+        successful = process_date_with_selected_strategies(date, selected_strategies)
+        if successful > 0:
+            total_dates_processed += 1
+            total_successful += successful
     
-    try:
-        if strategy_name == 'all':
-            # 如果執行了所有策略，顯示最後一個策略的結果
-            from factor_strategies.factor_strategy_config import FACTOR_STRATEGIES
-            strategies = list(FACTOR_STRATEGIES.keys())
-            selected_strategy = strategies[-1]  # 使用最後一個策略
-            print(f"顯示最後執行的策略結果: {selected_strategy}")
-        else:
-            selected_strategy = strategy_name
-        
-        # 查看結果
-        print(f"\n策略: {selected_strategy}, 日期: {end_date}")
-        result = db_manager.get_latest_ranking(selected_strategy, top_n=10)
-        
-        if not result.empty:
-            print("排名前10的交易對:")
-            print("-" * 60)
-            print(f"{'排名':<4} {'交易對':<15} {'分數':<12} {'組合分數'}")
-            print("-" * 60)
+    print(f"\n🎉 所有處理完成！")
+    print(f"   處理了 {total_dates_processed} 個日期")
+    print(f"   成功處理 {total_successful} 個策略")
+    
+    # 顯示最新結果
+    if total_successful > 0 and dates_to_process:
+        print(f"\n📊 最新結果預覽:")
+        try:
+            # 使用與 FactorEngine 相同的數據庫路徑
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            project_root = os.path.dirname(current_dir)
+            db_path = os.path.join(project_root, "data", "funding_rate.db")
+            db = DatabaseManager(db_path)
             
-            for _, row in result.iterrows():
-                # 嘗試解析 component_scores
-                component_info = ""
-                if 'component_scores' in row and pd.notna(row['component_scores']):
-                    try:
-                        import json
-                        scores = json.loads(row['component_scores'])
-                        component_info = f"({', '.join([f'{k}: {v:.3f}' for k, v in scores.items()])})"
-                    except:
-                        pass
+            latest_date = dates_to_process[-1]
+            latest_strategy = selected_strategies[0]
+            
+            # 獲取最新結果
+            result = db.get_latest_ranking(latest_strategy, top_n=5)
+            
+            if not result.empty:
+                print(f"策略: {latest_strategy} (前5名)")
+                print("-" * 50)
+                print(f"{'排名':<4} {'交易對':<20} {'分數':<12}")
+                print("-" * 50)
                 
-                print(f"{row['rank_position']:<4} {row['trading_pair']:<15} "
-                      f"{row['final_ranking_score']:<12.6f} {component_info}")
-        else:
-            print("❌ 沒有找到結果")
-            
-    except Exception as e:
-        print(f"❌ 查看結果失敗: {e}")
+                for _, row in result.iterrows():
+                    print(f"{row['rank_position']:<4} {row['trading_pair']:<20} "
+                          f"{row['final_ranking_score']:<12.6f}")
+            else:
+                print("❌ 沒有找到最新結果")
+                
+        except Exception as e:
+            print(f"❌ 查看結果失敗: {e}")
 
 if __name__ == "__main__":
     main() 
