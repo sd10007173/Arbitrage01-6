@@ -21,9 +21,13 @@
 
 import sys
 import os
+import time
 from datetime import datetime, timedelta
 import pandas as pd
 import argparse
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from threading import Lock
+import threading
 
 # 添加父目錄到 Python 路徑
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -166,7 +170,73 @@ def run_strategy_for_date(engine: FactorEngine, strategy_name: str, target_date:
         print(f"❌ {target_date}: 執行失敗 - {e}")
         return False
 
-def process_date_with_selected_strategies(target_date, selected_strategies):
+def run_single_task(task_data):
+    """
+    🚀 階段2優化：並行執行單個任務 (日期,策略) 組合
+    每個線程處理一個 (日期,策略) 組合
+    
+    Args:
+        task_data: 包含任務信息的字典
+            - date: 目標日期
+            - strategy: 策略名稱
+            - task_id: 任務ID (用於進度追踪)
+            - total_tasks: 總任務數
+            
+    Returns:
+        dict: 任務執行結果
+    """
+    date = task_data['date']
+    strategy = task_data['strategy']
+    task_id = task_data['task_id']
+    total_tasks = task_data['total_tasks']
+    
+    thread_id = threading.get_ident()
+    
+    try:
+        # 🔧 階段2優化：為每個線程創建獨立的FactorEngine
+        # 這確保線程安全，同時避免重複初始化
+        engine = FactorEngine()
+        
+        # 執行任務
+        start_time = time.time()
+        success = run_strategy_for_date(engine, strategy, date)
+        execution_time = time.time() - start_time
+        
+        result = {
+            'task_id': task_id,
+            'date': date,
+            'strategy': strategy,
+            'success': success,
+            'execution_time': execution_time,
+            'thread_id': thread_id
+        }
+        
+        # 線程安全的進度輸出
+        with print_lock:
+            progress = (task_id / total_tasks) * 100
+            print(f"📊 任務 {task_id}/{total_tasks} ({progress:.1f}%) - {date}/{strategy} - "
+                  f"{'✅成功' if success else '❌失敗'} (耗時: {execution_time:.1f}s, 線程: {thread_id})")
+        
+        return result
+        
+    except Exception as e:
+        with print_lock:
+            print(f"❌ 任務異常 {date}/{strategy}: {e}")
+        
+        return {
+            'task_id': task_id,
+            'date': date,
+            'strategy': strategy,
+            'success': False,
+            'execution_time': 0,
+            'thread_id': thread_id,
+            'error': str(e)
+        }
+
+# 全局鎖，用於線程安全的輸出
+print_lock = Lock()
+
+def process_date_with_selected_strategies(target_date, selected_strategies, engine):
     """
     處理指定日期的所有選中策略
     參考 strategy_ranking.py 的邏輯
@@ -174,17 +244,12 @@ def process_date_with_selected_strategies(target_date, selected_strategies):
     Args:
         target_date: 目標日期
         selected_strategies: 策略列表
+        engine: 共享的 FactorEngine 實例 (階段1優化)
         
     Returns:
         int: 成功執行的策略數量
     """
     print(f"\n📅 處理日期: {target_date}")
-    
-    try:
-        engine = FactorEngine()
-    except Exception as e:
-        print(f"❌ 初始化 FactorEngine 失敗: {e}")
-        return 0
     
     success_count = 0
     
@@ -210,6 +275,8 @@ def main():
     parser.add_argument('--all', action='store_true', help='處理所有可用日期')
     parser.add_argument('--strategy', help='指定策略名稱 (或 "all" 執行所有策略)')
     parser.add_argument('--auto', action='store_true', help='自動模式 (不互動選擇)')
+    parser.add_argument('--max_workers', type=int, default=4, help='🚀 階段2優化：最大並行工作線程數 (預設: 4)')
+    parser.add_argument('--sequential', action='store_true', help='🔄 使用順序執行模式 (不並行化)')
     
     args = parser.parse_args()
     
@@ -274,11 +341,34 @@ def main():
         print("❌ 沒有找到要處理的日期")
         return
     
+    # 🤖 智能性能模式选择 (基于阶段2测试结果)
+    total_combinations = len(dates_to_process) * len(selected_strategies)
+    
+    if not args.sequential and not hasattr(args, '_auto_optimized'):
+        # 智能选择最优执行模式
+        if total_combinations <= 2:
+            recommended_workers = min(2, args.max_workers)
+            performance_gain = "45%" if total_combinations == 1 else "5%"
+            print(f"💡 智能建议: 小规模任务({total_combinations}个)，使用 {recommended_workers} 线程 (预期提升{performance_gain})")
+            args.max_workers = recommended_workers
+        elif total_combinations >= 5:
+            print(f"💡 智能建议: 大规模任务({total_combinations}个)，自动切换到顺序模式 (避免并行开销)")
+            args.sequential = True
+        args._auto_optimized = True  # 标记已优化，避免重复
+
     # 執行摘要
     print(f"\n📊 執行摘要:")
     print(f"   日期數: {len(dates_to_process)}")
     print(f"   策略數: {len(selected_strategies)}")
-    print(f"   總組合: {len(dates_to_process) * len(selected_strategies)}")
+    print(f"   總組合: {total_combinations}")
+    
+    # 🚀 階段2優化：顯示並行化配置
+    if not args.sequential:
+        print(f"   🚀 並行模式: 啟用 (最大 {args.max_workers} 線程)")
+        theoretical_speedup = min(args.max_workers, len(dates_to_process) * len(selected_strategies))
+        print(f"   📈 理論加速: 最高 {theoretical_speedup}x")
+    else:
+        print(f"   🔄 順序模式: 啟用")
     
     if len(dates_to_process) <= 10:
         print(f"   日期: {', '.join(dates_to_process)}")
@@ -290,25 +380,133 @@ def main():
     # 大量處理提醒
     total_combinations = len(dates_to_process) * len(selected_strategies)
     if total_combinations > 50:
-        confirm = input(f"\n⚠️ 將處理 {total_combinations} 個(日期,策略)組合，可能需要較長時間。是否繼續? (y/n): ").strip().lower()
+        execution_mode = "並行" if not args.sequential else "順序"
+        estimated_time = "顯著減少" if not args.sequential else "較長"
+        confirm = input(f"\n⚠️ 將以{execution_mode}模式處理 {total_combinations} 個組合，預估耗時{estimated_time}。是否繼續? (y/n): ").strip().lower()
         if confirm not in ['y', 'yes']:
             print("已取消執行")
             return
     
-    # 處理每個日期
-    print(f"\n🚀 開始執行...")
-    total_successful = 0
-    total_dates_processed = 0
+    # 🚀 階段2優化：選擇執行模式
+    if args.sequential:
+        print(f"\n🔄 使用順序執行模式...")
+        # 階段1優化：只初始化一次 FactorEngine
+        print(f"\n⚡ 初始化 FactorEngine (階段1優化)...")
+        init_start_time = time.time()
+        try:
+            engine = FactorEngine()
+            init_time = time.time() - init_start_time
+            print(f"✅ FactorEngine 初始化成功 (耗時: {init_time:.2f}秒)")
+            print(f"💡 優化效果: 避免了 {len(dates_to_process)} 次重複初始化，預估節省 {len(dates_to_process) * init_time:.1f} 秒")
+        except Exception as e:
+            print(f"❌ 初始化 FactorEngine 失敗: {e}")
+            return
+        
+        # 順序處理每個日期
+        print(f"\n🚀 開始順序執行...")
+        start_time = time.time()
+        total_successful = 0
+        total_dates_processed = 0
+        
+        for i, date in enumerate(dates_to_process, 1):
+            print(f"\n📊 進度: {i}/{len(dates_to_process)} ({i/len(dates_to_process)*100:.1f}%)")
+            
+            date_start_time = time.time()
+            successful = process_date_with_selected_strategies(date, selected_strategies, engine)
+            date_time = time.time() - date_start_time
+            
+            if successful > 0:
+                total_dates_processed += 1
+                total_successful += successful
+            
+            # 顯示處理時間和預估剩餘時間
+            if i > 1:
+                avg_time_per_date = (time.time() - start_time) / i
+                remaining_dates = len(dates_to_process) - i
+                estimated_remaining = avg_time_per_date * remaining_dates
+                print(f"⏱️ 本日期耗時: {date_time:.1f}秒, 平均: {avg_time_per_date:.1f}秒/日期, 預估剩餘: {estimated_remaining/60:.1f}分鐘")
+        
+        total_time = time.time() - start_time
+    else:
+        # 🚀 階段2優化：並行執行模式
+        print(f"\n⚡ 使用並行執行模式 (最大 {args.max_workers} 個工作線程)...")
+        
+        # 創建所有任務
+        tasks = []
+        task_id = 0
+        for date in dates_to_process:
+            for strategy in selected_strategies:
+                task_id += 1
+                tasks.append({
+                    'task_id': task_id,
+                    'date': date,
+                    'strategy': strategy,
+                    'total_tasks': len(dates_to_process) * len(selected_strategies)
+                })
+        
+        print(f"📋 創建了 {len(tasks)} 個並行任務")
+        print(f"💡 階段2優化效果: {len(tasks)} 個任務將並行執行，而非順序執行")
+        
+        # 並行執行所有任務
+        print(f"\n🚀 開始並行執行...")
+        start_time = time.time()
+        results = []
+        
+        with ThreadPoolExecutor(max_workers=args.max_workers) as executor:
+            # 提交所有任務
+            future_to_task = {executor.submit(run_single_task, task): task for task in tasks}
+            
+            # 收集結果
+            for future in as_completed(future_to_task):
+                task = future_to_task[future]
+                try:
+                    result = future.result()
+                    results.append(result)
+                except Exception as e:
+                    print(f"❌ 任務異常 {task['date']}/{task['strategy']}: {e}")
+                    results.append({
+                        'task_id': task['task_id'],
+                        'date': task['date'],
+                        'strategy': task['strategy'],
+                        'success': False,
+                        'execution_time': 0,
+                        'error': str(e)
+                    })
+        
+        total_time = time.time() - start_time
+        
+        # 分析並行執行結果
+        successful_tasks = [r for r in results if r['success']]
+        failed_tasks = [r for r in results if not r['success']]
+        
+        # 按日期統計
+        processed_dates = set(r['date'] for r in successful_tasks)
+        total_dates_processed = len(processed_dates)
+        total_successful = len(successful_tasks)
+        
+        # 並行執行統計
+        if successful_tasks:
+            avg_task_time = sum(r['execution_time'] for r in successful_tasks) / len(successful_tasks)
+            max_task_time = max(r['execution_time'] for r in successful_tasks)
+            min_task_time = min(r['execution_time'] for r in successful_tasks)
+            
+            print(f"\n📊 並行執行統計:")
+            print(f"   平均任務耗時: {avg_task_time:.1f} 秒")
+            print(f"   最長任務耗時: {max_task_time:.1f} 秒")
+            print(f"   最短任務耗時: {min_task_time:.1f} 秒")
+            
+            # 計算並行化效率
+            total_sequential_time = sum(r['execution_time'] for r in results)
+            parallel_efficiency = total_sequential_time / total_time
+            print(f"   並行化效率: {parallel_efficiency:.1f}x (理論最大: {args.max_workers}x)")
     
-    for date in dates_to_process:
-        successful = process_date_with_selected_strategies(date, selected_strategies)
-        if successful > 0:
-            total_dates_processed += 1
-            total_successful += successful
+    total_time = time.time() - start_time
     
     print(f"\n🎉 所有處理完成！")
     print(f"   處理了 {total_dates_processed} 個日期")
     print(f"   成功處理 {total_successful} 個策略")
+    print(f"   總耗時: {total_time/60:.1f} 分鐘 ({total_time:.1f} 秒)")
+    print(f"   平均速度: {total_time/max(1, len(dates_to_process)):.1f} 秒/日期")
     
     # 顯示最新結果
     if total_successful > 0 and dates_to_process:

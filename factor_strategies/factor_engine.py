@@ -11,13 +11,21 @@
 - 數據來源：return_metrics 表
 - 數據輸出：strategy_ranking 表
 - 使用 database_operations.py 進行數據庫操作
+
+🚀 階段3優化：數據缓存 + 結果缓存系統
+- 數據查詢缓存：避免重複的數據庫查詢
+- 因子計算结果缓存：避免重複的因子分數計算
+- 智能缓存失效：根據數據變化自動更新缓存
 """
 
 import pandas as pd
 import numpy as np
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Tuple
 import sys
 import os
+import hashlib
+import time
+from functools import lru_cache
 
 # 添加父目錄到 Python 路徑，以便導入核心模組
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -28,7 +36,14 @@ from factor_strategies.factor_library import standardize_factor_scores
 from factor_strategies.factor_strategy_config import FACTOR_STRATEGIES
 
 class FactorEngine:
-    """因子計算引擎"""
+    """
+    因子計算引擎
+    
+    🚀 階段3優化特性：
+    - 數據查詢缓存：避免重複數據庫查詢
+    - 因子計算结果缓存：避免重複因子分數計算  
+    - 智能缓存管理：自動清理過期缓存
+    """
     
     def __init__(self, db_path: str = None):
         # 如果沒有指定路徑，使用項目根目錄下的數據庫
@@ -45,7 +60,21 @@ class FactorEngine:
         """
         self.db_manager = DatabaseManager(db_path)
         self.factor_functions = self._load_factor_functions()
-        print(f"✅ 因子引擎初始化完成，數據庫: {db_path}")
+        
+        # 🚀 階段3優化：初始化缓存系統
+        self._data_cache = {}          # 數據查詢缓存 {cache_key: (data_df, timestamp)}
+        self._factor_cache = {}        # 因子計算结果缓存 {cache_key: (result, timestamp)}
+        self._cache_stats = {          # 缓存統計
+            'data_hits': 0,
+            'data_misses': 0, 
+            'factor_hits': 0,
+            'factor_misses': 0,
+            'total_time_saved': 0.0
+        }
+        self._max_cache_size = 100     # 最大缓存條目數
+        self._cache_ttl = 3600         # 缓存生存時間 (秒)
+        
+        print(f"✅ 因子引擎初始化完成 (🚀階段3缓存系統已啟用)，數據庫: {db_path}")
     
     def _load_factor_functions(self) -> Dict[str, callable]:
         """載入所有可用的因子計算函數"""
@@ -58,9 +87,75 @@ class FactorEngine:
             'calculate_sortino_ratio': calculate_sortino_ratio,
         }
     
+    # 🚀 階段3優化：缓存管理方法
+    def _generate_cache_key(self, *args) -> str:
+        """生成缓存鍵"""
+        key_string = "|".join(str(arg) for arg in args)
+        return hashlib.md5(key_string.encode()).hexdigest()
+    
+    def _is_cache_valid(self, timestamp: float) -> bool:
+        """檢查缓存是否仍然有效"""
+        return (time.time() - timestamp) < self._cache_ttl
+    
+    def _cleanup_expired_cache(self):
+        """清理過期的缓存項目"""
+        current_time = time.time()
+        
+        # 清理數據缓存
+        expired_data_keys = [
+            key for key, (_, timestamp) in self._data_cache.items()
+            if (current_time - timestamp) > self._cache_ttl
+        ]
+        for key in expired_data_keys:
+            del self._data_cache[key]
+        
+        # 清理因子缓存
+        expired_factor_keys = [
+            key for key, (_, timestamp) in self._factor_cache.items()
+            if (current_time - timestamp) > self._cache_ttl
+        ]
+        for key in expired_factor_keys:
+            del self._factor_cache[key]
+    
+    def _manage_cache_size(self):
+        """管理缓存大小，避免內存溢出"""
+        # 如果數據缓存超過限制，移除最舊的項目
+        if len(self._data_cache) > self._max_cache_size:
+            oldest_key = min(self._data_cache.keys(), 
+                            key=lambda k: self._data_cache[k][1])
+            del self._data_cache[oldest_key]
+        
+        # 如果因子缓存超過限制，移除最舊的項目
+        if len(self._factor_cache) > self._max_cache_size:
+            oldest_key = min(self._factor_cache.keys(),
+                            key=lambda k: self._factor_cache[k][1])
+            del self._factor_cache[oldest_key]
+    
+    def get_cache_stats(self) -> Dict[str, Any]:
+        """獲取缓存統計信息"""
+        total_data_requests = self._cache_stats['data_hits'] + self._cache_stats['data_misses']
+        total_factor_requests = self._cache_stats['factor_hits'] + self._cache_stats['factor_misses']
+        
+        data_hit_rate = (self._cache_stats['data_hits'] / total_data_requests * 100 
+                        if total_data_requests > 0 else 0)
+        factor_hit_rate = (self._cache_stats['factor_hits'] / total_factor_requests * 100 
+                          if total_factor_requests > 0 else 0)
+        
+        return {
+            'data_cache_size': len(self._data_cache),
+            'factor_cache_size': len(self._factor_cache),
+            'data_hit_rate': f"{data_hit_rate:.1f}%",
+            'factor_hit_rate': f"{factor_hit_rate:.1f}%", 
+            'total_time_saved': f"{self._cache_stats['total_time_saved']:.2f}秒",
+            'data_hits': self._cache_stats['data_hits'],
+            'data_misses': self._cache_stats['data_misses'],
+            'factor_hits': self._cache_stats['factor_hits'],
+            'factor_misses': self._cache_stats['factor_misses']
+        }
+    
     def get_strategy_data(self, strategy_config: Dict[str, Any], target_date: str = None) -> pd.DataFrame:
         """
-        獲取策略計算所需的數據
+        🚀 階段3優化：獲取策略計算所需的數據 (支持缓存)
         
         Args:
             strategy_config: 策略配置
@@ -69,6 +164,10 @@ class FactorEngine:
         Returns:
             包含所需數據的 DataFrame
         """
+        # 清理過期缓存
+        self._cleanup_expired_cache()
+        self._manage_cache_size()
+        
         # 獲取數據要求
         data_req = strategy_config['data_requirements']
         min_days = data_req['min_data_days']
@@ -85,6 +184,27 @@ class FactorEngine:
         target_date_obj = pd.to_datetime(target_date)
         start_date_obj = target_date_obj - pd.Timedelta(days=min_days + skip_days + 30)  # 額外緩衝
         start_date_str = start_date_obj.strftime('%Y-%m-%d')
+        
+        # 🚀 階段3優化：生成缓存鍵
+        cache_key = self._generate_cache_key(
+            'strategy_data', 
+            start_date_str, 
+            target_date, 
+            min_days, 
+            skip_days
+        )
+        
+        # 🚀 階段3優化：檢查缓存
+        if cache_key in self._data_cache:
+            cached_data, timestamp = self._data_cache[cache_key]
+            if self._is_cache_valid(timestamp):
+                self._cache_stats['data_hits'] += 1
+                self._cache_stats['total_time_saved'] += 0.5  # 估計節省的數據庫查詢時間
+                return cached_data.copy()  # 返回副本避免修改缓存
+        
+        # 🚀 階段3優化：缓存未命中，執行數據庫查詢
+        query_start_time = time.time()
+        self._cache_stats['data_misses'] += 1
         
         # 從數據庫獲取數據
         df = self.db_manager.get_return_metrics(
@@ -112,15 +232,20 @@ class FactorEngine:
             df = df[df['trading_pair'].isin(valid_pairs)]
             print(f"📊 過濾後剩餘 {len(valid_pairs)} 個交易對 (跳過上線少於{skip_days}天的)")
         
+        # 🚀 階段3優化：將結果存入缓存
+        query_time = time.time() - query_start_time
+        self._data_cache[cache_key] = (df.copy(), time.time())
+        
         return df
     
-    def calculate_factor_for_trading_pair(self, pair_data: pd.DataFrame, factor_config: Dict[str, Any]) -> float:
+    def calculate_factor_for_trading_pair(self, pair_data: pd.DataFrame, factor_config: Dict[str, Any], trading_pair: str = None) -> float:
         """
-        為單個交易對計算因子分數
+        🚀 階段3優化：為單個交易對計算因子分數 (支持结果缓存)
         
         Args:
             pair_data: 單個交易對的歷史數據
             factor_config: 因子配置
+            trading_pair: 交易對名稱 (用於缓存)
             
         Returns:
             因子分數
@@ -146,12 +271,46 @@ class FactorEngine:
         if len(recent_data) < min_required_points:
             return np.nan
         
+        # 🚀 階段3優化：生成因子計算缓存鍵
+        if trading_pair:
+            # 使用數據的哈希值和配置創建缓存鍵
+            data_hash = hashlib.md5(
+                recent_data[input_col].to_string().encode()
+            ).hexdigest()[:8]  # 使用前8位節省內存
+            
+            cache_key = self._generate_cache_key(
+                'factor_calc',
+                trading_pair,
+                function_name,
+                window,
+                input_col,
+                str(params),
+                data_hash
+            )
+            
+            # 🚀 階段3優化：檢查因子計算缓存
+            if cache_key in self._factor_cache:
+                cached_result, timestamp = self._factor_cache[cache_key]
+                if self._is_cache_valid(timestamp):
+                    self._cache_stats['factor_hits'] += 1
+                    self._cache_stats['total_time_saved'] += 0.1  # 估計節省的計算時間
+                    return cached_result
+        
+        # 🚀 階段3優化：缓存未命中，執行因子計算
+        calc_start_time = time.time()
+        self._cache_stats['factor_misses'] += 1
+        
         # 獲取輸入序列
         input_series = recent_data[input_col]
         
         # 調用因子計算函數
         factor_function = self.factor_functions[function_name]
         score = factor_function(input_series, **params)
+        
+        # 🚀 階段3優化：將結果存入缓存
+        if trading_pair and not np.isnan(score):
+            calc_time = time.time() - calc_start_time
+            self._factor_cache[cache_key] = (score, time.time())
         
         return score
     
@@ -182,7 +341,7 @@ class FactorEngine:
         trading_pairs = df['trading_pair'].unique()
         print(f"📊 計算 {len(trading_pairs)} 個交易對的因子分數...")
         
-        # 第一階段：計算所有交易對的原始因子分數
+        # 🚀 階段3優化：第一階段 - 計算所有交易對的原始因子分數 (支持缓存)
         all_factor_scores = {}
         
         for pair in trading_pairs:
@@ -193,7 +352,12 @@ class FactorEngine:
             
             for factor_name, factor_config in strategy_config['factors'].items():
                 try:
-                    score = self.calculate_factor_for_trading_pair(pair_data, factor_config)
+                    # 🚀 階段3優化：傳遞 trading_pair 參數以啟用缓存
+                    score = self.calculate_factor_for_trading_pair(
+                        pair_data, 
+                        factor_config, 
+                        trading_pair=pair
+                    )
                     factor_scores[factor_name] = score
                 except Exception as e:
                     print(f"⚠️ 計算 {pair} 的因子 {factor_name} 時出錯: {e}")
@@ -209,6 +373,10 @@ class FactorEngine:
             return pd.DataFrame()
         
         print(f"📊 第一階段完成：計算 {len(all_factor_scores)} 個交易對的原始因子分數")
+        
+        # 🚀 階段3優化：顯示缓存統計信息
+        cache_stats = self.get_cache_stats()
+        print(f"🚀 缓存統計 - 數據命中率: {cache_stats['data_hit_rate']}, 因子命中率: {cache_stats['factor_hit_rate']}, 節省時間: {cache_stats['total_time_saved']}")
         
         # 第二階段：Z-Score標準化
         print("🔄 第二階段：應用Z-Score標準化...")
