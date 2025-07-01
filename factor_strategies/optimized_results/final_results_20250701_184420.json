@@ -1,0 +1,71 @@
+{
+  "optimization_summary": {
+    "total_strategies": 3,
+    "execution_mode": "test",
+    "date_range": {
+      "start": "2024-01-01",
+      "end": "2025-06-20"
+    },
+    "timestamp": "20250701_184420",
+    "total_time_minutes": 0
+  },
+  "phase_times": {
+    "phase1_config_generation": 0.0004889965057373047,
+    "phase2_batch_execution": 1.2235679626464844,
+    "phase3_analysis": 0
+  },
+  "strategies_generated": [
+    {
+      "strategy_id": 1,
+      "strategy_name": "DD_W60_30D_D30_S15_FA",
+      "factors": [
+        "calculate_max_drawdown"
+      ],
+      "window": 60,
+      "input_column": "roi_30d",
+      "min_data_days": 30,
+      "skip_first_n_days": 15,
+      "weight_method": "factor_strength",
+      "num_factors": 1
+    },
+    {
+      "strategy_id": 2,
+      "strategy_name": "TR_W15_30D_D90_S3_FA",
+      "factors": [
+        "calculate_trend_slope"
+      ],
+      "window": 15,
+      "input_column": "roi_30d",
+      "min_data_days": 90,
+      "skip_first_n_days": 3,
+      "weight_method": "factor_strength",
+      "num_factors": 1
+    },
+    {
+      "strategy_id": 3,
+      "strategy_name": "SO_WR_W30_30D_D120_S10_IN",
+      "factors": [
+        "calculate_sortino_ratio",
+        "calculate_win_rate"
+      ],
+      "window": 30,
+      "input_column": "roi_30d",
+      "min_data_days": 120,
+      "skip_first_n_days": 10,
+      "weight_method": "inverse_correlation",
+      "num_factors": 2
+    }
+  ],
+  "execution_results": {
+    "total_strategies": 2,
+    "successful": 0,
+    "failed": 2,
+    "success_rate": 0.0,
+    "execution_time_minutes": 0.020386735598246258,
+    "results": [],
+    "failed_strategies": [
+      "DD_W60_30D_D30_S15_FA",
+      "TR_W15_30D_D90_S3_FA"
+    ]
+  }
+}

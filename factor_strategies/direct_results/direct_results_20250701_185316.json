@@ -1,0 +1,66 @@
+{
+  "optimization_summary": {
+    "total_strategies": 3,
+    "successful": 0,
+    "failed": 3,
+    "success_rate": 0.0,
+    "total_time_minutes": 0.018881964683532714,
+    "date_range": {
+      "start": "2024-06-15",
+      "end": "2024-06-17"
+    },
+    "timestamp": "20250701_185316"
+  },
+  "strategies_generated": [
+    {
+      "strategy_id": 1,
+      "strategy_name": "SO_ST_WR_W300_30D_D45_S1_IN",
+      "factors": [
+        "calculate_sortino_ratio",
+        "calculate_inv_std_dev",
+        "calculate_win_rate"
+      ],
+      "window": 300,
+      "input_column": "roi_30d",
+      "min_data_days": 45,
+      "skip_first_n_days": 1,
+      "weight_method": "inverse_correlation",
+      "num_factors": 3
+    },
+    {
+      "strategy_id": 2,
+      "strategy_name": "SR_W20_2D_D90_S2_IN",
+      "factors": [
+        "calculate_sharpe_ratio"
+      ],
+      "window": 20,
+      "input_column": "roi_2d",
+      "min_data_days": 90,
+      "skip_first_n_days": 2,
+      "weight_method": "inverse_correlation",
+      "num_factors": 1
+    },
+    {
+      "strategy_id": 3,
+      "strategy_name": "DD_WR_ST_W270_1D_D150_S5_FA",
+      "factors": [
+        "calculate_max_drawdown",
+        "calculate_win_rate",
+        "calculate_inv_std_dev"
+      ],
+      "window": 270,
+      "input_column": "roi_1d",
+      "min_data_days": 150,
+      "skip_first_n_days": 5,
+      "weight_method": "factor_strength",
+      "num_factors": 3
+    }
+  ],
+  "execution_results": [],
+  "failed_strategies": [
+    "SO_ST_WR_W300_30D_D45_S1_IN",
+    "SR_W20_2D_D90_S2_IN",
+    "DD_WR_ST_W270_1D_D150_S5_FA"
+  ],
+  "best_strategies": {}
+}

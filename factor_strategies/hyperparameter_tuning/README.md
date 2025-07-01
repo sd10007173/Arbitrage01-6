@@ -1,282 +1,352 @@
-# 超參數調優系統使用指南
+# 大規模超參數調優系統
 
-## 📋 系統概述
+**Mass Hyperparameter Tuning System**
 
-超參數調優系統是一個自動化的因子策略優化工具，能夠：
-- 自動生成大量不同的策略配置組合
-- 批量執行策略回測
-- 分析結果並找出最佳策略
-- 提供參數重要性分析和視覺化報告
+一個專為因子策略設計的大規模超參數調優系統，支持參數空間窮舉、真實回測執行和大規模並行處理。
+
+## 🎯 系統概述
+
+本系統按照PRD設計，實現了以下核心業務需求：
+- **BR-001**: 參數空間窮舉 - 系統性生成所有參數組合
+- **BR-002**: 真實回測執行 - 調用真實的回測腳本
+- **BR-003**: 大規模處理 - 支持10000+策略並行執行
 
 ## 🏗️ 系統架構
 
-```
-📁 hyperparameter_tuning/
-├── 📄 config.yaml              # 配置文件
-├── 📄 param_generator.py       # 參數組合生成器
-├── 📄 batch_runner.py          # 批量執行器
-├── 📄 result_analyzer.py       # 結果分析器
-├── 📄 main.py                  # 主程序
-├── 📄 README.md               # 使用說明
-└── 📁 results/                # 結果存儲目錄
-    ├── strategy_configs/      # 生成的策略配置
-    ├── backtest_results/      # 回測結果
-    ├── analysis_reports/      # 分析報告
-    ├── visualizations/        # 視覺化圖表
-    └── logs/                  # 執行日誌
+### 五大核心組件
+
+1. **參數空間生成器** (ParameterSpaceGenerator)
+   - 窮舉式參數組合生成
+   - 智能抽樣（隨機、拉丁超立方、網格、Sobol）
+   - 參數空間大小計算
+
+2. **批量執行引擎** (BatchExecutionEngine)  
+   - 真實回測腳本調用
+   - 並行執行管理
+   - 錯誤處理和重試
+
+3. **進度管理器** (ProgressManager)
+   - 執行進度追蹤
+   - 斷點續跑支持
+   - 會話狀態管理
+
+4. **結果收集器** (ResultCollector)
+   - 回測結果收集
+   - 性能指標分析
+   - 結果導出功能
+
+5. **數據庫管理器** (DatabaseManager)
+   - 臨時數據庫管理
+   - 執行隊列管理
+   - 結果持久化
+
+## 📦 安裝與配置
+
+### 環境要求
+
+- Python 3.8+
+- 依賴模塊：pandas, numpy, sqlite3, yaml, concurrent.futures
+- 現有回測系統：backtest_v5.py
+
+### 配置文件
+
+系統使用 `mass_tuning_config.yaml` 配置文件，包含：
+
+```yaml
+# 系統配置
+system:
+  database_path: "hyperparameter_tuning.db"
+  max_parallel: 4
+  timeout_minutes: 30
+
+# 參數空間配置
+parameters:
+  factors:
+    type: "choice"
+    choices: [["SR"], ["ST"], ["DD"], ["SR", "ST"], ...]
+  window_size:
+    type: "choice" 
+    choices: [5, 10, 20, 30, 60, 90, ...]
+  # ... 更多參數
 ```
 
 ## 🚀 快速開始
 
-### 1. 環境準備
+### 1. 系統測試
 
-確保已安裝必要的Python套件：
 ```bash
-pip install pyyaml pandas numpy matplotlib seaborn
+# 進入系統目錄
+cd factor_strategies/hyperparameter_tuning
+
+# 執行系統測試
+python test_system.py
 ```
 
-### 2. 配置設定
+### 2. 生成策略參數組合
 
-編輯 `config.yaml` 文件，配置您的參數空間：
-
-```yaml
-# 執行模式設定
-execution:
-  mode: "sampling"          # "exhaustive" 或 "sampling"
-  n_strategies: 100         # 抽樣模式下的策略數量
-  max_parallel_jobs: 4      # 並行執行數量
-
-# 回測設定
-backtest:
-  start_date: "2024-01-01"
-  end_date: "2025-06-20"
-  initial_capital: 10000
-  position_size: 0.25
-```
-
-### 3. 運行系統
-
-#### 快速測試（推薦首次使用）
 ```bash
-python main.py --test --test-strategies 10
+# 隨機抽樣1000個策略
+python mass_tuning_system.py generate --mode sampling --size 1000
+
+# 使用拉丁超立方抽樣
+python mass_tuning_system.py generate --mode sampling --size 500 --method latin_hypercube
+
+# 窮舉式生成（注意：可能產生大量組合）
+python mass_tuning_system.py generate --mode exhaustive --size 10000
 ```
 
-#### 正常運行
+### 3. 執行批量回測
+
 ```bash
-python main.py
+# 執行回測（4個並發）
+python mass_tuning_system.py execute --parallel 4
+
+# 斷點續跑
+python mass_tuning_system.py execute --parallel 4 --resume
+
+# 指定會話執行
+python mass_tuning_system.py execute --session session_20241201_143022 --parallel 2
 ```
 
-#### 指定配置文件
+### 4. 查看執行狀態
+
 ```bash
-python main.py --config my_config.yaml
+# 查看最新會話狀態
+python mass_tuning_system.py status
+
+# 查看詳細狀態
+python mass_tuning_system.py status --detailed
+
+# 查看特定會話
+python mass_tuning_system.py status --session session_20241201_143022 --detailed
 ```
 
-## ⚙️ 配置詳解
+### 5. 數據清理
 
-### 參數空間配置
+```bash
+# 清理失敗記錄
+python mass_tuning_system.py clean --failed_only
 
-```yaml
-parameters:
-  # 可用的因子函式
-  available_factors:
-    - calculate_trend_slope      # 趨勢斜率
-    - calculate_sharpe_ratio     # 夏普比率
-    - calculate_inv_std_dev      # 穩定性指標
-    - calculate_win_rate         # 勝率
-    - calculate_max_drawdown     # 最大回撤
-    - calculate_sortino_ratio    # 索提諾比率
-  
-  # 窗口期選項
-  windows: [5, 10, 15, 20, 30, 45, 60, 90, 120, 150, 180, 210, 240, 270, 300]
-  
-  # 輸入數據列
-  input_columns: [roi_1d, roi_2d, roi_7d, roi_14d, roi_30d]
-  
-  # 數據要求參數
-  min_data_days: [10, 15, 20, 30, 45, 60, 90, 120, 150, 180, 210, 240, 270, 300]
-  skip_first_n_days: [0, 1, 2, 3, 5, 7, 10, 15]
-  
-  # 因子組合設定
-  max_factors_per_strategy: 3    # 每個策略最多包含幾個因子
-  min_factors_per_strategy: 1    # 每個策略最少包含幾個因子
+# 清理特定會話
+python mass_tuning_system.py clean --session session_20241201_143022
+
+# 清理所有數據
+python mass_tuning_system.py clean
 ```
-
-### 執行模式
-
-#### 抽樣模式 (sampling)
-- 適用於快速測試和探索
-- 從所有可能組合中隨機選擇指定數量進行測試
-- 速度快，適合調試和驗證
-
-#### 窮舉模式 (exhaustive)
-- 測試所有可能的參數組合
-- 完整覆蓋參數空間
-- 適合最終分析，但耗時較長
 
 ## 📊 結果分析
 
-### 輸出文件結構
-
-```
-results/sampling_100_20250630_180000/
-├── logs/                          # 執行日誌
-├── strategy_configs/              # 策略配置文件
-├── backtest_results/              # 回測結果
-├── analysis_reports/              # 分析報告
-│   └── hyperparameter_analysis_report_xxx.txt
-├── visualizations/                # 視覺化圖表
-│   ├── performance_distribution.png
-│   ├── parameter_importance.png
-│   ├── top_strategies_comparison.png
-│   └── correlation_heatmap.png
-└── final_results/                 # 最終結果
-    └── batch_results_xxx.json
-```
-
-### 關鍵指標
-
-系統會分析以下關鍵績效指標：
-- **年化收益率**: 策略的年化投資回報率
-- **夏普比率**: 風險調整後的收益率
-- **最大回撤**: 最大虧損幅度
-- **勝率**: 獲利交易占比
-
-### 參數重要性分析
-
-系統會自動分析各參數對策略績效的影響：
-- 數值參數：使用相關性分析
-- 分類參數：使用方差分析
-- 布林參數：使用對比分析
-
-## 🔧 進階使用
-
-### 自定義因子函式
-
-在 `factor_library.py` 中添加新的因子計算函式：
+### 使用Python API
 
 ```python
-def calculate_my_custom_factor(data, window=30, input_column='roi_7d'):
-    """
-    自定義因子計算函式
-    """
-    # 實現您的因子計算邏輯
-    return factor_values
+from factor_strategies.hyperparameter_tuning.mass_tuning_system import MassTuningSystem
+
+# 初始化系統
+system = MassTuningSystem()
+
+# 獲取會話結果
+session_id = "session_20241201_143022"
+results = system.result_collector.get_session_results(session_id, limit=10)
+
+# 生成匯總報告
+report = system.result_collector.generate_summary_report(session_id)
+print(f"最佳夏普比率: {report['statistics']['best_sharpe_ratio']}")
+
+# 導出結果
+system.result_collector.export_results(session_id, format="csv")
 ```
 
-然後在 `config.yaml` 中添加：
+### 最佳策略查看
 
-```yaml
-parameters:
-  available_factors:
-    - calculate_my_custom_factor
+```python
+# 獲取前10個最佳策略
+top_performers = system.result_collector.get_top_performers(session_id, top_n=10)
+
+for performer in top_performers:
+    print(f"策略 {performer.strategy_id}:")
+    print(f"  夏普比率: {performer.sharpe_ratio:.4f}")
+    print(f"  年化收益: {performer.annual_return:.4f}")
+    print(f"  最大回撤: {performer.max_drawdown:.4f}")
 ```
 
-### 調整權重分配
+## 🔧 高級用法
 
-```yaml
-parameters:
-  weight_methods:
-    - equal                      # 等權重
-    - factor_score_weighted      # 因子分數加權
-    - inverse_correlation        # 反相關加權
+### 自定義參數空間
+
+```python
+# 修改配置文件或使用API
+param_info = system.param_generator.get_parameter_space_info()
+print(f"當前參數空間大小: {param_info['total_combinations']:,}")
+
+# 生成特定參數組合
+strategies = system.param_generator.generate_strategies(
+    mode="sampling",
+    size=1000,
+    method="sobol",  # 使用Sobol序列
+    seed=42         # 固定隨機種子
+)
 ```
 
-### 並行執行優化
+### 性能監控
 
-```yaml
-execution:
-  max_parallel_jobs: 8           # 根據CPU核心數調整
+```python
+# 獲取執行性能統計
+perf_stats = system.execution_engine.get_performance_stats()
+print(f"平均執行時間: {perf_stats['avg_time']:.2f}秒")
+print(f"最近平均時間: {perf_stats['recent_avg']:.2f}秒")
+
+# 檢查執行狀態
+if system.execution_engine.is_running():
+    current_session = system.execution_engine.get_current_session()
+    print(f"正在執行會話: {current_session}")
 ```
 
-## 🎯 最佳實踐
+### 多會話對比
 
-### 1. 參數空間設計原則
+```python
+# 對比多個會話的結果
+session_ids = ["session_20241201_143022", "session_20241201_150000"]
+comparison = system.result_collector.get_comparison_report(session_ids)
 
-- **開始時使用較小的參數空間**：先用抽樣模式測試
-- **逐步擴大參數範圍**：確認系統穩定後再擴大
-- **避免過度細分**：太多參數組合可能導致過擬合
+print("最佳整體策略:")
+best = comparison['best_overall']
+print(f"  會話: {best['session_id']}")
+print(f"  策略: {best['strategy_id']}")
+print(f"  夏普比率: {best['sharpe_ratio']}")
+```
 
-### 2. 執行策略
+## 📁 項目結構
+
+```
+factor_strategies/hyperparameter_tuning/
+├── mass_tuning_system.py          # 主程序入口
+├── mass_tuning_config.yaml        # 配置文件
+├── test_system.py                 # 測試腳本
+├── README.md                      # 使用說明
+├── core/                          # 核心模塊
+│   ├── __init__.py
+│   ├── parameter_generator.py     # 參數空間生成器
+│   ├── execution_engine.py        # 批量執行引擎
+│   ├── progress_manager.py        # 進度管理器
+│   ├── result_collector.py        # 結果收集器
+│   └── database_manager.py        # 數據庫管理器
+├── config/                        # 配置模塊
+│   ├── __init__.py
+│   └── config_manager.py          # 配置管理器
+└── logs/                          # 日誌目錄
+```
+
+## ⚠️ 注意事項
+
+### 數據庫設計
+
+- **開發期**: 使用隔離的 `hyperparameter_tuning.db`
+- **正式期**: 結果需要保存到 `funding_rate.db` 的正式表
+  - `strategy_ranking` - 策略排名
+  - `backtest_trades` - 交易記錄  
+  - `backtest_result` - 回測結果
+
+### 執行環境
+
+- 系統會調用真實的回測腳本 `backtest_v5.py`
+- 確保回測環境正確配置
+- 建議在服務器環境執行大規模測試
+
+### 性能考慮
+
+- 默認並發數為4，可根據硬件調整
+- 大規模執行時注意磁盤空間
+- 建議定期清理舊數據
+
+## 📈 使用場景
+
+### 1. 策略優化
 
 ```bash
-# 第1步：快速測試（5-10個策略）
-python main.py --test --test-strategies 10
+# 生成大量參數組合
+python mass_tuning_system.py generate --mode sampling --size 5000
 
-# 第2步：中等規模測試（100-500個策略）
-# 修改 config.yaml: mode: "sampling", n_strategies: 500
-python main.py
+# 執行批量回測
+python mass_tuning_system.py execute --parallel 8
 
-# 第3步：完整分析（如果組合數合理）
-# 修改 config.yaml: mode: "exhaustive"
-python main.py
+# 分析最佳參數
+python -c "
+from factor_strategies.hyperparameter_tuning.mass_tuning_system import MassTuningSystem
+system = MassTuningSystem()
+session_id = system.progress_manager.get_latest_session()
+report = system.result_collector.generate_summary_report(session_id)
+print('最佳策略參數:', report['best_strategies'][0])
+"
 ```
 
-### 3. 結果解讀
+### 2. 參數敏感性分析
 
-- **關注夏普比率**：比單純的收益率更重要
-- **注意最大回撤**：控制風險
-- **考慮樣本外表現**：避免過度優化
-- **分析參數穩定性**：頂級策略的參數特徵
-
-## 🐛 常見問題
-
-### Q1: 執行時間太長怎麼辦？
-A: 
-- 使用抽樣模式而非窮舉模式
-- 減少參數空間大小
-- 增加並行任務數量
-
-### Q2: 記憶體不足怎麼辦？
-A:
-- 減少同時執行的策略數量
-- 關閉中間結果保存
-- 分批次執行
-
-### Q3: 結果不理想怎麼辦？
-A:
-- 檢查數據質量
-- 調整參數範圍
-- 增加更多因子類型
-- 延長回測期間
-
-## 📝 日誌和調試
-
-### 查看執行日誌
 ```bash
-tail -f results/xxx/logs/batch_execution_xxx.log
+# 使用網格抽樣進行參數掃描
+python mass_tuning_system.py generate --mode sampling --size 1000 --method grid
+
+# 生成參數性能分析報告
+python -c "
+from factor_strategies.hyperparameter_tuning.mass_tuning_system import MassTuningSystem
+system = MassTuningSystem()
+session_id = system.progress_manager.get_latest_session()
+report = system.result_collector.generate_summary_report(session_id)
+param_analysis = report['parameter_analysis']
+print('窗口大小分析:', param_analysis['window_size'])
+print('重平衡頻率分析:', param_analysis['rebalance_frequency'])
+"
 ```
 
-### 調試模式
-```python
-# 在 main.py 中添加
-import logging
-logging.basicConfig(level=logging.DEBUG)
+### 3. 批量測試不同因子組合
+
+```bash
+# 專注測試多因子組合的效果
+# 可以修改配置文件，只包含多因子組合
+python mass_tuning_system.py generate --mode exhaustive --size 10000
+python mass_tuning_system.py execute --parallel 6
 ```
 
-## 🤝 擴展開發
+## 🆘 故障排除
 
-### 添加新的分析指標
+### 常見問題
 
-在 `result_analyzer.py` 中添加新的分析函式：
+1. **環境驗證失敗**
+   ```bash
+   python test_system.py  # 檢查具體問題
+   ```
 
-```python
-def analyze_custom_metric(self):
-    # 實現您的自定義分析邏輯
-    pass
+2. **執行卡住**
+   ```bash
+   python mass_tuning_system.py status --detailed  # 查看詳細狀態
+   ```
+
+3. **內存不足**
+   - 減少並發數：`--parallel 2`
+   - 分批執行：使用較小的`--size`
+
+4. **數據庫鎖定**
+   ```bash
+   python mass_tuning_system.py clean --failed_only  # 清理失敗記錄
+   ```
+
+### 日誌查看
+
+```bash
+# 查看最新日誌
+ls -la logs/
+tail -f logs/mass_tuning_*.log
 ```
 
-### 整合其他回測引擎
+## 📞 支持
 
-修改 `batch_runner.py` 中的 `_run_backtest` 方法來整合您的回測系統。
-
-## 📞 技術支援
-
-如遇到問題，請檢查：
-1. 配置文件格式是否正確
-2. 所需的數據是否存在
-3. Python套件是否完整安裝
-4. 系統資源是否充足
+如有問題，請檢查：
+1. 系統測試是否通過：`python test_system.py`
+2. 配置文件是否正確：`mass_tuning_config.yaml`
+3. 回測環境是否可用：檢查 `backtest_v5.py`
+4. 日誌文件：`logs/` 目錄下的錯誤信息
 
 ---
 
-**祝您使用愉快！找到最佳的交易策略！** 🚀 
+**版本**: v1.0  
+**創建日期**: 2024-12-01  
+**最後更新**: 2024-12-01 

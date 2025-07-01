@@ -1,0 +1,179 @@
+# 大規模超參數調優系統配置文件
+# Mass Hyperparameter Tuning System Configuration
+
+# 系統配置
+system:
+  # 數據庫路徑（開發期使用臨時數據庫）
+  database_path: "hyperparameter_tuning.db"
+  
+  # 最大並發數
+  max_parallel: 4
+  
+  # 單個策略超時時間（分鐘）
+  timeout_minutes: 30
+  
+  # 是否自動清理失敗記錄
+  cleanup_failed: true
+  
+  # 結果保留天數
+  results_retention_days: 30
+
+# 參數空間配置 - 按照現有因子策略系統設計
+parameters:
+  # 因子組合 - 支持單因子和多因子組合
+  factors:
+    type: "choice"
+    choices:
+      # 單因子策略
+      - ["SR"]  # 成功率
+      - ["ST"]  # 穩定度  
+      - ["DD"]  # 回撤度
+      - ["WR"]  # 勝率
+      - ["SO"]  # 索提諾比率
+      - ["TR"]  # 交易度
+      
+      # 雙因子組合
+      - ["SR", "ST"]
+      - ["SR", "DD"] 
+      - ["SR", "WR"]
+      - ["ST", "DD"]
+      - ["ST", "WR"]
+      - ["DD", "WR"]
+      - ["WR", "SO"]
+      - ["TR", "SR"]
+      - ["TR", "ST"]
+      - ["SO", "DD"]
+      
+      # 三因子組合
+      - ["SR", "ST", "DD"]
+      - ["SR", "ST", "WR"]
+      - ["SR", "DD", "WR"]
+      - ["ST", "DD", "WR"]
+      - ["TR", "SR", "ST"]
+      - ["WR", "SO", "DD"]
+
+  # 窗口大小（天數）
+  window_size:
+    type: "choice"
+    choices: [5, 10, 20, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300]
+
+  # 重平衡頻率（天數）
+  rebalance_frequency:
+    type: "choice"
+    choices: [1, 2, 7, 14, 30]
+
+  # 數據期間（天數）
+  data_period:
+    type: "choice"
+    choices: [10, 15, 20, 30, 45, 60, 90, 120, 150, 180, 210, 240, 270, 300]
+
+  # 選股數量
+  selection_count:
+    type: "range"
+    min_value: 0
+    max_value: 15
+    step: 1
+
+  # 權重方法
+  weight_method:
+    type: "choice"
+    choices: ["EQ", "IC", "FS"]  # 等權重, 信息係數加權, 因子值加權
+
+# 採樣配置
+sampling:
+  # 默認採樣方法
+  default_method: "random"
+  
+  # 可用採樣方法
+  available_methods:
+    - "random"           # 隨機抽樣
+    - "latin_hypercube"  # 拉丁超立方抽樣
+    - "grid"             # 網格抽樣
+    - "sobol"            # Sobol序列抽樣
+
+  # 默認採樣大小
+  default_size: 1000
+
+  # 最大採樣大小
+  max_size: 10000
+
+# 執行配置
+execution:
+  # 默認並發數
+  default_parallel: 4
+  
+  # 最大並發數
+  max_parallel: 8
+  
+  # 是否自動斷點續跑
+  auto_resume: true
+  
+  # 失敗重試次數
+  max_retries: 3
+  
+  # 批量大小（每次取多少個策略執行）
+  batch_size: 100
+
+# 結果配置
+results:
+  # 默認排序字段
+  default_sort: "sharpe_ratio"
+  
+  # 可用排序字段
+  available_sorts:
+    - "sharpe_ratio"
+    - "annual_return"
+    - "total_return"
+    - "max_drawdown"
+    - "win_rate"
+  
+  # 默認顯示前N個結果
+  default_top_n: 10
+  
+  # 導出格式
+  export_formats:
+    - "json"
+    - "csv"
+
+# 日誌配置
+logging:
+  # 日誌級別
+  level: "INFO"
+  
+  # 日誌格式
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  
+  # 是否保存到文件
+  save_to_file: true
+  
+  # 日誌文件保留天數
+  retention_days: 7
+
+# 性能配置
+performance:
+  # 統計緩存TTL（秒）
+  stats_cache_ttl: 30
+  
+  # 執行歷史保留數量
+  execution_history_size: 100
+  
+  # 是否啟用性能監控
+  enable_monitoring: true
+
+# 驗證配置
+validation:
+  # 是否驗證環境
+  check_environment: true
+  
+  # 必需的Python模塊
+  required_modules:
+    - "pandas"
+    - "numpy"
+    - "sqlite3"
+    - "yaml"
+    - "concurrent.futures"
+  
+  # 必需的腳本文件
+  required_scripts:
+    - "backtest_v5.py"
+    - "factor_strategies/run_factor_strategies.py" 

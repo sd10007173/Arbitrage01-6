@@ -1,0 +1,49 @@
+{
+  "optimization_summary": {
+    "total_strategies": 2,
+    "successful": 0,
+    "failed": 2,
+    "success_rate": 0.0,
+    "total_time_minutes": 0.02507321834564209,
+    "date_range": {
+      "start": "2024-06-20",
+      "end": "2024-06-22"
+    },
+    "timestamp": "20250701_185424"
+  },
+  "strategies_generated": [
+    {
+      "strategy_id": 1,
+      "strategy_name": "SO_TR_W30_30D_D45_S3_FA",
+      "factors": [
+        "calculate_sortino_ratio",
+        "calculate_trend_slope"
+      ],
+      "window": 30,
+      "input_column": "roi_30d",
+      "min_data_days": 45,
+      "skip_first_n_days": 3,
+      "weight_method": "factor_strength",
+      "num_factors": 2
+    },
+    {
+      "strategy_id": 2,
+      "strategy_name": "ST_W150_30D_D15_S5_EQ",
+      "factors": [
+        "calculate_inv_std_dev"
+      ],
+      "window": 150,
+      "input_column": "roi_30d",
+      "min_data_days": 15,
+      "skip_first_n_days": 5,
+      "weight_method": "equal",
+      "num_factors": 1
+    }
+  ],
+  "execution_results": [],
+  "failed_strategies": [
+    "SO_TR_W30_30D_D45_S3_FA",
+    "ST_W150_30D_D15_S5_EQ"
+  ],
+  "best_strategies": {}
+}
