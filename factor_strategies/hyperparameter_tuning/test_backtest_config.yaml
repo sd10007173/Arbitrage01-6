@@ -1,0 +1,39 @@
+# 回測引擎測試配置文件
+# 用於階段二：回測引擎測試
+
+parameters:
+  # 只使用兩個因子進行測試
+  available_factors:
+    - calculate_sharpe_ratio
+    - calculate_win_rate
+  
+  # 簡化參數空間
+  windows: [20]
+  input_columns: [roi_1d]
+  min_data_days: [20]
+  skip_first_n_days: [0]
+  
+  # 策略組合設定
+  max_factors_per_strategy: 2
+  min_factors_per_strategy: 2
+  weight_methods: [equal]
+
+# 執行設定
+execution:
+  mode: "sampling"
+  n_strategies: 1
+  max_parallel_jobs: 1
+  save_intermediate_results: true
+
+# 回測設定 - 使用測試數據期間
+backtest_settings:
+  start_date: "2025-06-01"
+  end_date: "2025-06-05"
+  initial_capital: 10000
+  position_size: 0.25
+  fee_rate: 0.001
+  exit_size: 1.0
+  max_positions: 2
+  entry_top_n: 2
+  exit_threshold: 3
+  position_mode: "fixed_amount" 

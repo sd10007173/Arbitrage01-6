@@ -1,0 +1,137 @@
+{
+  "execution_summary": {
+    "total_strategies": 2,
+    "successful_strategies": 2,
+    "failed_strategies": 0,
+    "success_rate": 100.0,
+    "execution_timestamp": "2025-07-01T15:38:50.851669"
+  },
+  "results": [
+    {
+      "strategy_id": "SR_ST_W240_1D_D15_S5_FS",
+      "strategy_config": {
+        "strategy_id": "SR_ST_W240_1D_D15_S5_FS",
+        "strategy_name": "HyperTuned_SR_ST_W240_1D_D15_S5_FS",
+        "data_requirements": {
+          "min_data_days": 15,
+          "skip_first_n_days": 5
+        },
+        "factors": [
+          {
+            "function": "calculate_sharpe_ratio",
+            "window": 240,
+            "input_column": "roi_1d"
+          },
+          {
+            "function": "calculate_inv_std_dev",
+            "window": 240,
+            "input_column": "roi_1d"
+          }
+        ],
+        "scoring": {
+          "method": "factor_strength",
+          "weights": "auto"
+        },
+        "metadata": {
+          "generated_at": "2025-07-01T15:36:38.041460",
+          "generator_version": "1.0",
+          "total_factors": 2,
+          "window": 240,
+          "input_column": "roi_1d"
+        }
+      },
+      "ranking_result": {
+        "strategy_name": "SR_ST_W240_1D_D15_S5_FS",
+        "start_date": "2024-01-01",
+        "end_date": "2025-06-20",
+        "total_days": 537,
+        "successful_days": 293,
+        "success_rate": 54.56238361266295
+      },
+      "backtest_result": {
+        "strategy_id": "SR_ST_W240_1D_D15_S5_FS",
+        "strategy_name": "SR_ST_W240_1D_D15_S5_FS",
+        "start_date": "2024-01-01",
+        "end_date": "2025-06-20",
+        "initial_capital": 10000,
+        "final_capital": 10000,
+        "total_return": 0,
+        "roi": 0.0,
+        "max_drawdown": 0.0,
+        "sharpe_ratio": 0.0,
+        "win_rate": 0.0,
+        "total_trades": 0,
+        "avg_holding_days": 0.0,
+        "backtest_days": 537,
+        "status": "completed"
+      },
+      "execution_time": "2025-07-01T15:38:50.591049"
+    },
+    {
+      "strategy_id": "ST_WR_SO_W240_14D_D15_S3_EQ",
+      "strategy_config": {
+        "strategy_id": "ST_WR_SO_W240_14D_D15_S3_EQ",
+        "strategy_name": "HyperTuned_ST_WR_SO_W240_14D_D15_S3_EQ",
+        "data_requirements": {
+          "min_data_days": 15,
+          "skip_first_n_days": 3
+        },
+        "factors": [
+          {
+            "function": "calculate_inv_std_dev",
+            "window": 240,
+            "input_column": "roi_14d"
+          },
+          {
+            "function": "calculate_win_rate",
+            "window": 240,
+            "input_column": "roi_14d"
+          },
+          {
+            "function": "calculate_sortino_ratio",
+            "window": 240,
+            "input_column": "roi_14d"
+          }
+        ],
+        "scoring": {
+          "method": "equal",
+          "weights": "auto"
+        },
+        "metadata": {
+          "generated_at": "2025-07-01T15:36:40.801452",
+          "generator_version": "1.0",
+          "total_factors": 3,
+          "window": 240,
+          "input_column": "roi_14d"
+        }
+      },
+      "ranking_result": {
+        "strategy_name": "ST_WR_SO_W240_14D_D15_S3_EQ",
+        "start_date": "2024-01-01",
+        "end_date": "2025-06-20",
+        "total_days": 537,
+        "successful_days": 295,
+        "success_rate": 54.93482309124767
+      },
+      "backtest_result": {
+        "strategy_id": "ST_WR_SO_W240_14D_D15_S3_EQ",
+        "strategy_name": "ST_WR_SO_W240_14D_D15_S3_EQ",
+        "start_date": "2024-01-01",
+        "end_date": "2025-06-20",
+        "initial_capital": 10000,
+        "final_capital": 10000,
+        "total_return": 0,
+        "roi": 0.0,
+        "max_drawdown": 0.0,
+        "sharpe_ratio": 0.0,
+        "win_rate": 0.0,
+        "total_trades": 0,
+        "avg_holding_days": 0.0,
+        "backtest_days": 537,
+        "status": "completed"
+      },
+      "execution_time": "2025-07-01T15:38:50.848524"
+    }
+  ],
+  "failed_strategy_ids": []
+}

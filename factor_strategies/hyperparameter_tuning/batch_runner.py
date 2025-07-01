@@ -11,15 +11,23 @@ import json
 import time
 import subprocess
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import List, Dict, Any, Optional
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import logging
+import tempfile
 
-# 暫時註釋掉外部模組導入，使用模擬功能
-# sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-# from factor_strategies.run_factor_strategies import main as run_factor_strategy
-# from backtest_v5 import FundingRateBacktest
+# 添加父目錄到 Python 路徑以導入真實模組
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(os.path.dirname(current_dir))
+sys.path.append(project_root)
+
+# 設置正確的數據庫路徑
+MAIN_DB_PATH = os.path.join(project_root, "data", "funding_rate.db")
+
+# 導入真實的模組
+from factor_strategies.factor_engine import FactorEngine
+from backtest_v5 import FundingRateBacktest
 
 
 class BatchRunner:
@@ -178,23 +186,61 @@ class BatchRunner:
     
     def _run_factor_strategy(self, strategy_config: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         """
-        運行因子策略
+        運行因子策略 - 使用真實的 FactorEngine
         :param strategy_config: 策略配置
         :return: 因子策略結果
         """
         try:
-            # 創建臨時的因子策略配置文件
-            temp_config_path = self._create_temp_factor_config(strategy_config)
+            # 創建策略配置並註冊到 FactorEngine
+            factor_strategy_name = self._register_strategy_to_factor_engine(strategy_config)
             
-            # 運行因子策略 - 調用現有的 run_factor_strategies
-            # 這裡需要修改 run_factor_strategies 的調用方式
-            # 暫時返回模擬結果
+            # 初始化 FactorEngine，使用正確的數據庫路徑
+            engine = FactorEngine(db_path=MAIN_DB_PATH)
+            
+            # 獲取回測日期範圍
+            start_date = self.backtest_config['start_date']
+            end_date = self.backtest_config['end_date']
+            
+            # 為回測期間內的每一天生成因子策略排行榜
+            start_dt = datetime.strptime(start_date, '%Y-%m-%d')
+            end_dt = datetime.strptime(end_date, '%Y-%m-%d')
+            
+            successful_days = 0
+            total_days = 0
+            
+            current_dt = start_dt
+            while current_dt <= end_dt:
+                date_str = current_dt.strftime('%Y-%m-%d')
+                total_days += 1
+                
+                try:
+                    # 檢查數據充足性
+                    is_sufficient, message = engine.check_data_sufficiency(factor_strategy_name, date_str)
+                    if not is_sufficient:
+                        self.logger.debug(f"跳過 {date_str}: {message}")
+                        current_dt += timedelta(days=1)
+                        continue
+                    
+                    # 運行策略
+                    result = engine.run_strategy(factor_strategy_name, date_str)
+                    if not result.empty:
+                        successful_days += 1
+                        
+                except Exception as e:
+                    self.logger.debug(f"日期 {date_str} 執行失敗: {str(e)}")
+                
+                current_dt += timedelta(days=1)
+            
+            # 清理臨時註冊的策略
+            self._unregister_strategy_from_factor_engine(factor_strategy_name)
             
             ranking_result = {
-                'strategy_name': strategy_config['strategy_name'],
-                'generated_days': 100,  # 模擬數據
-                'avg_daily_pairs': 50,
-                'config_file': temp_config_path
+                'strategy_name': factor_strategy_name,
+                'start_date': start_date,
+                'end_date': end_date,
+                'total_days': total_days,
+                'successful_days': successful_days,
+                'success_rate': successful_days / total_days * 100 if total_days > 0 else 0
             }
             
             return ranking_result
@@ -205,31 +251,65 @@ class BatchRunner:
     
     def _run_backtest(self, strategy_id: str, ranking_result: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         """
-        運行回測 (模擬版本)
+        運行回測 - 使用真實的 FundingRateBacktest
         :param strategy_id: 策略ID
         :param ranking_result: 因子策略結果
         :return: 回測結果
         """
         try:
-            # 模擬回測結果
-            import random
+            # 保存當前工作目錄
+            original_cwd = os.getcwd()
             
-            # 生成隨機但合理的回測結果
-            annual_return = random.uniform(-0.1, 0.3)  # -10% 到 30%
-            sharpe_ratio = random.uniform(0.5, 3.0)    # 0.5 到 3.0
-            max_drawdown = random.uniform(0.05, 0.3)   # 5% 到 30%
-            win_rate = random.uniform(0.4, 0.8)        # 40% 到 80%
-            total_trades = random.randint(20, 100)     # 20 到 100 次交易
+            # 切換到項目根目錄，確保回測引擎能找到正確的數據庫路徑
+            current_dir = os.path.dirname(os.path.abspath(__file__))  # hyperparameter_tuning
+            factor_strategies_dir = os.path.dirname(current_dir)      # factor_strategies  
+            project_root = os.path.dirname(factor_strategies_dir)     # Arbitrage01-3
+            os.chdir(project_root)
             
+            try:
+                # 初始化回測引擎
+                backtest_engine = FundingRateBacktest(
+                    initial_capital=self.backtest_config.get('initial_capital', 10000),
+                    position_size=self.backtest_config.get('position_size', 0.25),
+                    fee_rate=self.backtest_config.get('fee_rate', 0.001),
+                    exit_size=self.backtest_config.get('exit_size', 1.0),
+                    max_positions=self.backtest_config.get('max_positions', 4),
+                    entry_top_n=self.backtest_config.get('entry_top_n', 4),
+                    exit_threshold=self.backtest_config.get('exit_threshold', 10),
+                    position_mode=self.backtest_config.get('position_mode', 'percentage_based')
+                )
+                
+                # 運行回測
+                strategy_name = ranking_result['strategy_name']
+                start_date = ranking_result['start_date']
+                end_date = ranking_result['end_date']
+                
+                # 添加調試信息
+                self.logger.info(f"🔍 準備回測策略: {strategy_name}")
+                self.logger.info(f"📅 回測期間: {start_date} 至 {end_date}")
+                
+                backtest_engine.run_backtest(strategy_name, start_date, end_date)
+                
+            finally:
+                # 恢復原始工作目錄
+                os.chdir(original_cwd)
+            
+            # 提取回測結果
             backtest_summary = {
                 'strategy_id': strategy_id,
-                'roi': annual_return,
-                'sharpe_ratio': sharpe_ratio,
-                'max_drawdown': -max_drawdown,  # 負數表示回撤
-                'win_rate': win_rate,
-                'total_return': annual_return * 1.5,  # 模擬總回報
-                'total_trades': total_trades,
-                'final_balance': self.backtest_config['initial_capital'] * (1 + annual_return * 1.5),
+                'strategy_name': strategy_name,
+                'start_date': start_date,
+                'end_date': end_date,
+                'initial_capital': backtest_engine.initial_capital,
+                'final_capital': backtest_engine.total_balance,
+                'total_return': backtest_engine.total_balance - backtest_engine.initial_capital,
+                'roi': (backtest_engine.total_balance - backtest_engine.initial_capital) / backtest_engine.initial_capital,
+                'max_drawdown': backtest_engine.max_drawdown,
+                'sharpe_ratio': backtest_engine.calculate_sharpe_ratio(),
+                'win_rate': backtest_engine.calculate_win_rate(),
+                'total_trades': len(backtest_engine.holding_periods),
+                'avg_holding_days': backtest_engine.calculate_average_holding_days(),
+                'backtest_days': backtest_engine.backtest_days,
                 'status': 'completed'
             }
             
@@ -239,41 +319,74 @@ class BatchRunner:
             self.logger.error(f"回測運行失敗: {str(e)}")
             return None
     
-    def _create_temp_factor_config(self, strategy_config: Dict[str, Any]) -> str:
+    def _register_strategy_to_factor_engine(self, strategy_config: Dict[str, Any]) -> str:
         """
-        創建臨時的因子策略配置文件
-        :param strategy_config: 策略配置
-        :return: 配置文件路徑
+        將超參數調優的策略配置轉換為 factor_strategy_config 格式並註冊
+        :param strategy_config: 超參數調優策略配置
+        :return: 註冊的策略名稱
         """
-        # 轉換格式以符合現有的 factor_strategy_config.py 格式
-        factor_config = {
-            'strategy_name': strategy_config['strategy_name'],
-            'data_requirements': strategy_config['data_requirements'],
-            'factors': []
-        }
+        # 動態導入並修改 factor_strategy_config
+        from factor_strategies.factor_strategy_config import FACTOR_STRATEGIES
+        
+        strategy_name = strategy_config['strategy_id']
         
         # 轉換因子配置
-        for factor_cfg in strategy_config['factors']:
-            factor_config['factors'].append({
+        factors = {}
+        for i, factor_cfg in enumerate(strategy_config['factors']):
+            factor_name = f"F_{factor_cfg['function'].replace('calculate_', '')}"
+            factors[factor_name] = {
                 'function': factor_cfg['function'],
-                'params': {
-                    'window': factor_cfg['window'],
-                    'input_column': factor_cfg['input_column']
-                }
-            })
+                'window': factor_cfg['window'],
+                'input_col': factor_cfg['input_column']
+            }
         
-        factor_config['scoring'] = strategy_config['scoring']
+        # 生成權重（根據權重方法）
+        num_factors = len(strategy_config['factors'])
+        weights = self._generate_weights(num_factors, strategy_config['scoring']['method'])
         
-        # 保存臨時配置文件
-        temp_dir = os.path.join(self.output_dir, 'temp_configs')
-        os.makedirs(temp_dir, exist_ok=True)
+        # 創建 factor_strategy_config 格式的配置
+        factor_strategy = {
+            'name': strategy_config['strategy_name'],
+            'description': f"超參數調優生成的策略: {strategy_name}",
+            'data_requirements': {
+                'min_data_days': strategy_config['data_requirements']['min_data_days'],
+                'skip_first_n_days': strategy_config['data_requirements']['skip_first_n_days']
+            },
+            'factors': factors,
+            'ranking_logic': {
+                'indicators': list(factors.keys()),
+                'weights': weights
+            }
+        }
         
-        temp_config_path = os.path.join(temp_dir, f"{strategy_config['strategy_id']}_config.json")
+        # 註冊策略
+        FACTOR_STRATEGIES[strategy_name] = factor_strategy
         
-        with open(temp_config_path, 'w', encoding='utf-8') as f:
-            json.dump(factor_config, f, indent=2, ensure_ascii=False)
-        
-        return temp_config_path
+        return strategy_name
+    
+    def _unregister_strategy_from_factor_engine(self, strategy_name: str):
+        """移除臨時註冊的策略"""
+        from factor_strategies.factor_strategy_config import FACTOR_STRATEGIES
+        if strategy_name in FACTOR_STRATEGIES:
+            del FACTOR_STRATEGIES[strategy_name]
+    
+    def _generate_weights(self, num_factors: int, weight_method: str) -> List[float]:
+        """
+        根據權重方法生成因子權重
+        :param num_factors: 因子數量
+        :param weight_method: 權重方法
+        :return: 權重列表
+        """
+        if weight_method == 'equal':
+            return [1.0 / num_factors] * num_factors
+        elif weight_method == 'inverse_correlation':
+            # 暫時使用等權重，後續可以實現真實的反相關權重計算
+            return [1.0 / num_factors] * num_factors
+        elif weight_method == 'factor_strength':
+            # 暫時使用等權重，後續可以實現基於歷史績效的權重計算
+            return [1.0 / num_factors] * num_factors
+        else:
+            return [1.0 / num_factors] * num_factors
     
     def _save_intermediate_result(self, result: Dict[str, Any]):
         """保存中間結果"""
@@ -335,15 +448,16 @@ def main():
     
     # 生成少量策略用於測試
     config['execution']['mode'] = 'sampling'
-    config['execution']['n_strategies'] = 5  # 測試用少量策略
+    config['execution']['n_strategies'] = 3  # 測試用少量策略
     
     generator = ParameterGenerator(config)
-    strategies = generator.generate_sample_combinations(5)
+    strategies = generator.generate_sample_combinations(3)
     
     print(f"🧪 測試模式：運行 {len(strategies)} 個策略")
     
     # 創建批量執行器
-    output_dir = 'results'
+    output_dir = 'results/test_real_backtest'
+    os.makedirs(output_dir, exist_ok=True)
     runner = BatchRunner(config, output_dir)
     
     # 運行批量回測

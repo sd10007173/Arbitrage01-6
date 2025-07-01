@@ -1,0 +1,15 @@
+{
+  "execution_summary": {
+    "total_strategies": 3,
+    "successful_strategies": 0,
+    "failed_strategies": 3,
+    "success_rate": 0.0,
+    "execution_timestamp": "2025-07-01T13:45:45.874174"
+  },
+  "results": [],
+  "failed_strategy_ids": [
+    "ST_WR_DD_W300_30D_D300_S0_EQ",
+    "WR_SO_W150_1D_D90_S5_IC",
+    "ST_WR_W300_30D_D150_S5_EQ"
+  ]
+}

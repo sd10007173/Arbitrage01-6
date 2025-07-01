@@ -1,0 +1,197 @@
+{
+  "execution_summary": {
+    "total_strategies": 3,
+    "successful_strategies": 3,
+    "failed_strategies": 0,
+    "success_rate": 100.0,
+    "execution_timestamp": "2025-07-01T13:59:29.534395"
+  },
+  "results": [
+    {
+      "strategy_id": "SO_W5_30D_D20_S1_FS",
+      "strategy_config": {
+        "strategy_id": "SO_W5_30D_D20_S1_FS",
+        "strategy_name": "HyperTuned_SO_W5_30D_D20_S1_FS",
+        "data_requirements": {
+          "min_data_days": 20,
+          "skip_first_n_days": 1
+        },
+        "factors": [
+          {
+            "function": "calculate_sortino_ratio",
+            "window": 5,
+            "input_column": "roi_30d"
+          }
+        ],
+        "scoring": {
+          "method": "factor_strength",
+          "weights": "auto"
+        },
+        "metadata": {
+          "generated_at": "2025-07-01T13:47:20.147283",
+          "generator_version": "1.0",
+          "total_factors": 1,
+          "window": 5,
+          "input_column": "roi_30d"
+        }
+      },
+      "ranking_result": {
+        "strategy_name": "SO_W5_30D_D20_S1_FS",
+        "start_date": "2024-01-01",
+        "end_date": "2025-06-20",
+        "total_days": 537,
+        "successful_days": 517,
+        "success_rate": 96.2756052141527
+      },
+      "backtest_result": {
+        "strategy_id": "SO_W5_30D_D20_S1_FS",
+        "strategy_name": "SO_W5_30D_D20_S1_FS",
+        "start_date": "2024-01-01",
+        "end_date": "2025-06-20",
+        "initial_capital": 10000,
+        "final_capital": 10000,
+        "total_return": 0,
+        "roi": 0.0,
+        "max_drawdown": 0.0,
+        "sharpe_ratio": 0.0,
+        "win_rate": 0.0,
+        "total_trades": 0,
+        "avg_holding_days": 0.0,
+        "backtest_days": 537,
+        "status": "completed"
+      },
+      "execution_time": "2025-07-01T13:53:33.563098"
+    },
+    {
+      "strategy_id": "TR_WR_SO_W240_2D_D300_S7_FS",
+      "strategy_config": {
+        "strategy_id": "TR_WR_SO_W240_2D_D300_S7_FS",
+        "strategy_name": "HyperTuned_TR_WR_SO_W240_2D_D300_S7_FS",
+        "data_requirements": {
+          "min_data_days": 300,
+          "skip_first_n_days": 7
+        },
+        "factors": [
+          {
+            "function": "calculate_trend_slope",
+            "window": 240,
+            "input_column": "roi_2d"
+          },
+          {
+            "function": "calculate_win_rate",
+            "window": 240,
+            "input_column": "roi_2d"
+          },
+          {
+            "function": "calculate_sortino_ratio",
+            "window": 240,
+            "input_column": "roi_2d"
+          }
+        ],
+        "scoring": {
+          "method": "factor_strength",
+          "weights": "auto"
+        },
+        "metadata": {
+          "generated_at": "2025-07-01T13:47:22.539214",
+          "generator_version": "1.0",
+          "total_factors": 3,
+          "window": 240,
+          "input_column": "roi_2d"
+        }
+      },
+      "ranking_result": {
+        "strategy_name": "TR_WR_SO_W240_2D_D300_S7_FS",
+        "start_date": "2024-01-01",
+        "end_date": "2025-06-20",
+        "total_days": 537,
+        "successful_days": 231,
+        "success_rate": 43.01675977653631
+      },
+      "backtest_result": {
+        "strategy_id": "TR_WR_SO_W240_2D_D300_S7_FS",
+        "strategy_name": "TR_WR_SO_W240_2D_D300_S7_FS",
+        "start_date": "2024-01-01",
+        "end_date": "2025-06-20",
+        "initial_capital": 10000,
+        "final_capital": 10000,
+        "total_return": 0,
+        "roi": 0.0,
+        "max_drawdown": 0.0,
+        "sharpe_ratio": 0.0,
+        "win_rate": 0.0,
+        "total_trades": 0,
+        "avg_holding_days": 0.0,
+        "backtest_days": 537,
+        "status": "completed"
+      },
+      "execution_time": "2025-07-01T13:59:21.586519"
+    },
+    {
+      "strategy_id": "ST_DD_SO_W150_2D_D210_S5_FS",
+      "strategy_config": {
+        "strategy_id": "ST_DD_SO_W150_2D_D210_S5_FS",
+        "strategy_name": "HyperTuned_ST_DD_SO_W150_2D_D210_S5_FS",
+        "data_requirements": {
+          "min_data_days": 210,
+          "skip_first_n_days": 5
+        },
+        "factors": [
+          {
+            "function": "calculate_inv_std_dev",
+            "window": 150,
+            "input_column": "roi_2d"
+          },
+          {
+            "function": "calculate_max_drawdown",
+            "window": 150,
+            "input_column": "roi_2d"
+          },
+          {
+            "function": "calculate_sortino_ratio",
+            "window": 150,
+            "input_column": "roi_2d"
+          }
+        ],
+        "scoring": {
+          "method": "factor_strength",
+          "weights": "auto"
+        },
+        "metadata": {
+          "generated_at": "2025-07-01T13:47:23.410298",
+          "generator_version": "1.0",
+          "total_factors": 3,
+          "window": 150,
+          "input_column": "roi_2d"
+        }
+      },
+      "ranking_result": {
+        "strategy_name": "ST_DD_SO_W150_2D_D210_S5_FS",
+        "start_date": "2024-01-01",
+        "end_date": "2025-06-20",
+        "total_days": 537,
+        "successful_days": 323,
+        "success_rate": 60.14897579143389
+      },
+      "backtest_result": {
+        "strategy_id": "ST_DD_SO_W150_2D_D210_S5_FS",
+        "strategy_name": "ST_DD_SO_W150_2D_D210_S5_FS",
+        "start_date": "2024-01-01",
+        "end_date": "2025-06-20",
+        "initial_capital": 10000,
+        "final_capital": 10000,
+        "total_return": 0,
+        "roi": 0.0,
+        "max_drawdown": 0.0,
+        "sharpe_ratio": 0.0,
+        "win_rate": 0.0,
+        "total_trades": 0,
+        "avg_holding_days": 0.0,
+        "backtest_days": 537,
+        "status": "completed"
+      },
+      "execution_time": "2025-07-01T13:59:29.533629"
+    }
+  ],
+  "failed_strategy_ids": []
+}

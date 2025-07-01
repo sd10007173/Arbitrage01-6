@@ -1,0 +1,65 @@
+{
+  "strategy_id": "WR_DD_SO_W150_2D_D210_S1_IC",
+  "strategy_config": {
+    "strategy_id": "WR_DD_SO_W150_2D_D210_S1_IC",
+    "strategy_name": "HyperTuned_WR_DD_SO_W150_2D_D210_S1_IC",
+    "data_requirements": {
+      "min_data_days": 210,
+      "skip_first_n_days": 1
+    },
+    "factors": [
+      {
+        "function": "calculate_win_rate",
+        "window": 150,
+        "input_column": "roi_2d"
+      },
+      {
+        "function": "calculate_max_drawdown",
+        "window": 150,
+        "input_column": "roi_2d"
+      },
+      {
+        "function": "calculate_sortino_ratio",
+        "window": 150,
+        "input_column": "roi_2d"
+      }
+    ],
+    "scoring": {
+      "method": "inverse_correlation",
+      "weights": "auto"
+    },
+    "metadata": {
+      "generated_at": "2025-07-01T14:03:55.867898",
+      "generator_version": "1.0",
+      "total_factors": 3,
+      "window": 150,
+      "input_column": "roi_2d"
+    }
+  },
+  "ranking_result": {
+    "strategy_name": "WR_DD_SO_W150_2D_D210_S1_IC",
+    "start_date": "2024-01-01",
+    "end_date": "2025-06-20",
+    "total_days": 537,
+    "successful_days": 327,
+    "success_rate": 60.893854748603346
+  },
+  "backtest_result": {
+    "strategy_id": "WR_DD_SO_W150_2D_D210_S1_IC",
+    "strategy_name": "WR_DD_SO_W150_2D_D210_S1_IC",
+    "start_date": "2024-01-01",
+    "end_date": "2025-06-20",
+    "initial_capital": 10000,
+    "final_capital": 10000,
+    "total_return": 0,
+    "roi": 0.0,
+    "max_drawdown": 0.0,
+    "sharpe_ratio": 0.0,
+    "win_rate": 0.0,
+    "total_trades": 0,
+    "avg_holding_days": 0.0,
+    "backtest_days": 537,
+    "status": "completed"
+  },
+  "execution_time": "2025-07-01T15:08:24.276587"
+}

@@ -4,16 +4,9 @@ import os
 from datetime import datetime, timedelta
 import glob
 import re
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
-from matplotlib import rcParams
 
 # 添加數據庫支持
 from database_operations import DatabaseManager
-
-# 設定中文字體
-plt.rcParams['font.sans-serif'] = ['Microsoft JhengHei', 'SimHei', 'Arial Unicode MS']
-plt.rcParams['axes.unicode_minus'] = False
 
 # ===== 策略參數設定（在這裡修改你的參數）=====
 INITIAL_CAPITAL = 10000  # 初始資金
@@ -531,6 +524,12 @@ class FundingRateBacktest:
             print("警告: 沒有淨值曲線數據可繪製")
             return None
 
+        # 設置matplotlib使用非GUI後端，避免線程問題
+        import matplotlib
+        matplotlib.use('Agg')
+        import matplotlib.pyplot as plt
+        import matplotlib.dates as mdates
+
         # 確保輸出目錄存在
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
@@ -653,6 +652,9 @@ class FundingRateBacktest:
                 ORDER BY sr.rank_position
                 """
                 
+                # 添加調試信息
+                print(f"🔍 查詢策略: {strategy_name}, 日期: {date_str}")
+                
                 df = pd.read_sql_query(query, db.get_connection(), params=[strategy_name, date_str])
                 
                 if not df.empty:
@@ -680,7 +682,35 @@ class FundingRateBacktest:
                     loaded_count += 1
                     print(f"✅ 數據庫載入: {date_str} ({len(df)} 個交易對)")
                 else:
-                    print(f"❌ 數據庫中沒有找到: {strategy_name} 在 {date_str} 的數據")
+                    # 改進錯誤信息，檢查是否存在策略數據
+                    check_query = "SELECT COUNT(*) as count FROM strategy_ranking WHERE strategy_name = ? AND date = ?"
+                    check_df = pd.read_sql_query(check_query, db.get_connection(), params=[strategy_name, date_str])
+                    count = check_df['count'].iloc[0] if not check_df.empty else 0
+                    
+                    if count > 0:
+                        print(f"⚠️  數據存在但JOIN失敗: {strategy_name} 在 {date_str} ({count} 條記錄)")
+                        # 嘗試只查詢strategy_ranking表
+                        simple_query = """
+                        SELECT 
+                            strategy_name,
+                            trading_pair,
+                            date,
+                            final_ranking_score,
+                            rank_position
+                        FROM strategy_ranking 
+                        WHERE strategy_name = ? AND date = ?
+                        ORDER BY rank_position
+                        """
+                        df = pd.read_sql_query(simple_query, db.get_connection(), params=[strategy_name, date_str])
+                        if not df.empty:
+                            df = df.rename(columns={'rank_position': 'Rank'})
+                            self.ranking_data[date_str] = df
+                            loaded_count += 1
+                            print(f"✅ 簡化查詢成功: {date_str} ({len(df)} 個交易對)")
+                        else:
+                            print(f"❌ 簡化查詢也失敗: {strategy_name} 在 {date_str}")
+                    else:
+                        print(f"❌ 數據庫中沒有找到: {strategy_name} 在 {date_str} 的數據")
                 
                 current_dt += timedelta(days=1)
             

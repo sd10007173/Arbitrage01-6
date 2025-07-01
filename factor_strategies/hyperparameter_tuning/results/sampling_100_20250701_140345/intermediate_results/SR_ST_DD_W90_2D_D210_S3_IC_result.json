@@ -1,0 +1,65 @@
+{
+  "strategy_id": "SR_ST_DD_W90_2D_D210_S3_IC",
+  "strategy_config": {
+    "strategy_id": "SR_ST_DD_W90_2D_D210_S3_IC",
+    "strategy_name": "HyperTuned_SR_ST_DD_W90_2D_D210_S3_IC",
+    "data_requirements": {
+      "min_data_days": 210,
+      "skip_first_n_days": 3
+    },
+    "factors": [
+      {
+        "function": "calculate_sharpe_ratio",
+        "window": 90,
+        "input_column": "roi_2d"
+      },
+      {
+        "function": "calculate_inv_std_dev",
+        "window": 90,
+        "input_column": "roi_2d"
+      },
+      {
+        "function": "calculate_max_drawdown",
+        "window": 90,
+        "input_column": "roi_2d"
+      }
+    ],
+    "scoring": {
+      "method": "inverse_correlation",
+      "weights": "auto"
+    },
+    "metadata": {
+      "generated_at": "2025-07-01T14:03:55.220424",
+      "generator_version": "1.0",
+      "total_factors": 3,
+      "window": 90,
+      "input_column": "roi_2d"
+    }
+  },
+  "ranking_result": {
+    "strategy_name": "SR_ST_DD_W90_2D_D210_S3_IC",
+    "start_date": "2024-01-01",
+    "end_date": "2025-06-20",
+    "total_days": 537,
+    "successful_days": 325,
+    "success_rate": 60.52141527001862
+  },
+  "backtest_result": {
+    "strategy_id": "SR_ST_DD_W90_2D_D210_S3_IC",
+    "strategy_name": "SR_ST_DD_W90_2D_D210_S3_IC",
+    "start_date": "2024-01-01",
+    "end_date": "2025-06-20",
+    "initial_capital": 10000,
+    "final_capital": 10000,
+    "total_return": 0,
+    "roi": 0.0,
+    "max_drawdown": 0.0,
+    "sharpe_ratio": 0.0,
+    "win_rate": 0.0,
+    "total_trades": 0,
+    "avg_holding_days": 0.0,
+    "backtest_days": 537,
+    "status": "completed"
+  },
+  "execution_time": "2025-07-01T14:36:29.341574"
+}

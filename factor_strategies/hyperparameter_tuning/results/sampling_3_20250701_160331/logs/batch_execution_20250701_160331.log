@@ -1,0 +1,17 @@
+2025-07-01 16:03:31,815 - INFO - 🚀 開始批量回測，共 3 個策略
+2025-07-01 16:03:35,249 - ERROR - 回測運行失敗: FundingRateBacktest.__init__() got an unexpected keyword argument 'db_path'
+2025-07-01 16:03:35,249 - ERROR - 回測運行失敗: SR_WR_W30_1D_D20_S0_FS
+2025-07-01 16:03:35,250 - ERROR - ❌ (1/3) 策略 SR_WR_W30_1D_D20_S0_FS 失敗
+2025-07-01 16:03:35,467 - ERROR - 回測運行失敗: FundingRateBacktest.__init__() got an unexpected keyword argument 'db_path'
+2025-07-01 16:03:35,468 - ERROR - 回測運行失敗: SR_W60_7D_D20_S3_FS
+2025-07-01 16:03:35,468 - ERROR - ❌ (2/3) 策略 SR_W60_7D_D20_S3_FS 失敗
+2025-07-01 16:03:37,847 - ERROR - 回測運行失敗: FundingRateBacktest.__init__() got an unexpected keyword argument 'db_path'
+2025-07-01 16:03:37,847 - ERROR - 回測運行失敗: WR_W60_7D_D60_S3_EQ
+2025-07-01 16:03:37,847 - ERROR - ❌ (3/3) 策略 WR_W60_7D_D60_S3_EQ 失敗
+2025-07-01 16:03:37,847 - INFO - 🎯 批量回測完成！
+2025-07-01 16:03:37,847 - INFO -    - 總策略數: 3
+2025-07-01 16:03:37,847 - INFO -    - 成功: 0
+2025-07-01 16:03:37,847 - INFO -    - 失敗: 3
+2025-07-01 16:03:37,847 - INFO -    - 成功率: 0.0%
+2025-07-01 16:03:37,847 - INFO -    - 總耗時: 0.1 分鐘
+2025-07-01 16:03:37,848 - INFO - 💾 最終結果已保存到: /Users/waynechen/Downloads/Arbitrage01-3/factor_strategies/hyperparameter_tuning/results/sampling_3_20250701_160331/final_results/batch_results_20250701_160337.json

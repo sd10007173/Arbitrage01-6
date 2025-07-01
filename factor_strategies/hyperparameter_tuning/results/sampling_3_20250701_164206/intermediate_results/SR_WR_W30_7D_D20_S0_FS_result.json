@@ -1,0 +1,60 @@
+{
+  "strategy_id": "SR_WR_W30_7D_D20_S0_FS",
+  "strategy_config": {
+    "strategy_id": "SR_WR_W30_7D_D20_S0_FS",
+    "strategy_name": "HyperTuned_SR_WR_W30_7D_D20_S0_FS",
+    "data_requirements": {
+      "min_data_days": 20,
+      "skip_first_n_days": 0
+    },
+    "factors": [
+      {
+        "function": "calculate_sharpe_ratio",
+        "window": 30,
+        "input_column": "roi_7d"
+      },
+      {
+        "function": "calculate_win_rate",
+        "window": 30,
+        "input_column": "roi_7d"
+      }
+    ],
+    "scoring": {
+      "method": "factor_strength",
+      "weights": "auto"
+    },
+    "metadata": {
+      "generated_at": "2025-07-01T16:42:06.323073",
+      "generator_version": "1.0",
+      "total_factors": 2,
+      "window": 30,
+      "input_column": "roi_7d"
+    }
+  },
+  "ranking_result": {
+    "strategy_name": "SR_WR_W30_7D_D20_S0_FS",
+    "start_date": "2025-06-01",
+    "end_date": "2025-06-07",
+    "total_days": 7,
+    "successful_days": 7,
+    "success_rate": 100.0
+  },
+  "backtest_result": {
+    "strategy_id": "SR_WR_W30_7D_D20_S0_FS",
+    "strategy_name": "SR_WR_W30_7D_D20_S0_FS",
+    "start_date": "2025-06-01",
+    "end_date": "2025-06-07",
+    "initial_capital": 10000,
+    "final_capital": 9989.7294125,
+    "total_return": -10.270587499999237,
+    "roi": -0.0010270587499999237,
+    "max_drawdown": 0.0010314362500001152,
+    "sharpe_ratio": 28.946814104375594,
+    "win_rate": 1.0,
+    "total_trades": 2,
+    "avg_holding_days": 3.0,
+    "backtest_days": 7,
+    "status": "completed"
+  },
+  "execution_time": "2025-07-01T16:42:13.637629"
+}

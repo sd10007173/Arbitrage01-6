@@ -185,7 +185,7 @@ class ParameterGenerator:
         # 簡化權重方法
         weight_abbr = {
             'equal': 'EQ',
-            'factor_score_weighted': 'FS',
+            'factor_strength': 'FS',
             'inverse_correlation': 'IC'
         }.get(weight_method, 'UK')
         

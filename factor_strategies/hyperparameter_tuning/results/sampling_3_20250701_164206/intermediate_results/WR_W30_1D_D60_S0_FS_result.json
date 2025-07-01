@@ -1,0 +1,55 @@
+{
+  "strategy_id": "WR_W30_1D_D60_S0_FS",
+  "strategy_config": {
+    "strategy_id": "WR_W30_1D_D60_S0_FS",
+    "strategy_name": "HyperTuned_WR_W30_1D_D60_S0_FS",
+    "data_requirements": {
+      "min_data_days": 60,
+      "skip_first_n_days": 0
+    },
+    "factors": [
+      {
+        "function": "calculate_win_rate",
+        "window": 30,
+        "input_column": "roi_1d"
+      }
+    ],
+    "scoring": {
+      "method": "factor_strength",
+      "weights": "auto"
+    },
+    "metadata": {
+      "generated_at": "2025-07-01T16:42:06.322782",
+      "generator_version": "1.0",
+      "total_factors": 1,
+      "window": 30,
+      "input_column": "roi_1d"
+    }
+  },
+  "ranking_result": {
+    "strategy_name": "WR_W30_1D_D60_S0_FS",
+    "start_date": "2025-06-01",
+    "end_date": "2025-06-07",
+    "total_days": 7,
+    "successful_days": 7,
+    "success_rate": 100.0
+  },
+  "backtest_result": {
+    "strategy_id": "WR_W30_1D_D60_S0_FS",
+    "strategy_name": "WR_W30_1D_D60_S0_FS",
+    "start_date": "2025-06-01",
+    "end_date": "2025-06-07",
+    "initial_capital": 10000,
+    "final_capital": 9995.793675,
+    "total_return": -4.206324999999197,
+    "roi": -0.00042063249999991966,
+    "max_drawdown": 0.0009064862499999436,
+    "sharpe_ratio": 95.57272711114437,
+    "win_rate": 1.0,
+    "total_trades": 1,
+    "avg_holding_days": 2.0,
+    "backtest_days": 7,
+    "status": "completed"
+  },
+  "execution_time": "2025-07-01T16:42:11.487648"
+}
