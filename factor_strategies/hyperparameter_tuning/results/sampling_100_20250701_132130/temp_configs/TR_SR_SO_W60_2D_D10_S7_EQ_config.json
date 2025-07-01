@@ -1,0 +1,34 @@
+{
+  "strategy_name": "HyperTuned_TR_SR_SO_W60_2D_D10_S7_EQ",
+  "data_requirements": {
+    "min_data_days": 10,
+    "skip_first_n_days": 7
+  },
+  "factors": [
+    {
+      "function": "calculate_trend_slope",
+      "params": {
+        "window": 60,
+        "input_column": "roi_2d"
+      }
+    },
+    {
+      "function": "calculate_sharpe_ratio",
+      "params": {
+        "window": 60,
+        "input_column": "roi_2d"
+      }
+    },
+    {
+      "function": "calculate_sortino_ratio",
+      "params": {
+        "window": 60,
+        "input_column": "roi_2d"
+      }
+    }
+  ],
+  "scoring": {
+    "method": "equal",
+    "weights": "auto"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "strategy_name": "HyperTuned_SR_WR_W5_1D_D240_S2_FS",
+  "data_requirements": {
+    "min_data_days": 240,
+    "skip_first_n_days": 2
+  },
+  "factors": [
+    {
+      "function": "calculate_sharpe_ratio",
+      "params": {
+        "window": 5,
+        "input_column": "roi_1d"
+      }
+    },
+    {
+      "function": "calculate_win_rate",
+      "params": {
+        "window": 5,
+        "input_column": "roi_1d"
+      }
+    }
+  ],
+  "scoring": {
+    "method": "factor_score_weighted",
+    "weights": "auto"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "strategy_name": "HyperTuned_SR_ST_WR_W300_2D_D20_S3_FS",
+  "data_requirements": {
+    "min_data_days": 20,
+    "skip_first_n_days": 3
+  },
+  "factors": [
+    {
+      "function": "calculate_sharpe_ratio",
+      "params": {
+        "window": 300,
+        "input_column": "roi_2d"
+      }
+    },
+    {
+      "function": "calculate_inv_std_dev",
+      "params": {
+        "window": 300,
+        "input_column": "roi_2d"
+      }
+    },
+    {
+      "function": "calculate_win_rate",
+      "params": {
+        "window": 300,
+        "input_column": "roi_2d"
+      }
+    }
+  ],
+  "scoring": {
+    "method": "factor_score_weighted",
+    "weights": "auto"
+  }
+}

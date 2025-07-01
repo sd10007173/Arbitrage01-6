@@ -1,0 +1,27 @@
+{
+  "strategy_name": "HyperTuned_SR_SO_W45_2D_D150_S5_EQ",
+  "data_requirements": {
+    "min_data_days": 150,
+    "skip_first_n_days": 5
+  },
+  "factors": [
+    {
+      "function": "calculate_sharpe_ratio",
+      "params": {
+        "window": 45,
+        "input_column": "roi_2d"
+      }
+    },
+    {
+      "function": "calculate_sortino_ratio",
+      "params": {
+        "window": 45,
+        "input_column": "roi_2d"
+      }
+    }
+  ],
+  "scoring": {
+    "method": "equal",
+    "weights": "auto"
+  }
+}

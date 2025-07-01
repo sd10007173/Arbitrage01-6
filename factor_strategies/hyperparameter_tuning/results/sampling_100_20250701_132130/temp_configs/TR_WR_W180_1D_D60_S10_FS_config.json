@@ -1,0 +1,27 @@
+{
+  "strategy_name": "HyperTuned_TR_WR_W180_1D_D60_S10_FS",
+  "data_requirements": {
+    "min_data_days": 60,
+    "skip_first_n_days": 10
+  },
+  "factors": [
+    {
+      "function": "calculate_trend_slope",
+      "params": {
+        "window": 180,
+        "input_column": "roi_1d"
+      }
+    },
+    {
+      "function": "calculate_win_rate",
+      "params": {
+        "window": 180,
+        "input_column": "roi_1d"
+      }
+    }
+  ],
+  "scoring": {
+    "method": "factor_score_weighted",
+    "weights": "auto"
+  }
+}

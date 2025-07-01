@@ -1,0 +1,47 @@
+{
+  "strategy_id": "DD_W150_14D_D270_S15_EQ",
+  "strategy_config": {
+    "strategy_id": "DD_W150_14D_D270_S15_EQ",
+    "strategy_name": "HyperTuned_DD_W150_14D_D270_S15_EQ",
+    "data_requirements": {
+      "min_data_days": 270,
+      "skip_first_n_days": 15
+    },
+    "factors": [
+      {
+        "function": "calculate_max_drawdown",
+        "window": 150,
+        "input_column": "roi_14d"
+      }
+    ],
+    "scoring": {
+      "method": "equal",
+      "weights": "auto"
+    },
+    "metadata": {
+      "generated_at": "2025-07-01T13:21:30.529225",
+      "generator_version": "1.0",
+      "total_factors": 1,
+      "window": 150,
+      "input_column": "roi_14d"
+    }
+  },
+  "ranking_result": {
+    "strategy_name": "HyperTuned_DD_W150_14D_D270_S15_EQ",
+    "generated_days": 100,
+    "avg_daily_pairs": 50,
+    "config_file": "/Users/waynechen/Downloads/Arbitrage01-3/factor_strategies/hyperparameter_tuning/results/sampling_100_20250701_132130/temp_configs/DD_W150_14D_D270_S15_EQ_config.json"
+  },
+  "backtest_result": {
+    "strategy_id": "DD_W150_14D_D270_S15_EQ",
+    "roi": -0.014903571025206161,
+    "sharpe_ratio": 1.3527329826888543,
+    "max_drawdown": -0.22520239090735855,
+    "win_rate": 0.4425924219114922,
+    "total_return": -0.02235535653780924,
+    "total_trades": 65,
+    "final_balance": 9776.446434621907,
+    "status": "completed"
+  },
+  "execution_time": "2025-07-01T13:21:34.097540"
+}

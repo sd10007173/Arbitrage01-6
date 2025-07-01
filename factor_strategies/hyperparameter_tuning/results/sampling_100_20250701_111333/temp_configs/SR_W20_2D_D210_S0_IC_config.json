@@ -1,0 +1,20 @@
+{
+  "strategy_name": "HyperTuned_SR_W20_2D_D210_S0_IC",
+  "data_requirements": {
+    "min_data_days": 210,
+    "skip_first_n_days": 0
+  },
+  "factors": [
+    {
+      "function": "calculate_sharpe_ratio",
+      "params": {
+        "window": 20,
+        "input_column": "roi_2d"
+      }
+    }
+  ],
+  "scoring": {
+    "method": "inverse_correlation",
+    "weights": "auto"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "strategy_name": "HyperTuned_SR_ST_W5_7D_D90_S15_IC",
+  "data_requirements": {
+    "min_data_days": 90,
+    "skip_first_n_days": 15
+  },
+  "factors": [
+    {
+      "function": "calculate_sharpe_ratio",
+      "params": {
+        "window": 5,
+        "input_column": "roi_7d"
+      }
+    },
+    {
+      "function": "calculate_inv_std_dev",
+      "params": {
+        "window": 5,
+        "input_column": "roi_7d"
+      }
+    }
+  ],
+  "scoring": {
+    "method": "inverse_correlation",
+    "weights": "auto"
+  }
+}

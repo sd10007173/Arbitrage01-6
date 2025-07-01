@@ -1,0 +1,27 @@
+{
+  "strategy_name": "HyperTuned_WR_DD_W60_1D_D270_S7_FS",
+  "data_requirements": {
+    "min_data_days": 270,
+    "skip_first_n_days": 7
+  },
+  "factors": [
+    {
+      "function": "calculate_win_rate",
+      "params": {
+        "window": 60,
+        "input_column": "roi_1d"
+      }
+    },
+    {
+      "function": "calculate_max_drawdown",
+      "params": {
+        "window": 60,
+        "input_column": "roi_1d"
+      }
+    }
+  ],
+  "scoring": {
+    "method": "factor_score_weighted",
+    "weights": "auto"
+  }
+}

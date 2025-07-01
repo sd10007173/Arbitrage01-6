@@ -1,0 +1,20 @@
+{
+  "strategy_name": "HyperTuned_DD_W5_7D_D15_S1_IC",
+  "data_requirements": {
+    "min_data_days": 15,
+    "skip_first_n_days": 1
+  },
+  "factors": [
+    {
+      "function": "calculate_max_drawdown",
+      "params": {
+        "window": 5,
+        "input_column": "roi_7d"
+      }
+    }
+  ],
+  "scoring": {
+    "method": "inverse_correlation",
+    "weights": "auto"
+  }
+}

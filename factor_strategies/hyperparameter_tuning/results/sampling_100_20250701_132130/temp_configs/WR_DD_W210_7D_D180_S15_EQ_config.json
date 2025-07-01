@@ -1,0 +1,27 @@
+{
+  "strategy_name": "HyperTuned_WR_DD_W210_7D_D180_S15_EQ",
+  "data_requirements": {
+    "min_data_days": 180,
+    "skip_first_n_days": 15
+  },
+  "factors": [
+    {
+      "function": "calculate_win_rate",
+      "params": {
+        "window": 210,
+        "input_column": "roi_7d"
+      }
+    },
+    {
+      "function": "calculate_max_drawdown",
+      "params": {
+        "window": 210,
+        "input_column": "roi_7d"
+      }
+    }
+  ],
+  "scoring": {
+    "method": "equal",
+    "weights": "auto"
+  }
+}

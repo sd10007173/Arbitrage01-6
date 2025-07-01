@@ -1,0 +1,27 @@
+{
+  "strategy_name": "HyperTuned_TR_SR_W120_30D_D120_S3_EQ",
+  "data_requirements": {
+    "min_data_days": 120,
+    "skip_first_n_days": 3
+  },
+  "factors": [
+    {
+      "function": "calculate_trend_slope",
+      "params": {
+        "window": 120,
+        "input_column": "roi_30d"
+      }
+    },
+    {
+      "function": "calculate_sharpe_ratio",
+      "params": {
+        "window": 120,
+        "input_column": "roi_30d"
+      }
+    }
+  ],
+  "scoring": {
+    "method": "equal",
+    "weights": "auto"
+  }
+}

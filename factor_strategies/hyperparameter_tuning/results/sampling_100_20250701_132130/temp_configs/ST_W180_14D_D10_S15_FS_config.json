@@ -1,0 +1,20 @@
+{
+  "strategy_name": "HyperTuned_ST_W180_14D_D10_S15_FS",
+  "data_requirements": {
+    "min_data_days": 10,
+    "skip_first_n_days": 15
+  },
+  "factors": [
+    {
+      "function": "calculate_inv_std_dev",
+      "params": {
+        "window": 180,
+        "input_column": "roi_14d"
+      }
+    }
+  ],
+  "scoring": {
+    "method": "factor_score_weighted",
+    "weights": "auto"
+  }
+}

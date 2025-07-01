@@ -1,0 +1,27 @@
+{
+  "strategy_name": "HyperTuned_TR_SR_W5_14D_D120_S0_IC",
+  "data_requirements": {
+    "min_data_days": 120,
+    "skip_first_n_days": 0
+  },
+  "factors": [
+    {
+      "function": "calculate_trend_slope",
+      "params": {
+        "window": 5,
+        "input_column": "roi_14d"
+      }
+    },
+    {
+      "function": "calculate_sharpe_ratio",
+      "params": {
+        "window": 5,
+        "input_column": "roi_14d"
+      }
+    }
+  ],
+  "scoring": {
+    "method": "inverse_correlation",
+    "weights": "auto"
+  }
+}

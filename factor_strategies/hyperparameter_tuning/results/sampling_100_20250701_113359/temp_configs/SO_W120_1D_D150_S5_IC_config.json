@@ -1,0 +1,20 @@
+{
+  "strategy_name": "HyperTuned_SO_W120_1D_D150_S5_IC",
+  "data_requirements": {
+    "min_data_days": 150,
+    "skip_first_n_days": 5
+  },
+  "factors": [
+    {
+      "function": "calculate_sortino_ratio",
+      "params": {
+        "window": 120,
+        "input_column": "roi_1d"
+      }
+    }
+  ],
+  "scoring": {
+    "method": "inverse_correlation",
+    "weights": "auto"
+  }
+}

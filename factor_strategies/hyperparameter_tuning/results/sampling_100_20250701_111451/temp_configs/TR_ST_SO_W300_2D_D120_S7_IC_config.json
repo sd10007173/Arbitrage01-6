@@ -1,0 +1,34 @@
+{
+  "strategy_name": "HyperTuned_TR_ST_SO_W300_2D_D120_S7_IC",
+  "data_requirements": {
+    "min_data_days": 120,
+    "skip_first_n_days": 7
+  },
+  "factors": [
+    {
+      "function": "calculate_trend_slope",
+      "params": {
+        "window": 300,
+        "input_column": "roi_2d"
+      }
+    },
+    {
+      "function": "calculate_inv_std_dev",
+      "params": {
+        "window": 300,
+        "input_column": "roi_2d"
+      }
+    },
+    {
+      "function": "calculate_sortino_ratio",
+      "params": {
+        "window": 300,
+        "input_column": "roi_2d"
+      }
+    }
+  ],
+  "scoring": {
+    "method": "inverse_correlation",
+    "weights": "auto"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "strategy_name": "HyperTuned_TR_SR_DD_W300_1D_D90_S0_FS",
+  "data_requirements": {
+    "min_data_days": 90,
+    "skip_first_n_days": 0
+  },
+  "factors": [
+    {
+      "function": "calculate_trend_slope",
+      "params": {
+        "window": 300,
+        "input_column": "roi_1d"
+      }
+    },
+    {
+      "function": "calculate_sharpe_ratio",
+      "params": {
+        "window": 300,
+        "input_column": "roi_1d"
+      }
+    },
+    {
+      "function": "calculate_max_drawdown",
+      "params": {
+        "window": 300,
+        "input_column": "roi_1d"
+      }
+    }
+  ],
+  "scoring": {
+    "method": "factor_score_weighted",
+    "weights": "auto"
+  }
+}

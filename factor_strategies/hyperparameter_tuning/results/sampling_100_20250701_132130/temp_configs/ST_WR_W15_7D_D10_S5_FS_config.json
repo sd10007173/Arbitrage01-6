@@ -1,0 +1,27 @@
+{
+  "strategy_name": "HyperTuned_ST_WR_W15_7D_D10_S5_FS",
+  "data_requirements": {
+    "min_data_days": 10,
+    "skip_first_n_days": 5
+  },
+  "factors": [
+    {
+      "function": "calculate_inv_std_dev",
+      "params": {
+        "window": 15,
+        "input_column": "roi_7d"
+      }
+    },
+    {
+      "function": "calculate_win_rate",
+      "params": {
+        "window": 15,
+        "input_column": "roi_7d"
+      }
+    }
+  ],
+  "scoring": {
+    "method": "factor_score_weighted",
+    "weights": "auto"
+  }
+}

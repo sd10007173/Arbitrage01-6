@@ -1,0 +1,57 @@
+{
+  "strategy_id": "TR_ST_DD_W5_2D_D150_S3_EQ",
+  "strategy_config": {
+    "strategy_id": "TR_ST_DD_W5_2D_D150_S3_EQ",
+    "strategy_name": "HyperTuned_TR_ST_DD_W5_2D_D150_S3_EQ",
+    "data_requirements": {
+      "min_data_days": 150,
+      "skip_first_n_days": 3
+    },
+    "factors": [
+      {
+        "function": "calculate_trend_slope",
+        "window": 5,
+        "input_column": "roi_2d"
+      },
+      {
+        "function": "calculate_inv_std_dev",
+        "window": 5,
+        "input_column": "roi_2d"
+      },
+      {
+        "function": "calculate_max_drawdown",
+        "window": 5,
+        "input_column": "roi_2d"
+      }
+    ],
+    "scoring": {
+      "method": "equal",
+      "weights": "auto"
+    },
+    "metadata": {
+      "generated_at": "2025-07-01T13:21:32.506209",
+      "generator_version": "1.0",
+      "total_factors": 3,
+      "window": 5,
+      "input_column": "roi_2d"
+    }
+  },
+  "ranking_result": {
+    "strategy_name": "HyperTuned_TR_ST_DD_W5_2D_D150_S3_EQ",
+    "generated_days": 100,
+    "avg_daily_pairs": 50,
+    "config_file": "/Users/waynechen/Downloads/Arbitrage01-3/factor_strategies/hyperparameter_tuning/results/sampling_100_20250701_132130/temp_configs/TR_ST_DD_W5_2D_D150_S3_EQ_config.json"
+  },
+  "backtest_result": {
+    "strategy_id": "TR_ST_DD_W5_2D_D150_S3_EQ",
+    "roi": 0.20907554093677092,
+    "sharpe_ratio": 1.0013466791677268,
+    "max_drawdown": -0.25137842960676376,
+    "win_rate": 0.7477802039898283,
+    "total_return": 0.31361331140515636,
+    "total_trades": 45,
+    "final_balance": 13136.133114051565,
+    "status": "completed"
+  },
+  "execution_time": "2025-07-01T13:21:34.092031"
+}

@@ -1,0 +1,27 @@
+{
+  "strategy_name": "HyperTuned_WR_DD_W20_1D_D210_S7_IC",
+  "data_requirements": {
+    "min_data_days": 210,
+    "skip_first_n_days": 7
+  },
+  "factors": [
+    {
+      "function": "calculate_win_rate",
+      "params": {
+        "window": 20,
+        "input_column": "roi_1d"
+      }
+    },
+    {
+      "function": "calculate_max_drawdown",
+      "params": {
+        "window": 20,
+        "input_column": "roi_1d"
+      }
+    }
+  ],
+  "scoring": {
+    "method": "inverse_correlation",
+    "weights": "auto"
+  }
+}

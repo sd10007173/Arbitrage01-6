@@ -1,0 +1,20 @@
+{
+  "strategy_name": "HyperTuned_WR_W20_7D_D150_S1_FS",
+  "data_requirements": {
+    "min_data_days": 150,
+    "skip_first_n_days": 1
+  },
+  "factors": [
+    {
+      "function": "calculate_win_rate",
+      "params": {
+        "window": 20,
+        "input_column": "roi_7d"
+      }
+    }
+  ],
+  "scoring": {
+    "method": "factor_score_weighted",
+    "weights": "auto"
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "strategy_id": "ST_DD_SO_W180_7D_D120_S2_FS",
+  "strategy_config": {
+    "strategy_id": "ST_DD_SO_W180_7D_D120_S2_FS",
+    "strategy_name": "HyperTuned_ST_DD_SO_W180_7D_D120_S2_FS",
+    "data_requirements": {
+      "min_data_days": 120,
+      "skip_first_n_days": 2
+    },
+    "factors": [
+      {
+        "function": "calculate_inv_std_dev",
+        "window": 180,
+        "input_column": "roi_7d"
+      },
+      {
+        "function": "calculate_max_drawdown",
+        "window": 180,
+        "input_column": "roi_7d"
+      },
+      {
+        "function": "calculate_sortino_ratio",
+        "window": 180,
+        "input_column": "roi_7d"
+      }
+    ],
+    "scoring": {
+      "method": "factor_score_weighted",
+      "weights": "auto"
+    },
+    "metadata": {
+      "generated_at": "2025-07-01T13:21:33.807715",
+      "generator_version": "1.0",
+      "total_factors": 3,
+      "window": 180,
+      "input_column": "roi_7d"
+    }
+  },
+  "ranking_result": {
+    "strategy_name": "HyperTuned_ST_DD_SO_W180_7D_D120_S2_FS",
+    "generated_days": 100,
+    "avg_daily_pairs": 50,
+    "config_file": "/Users/waynechen/Downloads/Arbitrage01-3/factor_strategies/hyperparameter_tuning/results/sampling_100_20250701_132130/temp_configs/ST_DD_SO_W180_7D_D120_S2_FS_config.json"
+  },
+  "backtest_result": {
+    "strategy_id": "ST_DD_SO_W180_7D_D120_S2_FS",
+    "roi": 0.10740430795455064,
+    "sharpe_ratio": 1.540077120910436,
+    "max_drawdown": -0.1551091628689738,
+    "win_rate": 0.7480899474513569,
+    "total_return": 0.16110646193182596,
+    "total_trades": 33,
+    "final_balance": 11611.064619318258,
+    "status": "completed"
+  },
+  "execution_time": "2025-07-01T13:21:34.100029"
+}

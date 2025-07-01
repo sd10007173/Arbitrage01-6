@@ -1,0 +1,27 @@
+{
+  "strategy_name": "HyperTuned_SR_WR_W240_30D_D45_S5_EQ",
+  "data_requirements": {
+    "min_data_days": 45,
+    "skip_first_n_days": 5
+  },
+  "factors": [
+    {
+      "function": "calculate_sharpe_ratio",
+      "params": {
+        "window": 240,
+        "input_column": "roi_30d"
+      }
+    },
+    {
+      "function": "calculate_win_rate",
+      "params": {
+        "window": 240,
+        "input_column": "roi_30d"
+      }
+    }
+  ],
+  "scoring": {
+    "method": "equal",
+    "weights": "auto"
+  }
+}

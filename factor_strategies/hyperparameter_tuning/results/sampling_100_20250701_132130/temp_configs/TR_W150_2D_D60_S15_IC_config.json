@@ -1,0 +1,20 @@
+{
+  "strategy_name": "HyperTuned_TR_W150_2D_D60_S15_IC",
+  "data_requirements": {
+    "min_data_days": 60,
+    "skip_first_n_days": 15
+  },
+  "factors": [
+    {
+      "function": "calculate_trend_slope",
+      "params": {
+        "window": 150,
+        "input_column": "roi_2d"
+      }
+    }
+  ],
+  "scoring": {
+    "method": "inverse_correlation",
+    "weights": "auto"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "strategy_name": "HyperTuned_TR_WR_SO_W5_30D_D90_S15_EQ",
+  "data_requirements": {
+    "min_data_days": 90,
+    "skip_first_n_days": 15
+  },
+  "factors": [
+    {
+      "function": "calculate_trend_slope",
+      "params": {
+        "window": 5,
+        "input_column": "roi_30d"
+      }
+    },
+    {
+      "function": "calculate_win_rate",
+      "params": {
+        "window": 5,
+        "input_column": "roi_30d"
+      }
+    },
+    {
+      "function": "calculate_sortino_ratio",
+      "params": {
+        "window": 5,
+        "input_column": "roi_30d"
+      }
+    }
+  ],
+  "scoring": {
+    "method": "equal",
+    "weights": "auto"
+  }
+}

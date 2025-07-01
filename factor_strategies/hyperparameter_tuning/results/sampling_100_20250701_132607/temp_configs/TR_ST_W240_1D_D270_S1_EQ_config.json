@@ -1,0 +1,27 @@
+{
+  "strategy_name": "HyperTuned_TR_ST_W240_1D_D270_S1_EQ",
+  "data_requirements": {
+    "min_data_days": 270,
+    "skip_first_n_days": 1
+  },
+  "factors": [
+    {
+      "function": "calculate_trend_slope",
+      "params": {
+        "window": 240,
+        "input_column": "roi_1d"
+      }
+    },
+    {
+      "function": "calculate_inv_std_dev",
+      "params": {
+        "window": 240,
+        "input_column": "roi_1d"
+      }
+    }
+  ],
+  "scoring": {
+    "method": "equal",
+    "weights": "auto"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "strategy_name": "HyperTuned_SR_ST_W150_1D_D120_S10_FS",
+  "data_requirements": {
+    "min_data_days": 120,
+    "skip_first_n_days": 10
+  },
+  "factors": [
+    {
+      "function": "calculate_sharpe_ratio",
+      "params": {
+        "window": 150,
+        "input_column": "roi_1d"
+      }
+    },
+    {
+      "function": "calculate_inv_std_dev",
+      "params": {
+        "window": 150,
+        "input_column": "roi_1d"
+      }
+    }
+  ],
+  "scoring": {
+    "method": "factor_score_weighted",
+    "weights": "auto"
+  }
+}

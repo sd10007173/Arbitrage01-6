@@ -1,0 +1,47 @@
+{
+  "strategy_id": "WR_W5_2D_D210_S0_FS",
+  "strategy_config": {
+    "strategy_id": "WR_W5_2D_D210_S0_FS",
+    "strategy_name": "HyperTuned_WR_W5_2D_D210_S0_FS",
+    "data_requirements": {
+      "min_data_days": 210,
+      "skip_first_n_days": 0
+    },
+    "factors": [
+      {
+        "function": "calculate_win_rate",
+        "window": 5,
+        "input_column": "roi_2d"
+      }
+    ],
+    "scoring": {
+      "method": "factor_score_weighted",
+      "weights": "auto"
+    },
+    "metadata": {
+      "generated_at": "2025-07-01T11:33:59.278858",
+      "generator_version": "1.0",
+      "total_factors": 1,
+      "window": 5,
+      "input_column": "roi_2d"
+    }
+  },
+  "ranking_result": {
+    "strategy_name": "HyperTuned_WR_W5_2D_D210_S0_FS",
+    "generated_days": 100,
+    "avg_daily_pairs": 50,
+    "config_file": "/Users/waynechen/Downloads/Arbitrage01-3/factor_strategies/hyperparameter_tuning/results/sampling_100_20250701_113359/temp_configs/WR_W5_2D_D210_S0_FS_config.json"
+  },
+  "backtest_result": {
+    "strategy_id": "WR_W5_2D_D210_S0_FS",
+    "roi": 0.11971785559965001,
+    "sharpe_ratio": 2.245118943311573,
+    "max_drawdown": -0.2611837324310758,
+    "win_rate": 0.48622219844592807,
+    "total_return": 0.17957678339947503,
+    "total_trades": 23,
+    "final_balance": 11795.76783399475,
+    "status": "completed"
+  },
+  "execution_time": "2025-07-01T11:34:02.452564"
+}

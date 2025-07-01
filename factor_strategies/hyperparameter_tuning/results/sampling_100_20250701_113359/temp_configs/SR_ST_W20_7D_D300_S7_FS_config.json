@@ -1,0 +1,27 @@
+{
+  "strategy_name": "HyperTuned_SR_ST_W20_7D_D300_S7_FS",
+  "data_requirements": {
+    "min_data_days": 300,
+    "skip_first_n_days": 7
+  },
+  "factors": [
+    {
+      "function": "calculate_sharpe_ratio",
+      "params": {
+        "window": 20,
+        "input_column": "roi_7d"
+      }
+    },
+    {
+      "function": "calculate_inv_std_dev",
+      "params": {
+        "window": 20,
+        "input_column": "roi_7d"
+      }
+    }
+  ],
+  "scoring": {
+    "method": "factor_score_weighted",
+    "weights": "auto"
+  }
+}

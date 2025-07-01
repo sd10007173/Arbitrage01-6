@@ -1,0 +1,20 @@
+{
+  "strategy_name": "HyperTuned_SR_W30_30D_D15_S7_FS",
+  "data_requirements": {
+    "min_data_days": 15,
+    "skip_first_n_days": 7
+  },
+  "factors": [
+    {
+      "function": "calculate_sharpe_ratio",
+      "params": {
+        "window": 30,
+        "input_column": "roi_30d"
+      }
+    }
+  ],
+  "scoring": {
+    "method": "factor_score_weighted",
+    "weights": "auto"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "strategy_name": "HyperTuned_SR_ST_W20_30D_D10_S5_IC",
+  "data_requirements": {
+    "min_data_days": 10,
+    "skip_first_n_days": 5
+  },
+  "factors": [
+    {
+      "function": "calculate_sharpe_ratio",
+      "params": {
+        "window": 20,
+        "input_column": "roi_30d"
+      }
+    },
+    {
+      "function": "calculate_inv_std_dev",
+      "params": {
+        "window": 20,
+        "input_column": "roi_30d"
+      }
+    }
+  ],
+  "scoring": {
+    "method": "inverse_correlation",
+    "weights": "auto"
+  }
+}

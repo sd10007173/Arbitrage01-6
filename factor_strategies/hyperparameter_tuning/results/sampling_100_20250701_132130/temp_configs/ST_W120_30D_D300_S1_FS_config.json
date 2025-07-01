@@ -1,0 +1,20 @@
+{
+  "strategy_name": "HyperTuned_ST_W120_30D_D300_S1_FS",
+  "data_requirements": {
+    "min_data_days": 300,
+    "skip_first_n_days": 1
+  },
+  "factors": [
+    {
+      "function": "calculate_inv_std_dev",
+      "params": {
+        "window": 120,
+        "input_column": "roi_30d"
+      }
+    }
+  ],
+  "scoring": {
+    "method": "factor_score_weighted",
+    "weights": "auto"
+  }
+}

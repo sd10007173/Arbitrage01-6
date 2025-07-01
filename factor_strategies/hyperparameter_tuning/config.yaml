@@ -1,0 +1,75 @@
+# 超參數調優系統配置文件
+# ===================================
+
+# 參數空間定義
+parameters:
+  # 可用的因子計算函式
+  available_factors:
+    - calculate_trend_slope      # 趨勢斜率
+    - calculate_sharpe_ratio     # 夏普比率
+    - calculate_inv_std_dev      # 穩定性指標
+    - calculate_win_rate         # 勝率
+    - calculate_max_drawdown     # 最大回撤
+    - calculate_sortino_ratio    # 索提諾比率
+  
+  # 窗口期選項
+  windows: [5, 10, 15, 20, 30, 45, 60, 90, 120, 150, 180, 210, 240, 270, 300]
+  
+  # 輸入數據列（ROI週期）
+  input_columns: 
+    - roi_1d
+    - roi_2d  
+    - roi_7d
+    - roi_14d
+    - roi_30d
+  
+  # 數據要求參數
+  min_data_days: [10, 15, 20, 30, 45, 60, 90, 120, 150, 180, 210, 240, 270, 300]
+  skip_first_n_days: [0, 1, 2, 3, 5, 7, 10, 15]
+  
+  # 因子組合設定
+  max_factors_per_strategy: 3    # 每個策略最多包含幾個因子
+  min_factors_per_strategy: 1    # 每個策略最少包含幾個因子
+  
+  # 權重分配方式
+  weight_methods:
+    - equal                      # 等權重
+    - factor_score_weighted      # 因子分數加權
+    - inverse_correlation        # 反相關加權
+
+# 執行設定
+execution:
+  mode: "sampling"               # "exhaustive" 或 "sampling"
+  n_strategies: 100              # 抽樣模式下的策略數量
+  max_parallel_jobs: 4           # 並行執行數量
+  save_intermediate_results: true # 是否保存中間結果
+  
+# 回測設定
+backtest:
+  start_date: "2024-01-01"
+  end_date: "2025-06-20"
+  initial_capital: 10000
+  position_size: 0.25
+  fee_rate: 0.001
+  max_positions: 4
+  entry_top_n: 4
+  exit_threshold: 10
+  position_mode: "fixed_amount"
+
+# 輸出設定
+output:
+  save_all_configs: true         # 是否保存所有生成的策略配置
+  save_detailed_results: true    # 是否保存詳細的回測結果
+  generate_summary_report: true  # 是否生成總結報告
+  top_n_strategies: 20          # 報告中顯示前N個最佳策略
+
+# 分析設定
+analysis:
+  target_metrics:               # 目標優化指標
+    - annual_return             # 年化收益率
+    - sharpe_ratio             # 夏普比率
+    - max_drawdown             # 最大回撤
+    - win_rate                 # 勝率
+  
+  correlation_analysis: true    # 是否進行相關性分析
+  feature_importance: true      # 是否分析特徵重要性 

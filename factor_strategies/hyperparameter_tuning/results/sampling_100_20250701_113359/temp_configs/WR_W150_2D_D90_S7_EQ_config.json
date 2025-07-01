@@ -1,0 +1,20 @@
+{
+  "strategy_name": "HyperTuned_WR_W150_2D_D90_S7_EQ",
+  "data_requirements": {
+    "min_data_days": 90,
+    "skip_first_n_days": 7
+  },
+  "factors": [
+    {
+      "function": "calculate_win_rate",
+      "params": {
+        "window": 150,
+        "input_column": "roi_2d"
+      }
+    }
+  ],
+  "scoring": {
+    "method": "equal",
+    "weights": "auto"
+  }
+}

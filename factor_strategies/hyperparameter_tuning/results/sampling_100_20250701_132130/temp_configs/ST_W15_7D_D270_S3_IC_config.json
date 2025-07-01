@@ -1,0 +1,20 @@
+{
+  "strategy_name": "HyperTuned_ST_W15_7D_D270_S3_IC",
+  "data_requirements": {
+    "min_data_days": 270,
+    "skip_first_n_days": 3
+  },
+  "factors": [
+    {
+      "function": "calculate_inv_std_dev",
+      "params": {
+        "window": 15,
+        "input_column": "roi_7d"
+      }
+    }
+  ],
+  "scoring": {
+    "method": "inverse_correlation",
+    "weights": "auto"
+  }
+}

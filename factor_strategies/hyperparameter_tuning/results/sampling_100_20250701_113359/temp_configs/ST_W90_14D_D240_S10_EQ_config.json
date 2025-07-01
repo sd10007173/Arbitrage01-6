@@ -1,0 +1,20 @@
+{
+  "strategy_name": "HyperTuned_ST_W90_14D_D240_S10_EQ",
+  "data_requirements": {
+    "min_data_days": 240,
+    "skip_first_n_days": 10
+  },
+  "factors": [
+    {
+      "function": "calculate_inv_std_dev",
+      "params": {
+        "window": 90,
+        "input_column": "roi_14d"
+      }
+    }
+  ],
+  "scoring": {
+    "method": "equal",
+    "weights": "auto"
+  }
+}

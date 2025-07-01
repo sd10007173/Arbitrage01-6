@@ -1,0 +1,20 @@
+{
+  "strategy_name": "HyperTuned_TR_W90_14D_D20_S1_EQ",
+  "data_requirements": {
+    "min_data_days": 20,
+    "skip_first_n_days": 1
+  },
+  "factors": [
+    {
+      "function": "calculate_trend_slope",
+      "params": {
+        "window": 90,
+        "input_column": "roi_14d"
+      }
+    }
+  ],
+  "scoring": {
+    "method": "equal",
+    "weights": "auto"
+  }
+}

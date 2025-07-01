@@ -1,0 +1,27 @@
+{
+  "strategy_name": "HyperTuned_ST_DD_W20_14D_D60_S3_IC",
+  "data_requirements": {
+    "min_data_days": 60,
+    "skip_first_n_days": 3
+  },
+  "factors": [
+    {
+      "function": "calculate_inv_std_dev",
+      "params": {
+        "window": 20,
+        "input_column": "roi_14d"
+      }
+    },
+    {
+      "function": "calculate_max_drawdown",
+      "params": {
+        "window": 20,
+        "input_column": "roi_14d"
+      }
+    }
+  ],
+  "scoring": {
+    "method": "inverse_correlation",
+    "weights": "auto"
+  }
+}

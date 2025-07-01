@@ -1,0 +1,20 @@
+{
+  "strategy_name": "HyperTuned_ST_W300_2D_D210_S5_IC",
+  "data_requirements": {
+    "min_data_days": 210,
+    "skip_first_n_days": 5
+  },
+  "factors": [
+    {
+      "function": "calculate_inv_std_dev",
+      "params": {
+        "window": 300,
+        "input_column": "roi_2d"
+      }
+    }
+  ],
+  "scoring": {
+    "method": "inverse_correlation",
+    "weights": "auto"
+  }
+}

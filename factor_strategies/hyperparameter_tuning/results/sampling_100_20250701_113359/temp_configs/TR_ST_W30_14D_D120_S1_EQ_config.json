@@ -1,0 +1,27 @@
+{
+  "strategy_name": "HyperTuned_TR_ST_W30_14D_D120_S1_EQ",
+  "data_requirements": {
+    "min_data_days": 120,
+    "skip_first_n_days": 1
+  },
+  "factors": [
+    {
+      "function": "calculate_trend_slope",
+      "params": {
+        "window": 30,
+        "input_column": "roi_14d"
+      }
+    },
+    {
+      "function": "calculate_inv_std_dev",
+      "params": {
+        "window": 30,
+        "input_column": "roi_14d"
+      }
+    }
+  ],
+  "scoring": {
+    "method": "equal",
+    "weights": "auto"
+  }
+}

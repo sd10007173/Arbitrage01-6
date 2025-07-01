@@ -1,0 +1,20 @@
+{
+  "strategy_name": "HyperTuned_ST_W20_7D_D15_S2_FS",
+  "data_requirements": {
+    "min_data_days": 15,
+    "skip_first_n_days": 2
+  },
+  "factors": [
+    {
+      "function": "calculate_inv_std_dev",
+      "params": {
+        "window": 20,
+        "input_column": "roi_7d"
+      }
+    }
+  ],
+  "scoring": {
+    "method": "factor_score_weighted",
+    "weights": "auto"
+  }
+}

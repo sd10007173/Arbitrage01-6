@@ -1,0 +1,20 @@
+{
+  "strategy_name": "HyperTuned_TR_W210_1D_D90_S5_IC",
+  "data_requirements": {
+    "min_data_days": 90,
+    "skip_first_n_days": 5
+  },
+  "factors": [
+    {
+      "function": "calculate_trend_slope",
+      "params": {
+        "window": 210,
+        "input_column": "roi_1d"
+      }
+    }
+  ],
+  "scoring": {
+    "method": "inverse_correlation",
+    "weights": "auto"
+  }
+}

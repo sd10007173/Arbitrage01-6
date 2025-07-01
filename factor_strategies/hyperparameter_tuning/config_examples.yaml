@@ -1,0 +1,429 @@
+# 🎯 **超參數調優系統配置範例**
+# 
+# 本文件包含不同使用場景下的配置範例
+# 複製需要的配置到 config.yaml 中使用
+#
+# 使用方法：
+# 1. 選擇適合的場景配置
+# 2. 複製到 config.yaml
+# 3. 根據需要微調參數
+# 4. 執行 python main.py
+
+# =====================================================
+# 🧪 **場景1：新手測試配置**
+# 用途：初次使用、快速驗證
+# 執行時間：5-15分鐘
+# 策略數量：100
+# 資源需求：低
+# =====================================================
+
+newbie_test_config: &newbie_test
+  parameters:
+    factor_functions: ['trend_slope', 'sharpe_ratio']  # 只測試2個最常用因子
+    window_periods: [10, 20, 30, 50]                  # 4個代表性窗口期
+    roi_columns: ['roi_7d']                            # 使用周收益率
+    min_data_days: [90, 120]                          # 2個數據需求選項
+    skip_days: [0, 1]                                  # 連續交易和每日跳過
+    weight_methods: ['equal', 'factor_strength']       # 2種權重方法
+    
+  execution:
+    mode: "sampling"
+    num_strategies: 100
+    max_parallel: 2
+    timeout_seconds: 300
+    
+  backtest:
+    start_date: "2023-01-01"
+    end_date: "2024-12-31"
+    initial_capital: 1000000
+    commission_rate: 0.001
+    slippage_rate: 0.0005
+    
+  output:
+    base_dir: "results"
+    save_intermediate: true
+    save_configs: true
+    
+  analysis:
+    top_strategies_count: 10
+    metrics_to_analyze: ['annual_return', 'sharpe_ratio', 'max_drawdown']
+
+# =====================================================
+# 🔍 **場景2：全面探索配置**
+# 用途：系統性因子分析
+# 執行時間：30-60分鐘
+# 策略數量：1000
+# 資源需求：中等
+# =====================================================
+
+comprehensive_exploration: &comprehensive
+  parameters:
+    factor_functions: ['all']  # 包含所有6種因子
+    window_periods: [5, 10, 15, 20, 30, 50, 100, 150]  # 寬範圍窗口期
+    roi_columns: ['roi_1d', 'roi_7d', 'roi_30d']        # 3種時間框架
+    min_data_days: [30, 60, 90, 120, 180]              # 多種數據需求
+    skip_days: [0, 1, 3, 7]                             # 不同交易頻率
+    weight_methods: ['equal', 'inverse_correlation', 'factor_strength']
+    
+  execution:
+    mode: "sampling"
+    num_strategies: 1000
+    max_parallel: 4
+    timeout_seconds: 300
+    
+  backtest:
+    start_date: "2023-01-01"
+    end_date: "2024-12-31"
+    initial_capital: 1000000
+    commission_rate: 0.001
+    slippage_rate: 0.0005
+    max_position_size: 0.2
+    stop_loss: 0.05
+    take_profit: 0.15
+    
+  output:
+    base_dir: "results"
+    save_intermediate: true
+    save_configs: true
+    
+  analysis:
+    top_strategies_count: 20
+    metrics_to_analyze: ['annual_return', 'sharpe_ratio', 'max_drawdown', 'calmar_ratio']
+
+# =====================================================
+# 🎯 **場景3：精細調優配置**
+# 用途：在確定範圍內精確優化
+# 執行時間：1-3小時
+# 策略數量：3000-5000
+# 資源需求：中高
+# =====================================================
+
+fine_tuning: &fine_tuning
+  parameters:
+    # 基於探索階段的結果，假設這些是最佳範圍
+    factor_functions: ['trend_slope', 'sharpe_ratio', 'win_rate']  # 前3名因子
+    window_periods: [15, 18, 20, 22, 25, 28, 30, 35]             # 精細窗口期
+    roi_columns: ['roi_7d']                                        # 最佳時間框架
+    min_data_days: [90, 105, 120, 135, 150]                      # 精細數據需求
+    skip_days: [0, 1, 2]                                          # 微調交易頻率
+    weight_methods: ['factor_strength', 'inverse_correlation']     # 最佳權重方法
+    
+  execution:
+    mode: "sampling"
+    num_strategies: 3000
+    max_parallel: 6
+    timeout_seconds: 600
+    
+  backtest:
+    start_date: "2022-01-01"  # 延長回測期間
+    end_date: "2024-12-31"
+    initial_capital: 1000000
+    commission_rate: 0.001
+    slippage_rate: 0.0005
+    max_position_size: 0.15   # 更保守的倉位
+    stop_loss: 0.03           # 更嚴格的風控
+    take_profit: 0.10
+    
+  output:
+    base_dir: "results"
+    save_intermediate: false  # 節省空間
+    save_configs: true
+    
+  analysis:
+    top_strategies_count: 50
+    metrics_to_analyze: ['annual_return', 'sharpe_ratio', 'max_drawdown', 'calmar_ratio', 'sortino_ratio']
+
+# =====================================================
+# 🏭 **場景4：生產級配置**
+# 用途：最終策略選擇
+# 執行時間：3-8小時
+# 策略數量：5000-10000
+# 資源需求：高
+# =====================================================
+
+production_grade: &production
+  parameters:
+    # 最終確定的最優參數範圍
+    factor_functions: ['trend_slope', 'sharpe_ratio']  # 最佳雙因子組合
+    window_periods: [20, 22, 24, 26, 28, 30]          # 最優窗口期範圍
+    roi_columns: ['roi_7d']                            # 最佳收益期間
+    min_data_days: [105, 120, 135]                     # 最優數據需求
+    skip_days: [1, 2]                                  # 最優交易頻率
+    weight_methods: ['factor_strength']                # 最佳權重方法
+    
+  execution:
+    mode: "exhaustive"  # 窮舉最優範圍內的所有組合
+    max_parallel: 8
+    timeout_seconds: 900
+    
+  backtest:
+    start_date: "2021-01-01"  # 最長回測期間
+    end_date: "2024-12-31"
+    initial_capital: 10000000  # 大資金測試
+    commission_rate: 0.0008    # 更真實的手續費
+    slippage_rate: 0.0003      # 更精確的滑點
+    max_position_size: 0.1     # 保守倉位管理
+    stop_loss: 0.02            # 嚴格止損
+    take_profit: 0.08          # 保守止盈
+    
+  output:
+    base_dir: "results"
+    save_intermediate: false
+    save_configs: true
+    
+  analysis:
+    top_strategies_count: 100
+    metrics_to_analyze: ['annual_return', 'sharpe_ratio', 'max_drawdown', 'calmar_ratio', 'sortino_ratio', 'win_rate']
+
+# =====================================================
+# 🚀 **場景5：高頻交易配置**
+# 用途：短期高頻策略優化
+# 執行時間：1-2小時
+# 策略數量：2000
+# 資源需求：中高
+# =====================================================
+
+high_frequency: &high_freq
+  parameters:
+    factor_functions: ['trend_slope', 'sharpe_ratio', 'stability_score']
+    window_periods: [3, 5, 7, 10, 12, 15]             # 短期窗口
+    roi_columns: ['roi_1d']                            # 日收益率
+    min_data_days: [20, 30, 45, 60]                   # 較少數據需求
+    skip_days: [0]                                     # 連續交易
+    weight_methods: ['equal', 'factor_strength']
+    
+  execution:
+    mode: "sampling"
+    num_strategies: 2000
+    max_parallel: 6
+    timeout_seconds: 300
+    
+  backtest:
+    start_date: "2023-06-01"
+    end_date: "2024-12-31"
+    initial_capital: 1000000
+    commission_rate: 0.0015    # 高頻交易手續費較高
+    slippage_rate: 0.001       # 高頻交易滑點較高
+    max_position_size: 0.05    # 小倉位高頻
+    stop_loss: 0.01            # 快速止損
+    take_profit: 0.03          # 快速止盈
+    
+  output:
+    base_dir: "results"
+    save_intermediate: true
+    save_configs: true
+    
+  analysis:
+    top_strategies_count: 30
+    metrics_to_analyze: ['annual_return', 'sharpe_ratio', 'max_drawdown', 'win_rate']
+
+# =====================================================
+# 📈 **場景6：長期穩健配置**
+# 用途：長期投資策略優化
+# 執行時間：2-4小時
+# 策略數量：1500
+# 資源需求：中等
+# =====================================================
+
+long_term_stable: &long_term
+  parameters:
+    factor_functions: ['sharpe_ratio', 'stability_score', 'max_drawdown']
+    window_periods: [50, 75, 100, 150, 200, 250]      # 長期窗口
+    roi_columns: ['roi_30d']                           # 月收益率
+    min_data_days: [180, 240, 300, 365]               # 較多數據需求
+    skip_days: [7, 14, 30]                             # 低頻交易
+    weight_methods: ['inverse_correlation', 'factor_strength']
+    
+  execution:
+    mode: "sampling"
+    num_strategies: 1500
+    max_parallel: 4
+    timeout_seconds: 600
+    
+  backtest:
+    start_date: "2020-01-01"  # 更長的回測期間
+    end_date: "2024-12-31"
+    initial_capital: 5000000
+    commission_rate: 0.0005   # 低頻交易手續費較低
+    slippage_rate: 0.0002
+    max_position_size: 0.3    # 較大倉位
+    stop_loss: 0.08           # 較寬止損
+    take_profit: 0.25         # 較高止盈
+    
+  output:
+    base_dir: "results"
+    save_intermediate: false
+    save_configs: true
+    
+  analysis:
+    top_strategies_count: 25
+    metrics_to_analyze: ['annual_return', 'sharpe_ratio', 'max_drawdown', 'calmar_ratio', 'stability']
+
+# =====================================================
+# 🔬 **場景7：研究級配置**
+# 用途：學術研究、深度分析
+# 執行時間：8-24小時
+# 策略數量：10000+
+# 資源需求：極高
+# =====================================================
+
+research_grade: &research
+  parameters:
+    factor_functions: ['all']                          # 所有因子
+    window_periods: [5, 10, 15, 20, 30, 50, 75, 100, 150, 200, 250, 300]  # 全範圍
+    roi_columns: ['roi_1d', 'roi_7d', 'roi_30d']      # 所有時間框架
+    min_data_days: [30, 60, 90, 120, 180, 240, 300]  # 全範圍數據需求
+    skip_days: [0, 1, 3, 7, 15, 30]                   # 全範圍交易頻率
+    weight_methods: ['equal', 'inverse_correlation', 'factor_strength']
+    
+  execution:
+    mode: "sampling"  # 即使是研究級也用抽樣，因為全空間太大
+    num_strategies: 10000
+    max_parallel: 12
+    timeout_seconds: 1200
+    
+  backtest:
+    start_date: "2019-01-01"  # 最長回測期間
+    end_date: "2024-12-31"
+    initial_capital: 10000000
+    commission_rate: 0.001
+    slippage_rate: 0.0005
+    max_position_size: 0.2
+    stop_loss: 0.05
+    take_profit: 0.15
+    
+  output:
+    base_dir: "results"
+    save_intermediate: false  # 節省大量空間
+    save_configs: false       # 節省空間
+    
+  analysis:
+    top_strategies_count: 200
+    metrics_to_analyze: ['annual_return', 'sharpe_ratio', 'max_drawdown', 'calmar_ratio', 'sortino_ratio', 'win_rate', 'profit_factor']
+
+# =====================================================
+# 💻 **場景8：低配置電腦配置**
+# 用途：資源受限環境
+# 執行時間：2-5小時
+# 策略數量：200-500
+# 資源需求：極低
+# =====================================================
+
+low_resource: &low_resource
+  parameters:
+    factor_functions: ['trend_slope', 'sharpe_ratio']  # 只測試2個因子
+    window_periods: [10, 20, 30]                      # 3個窗口期
+    roi_columns: ['roi_7d']                            # 1個收益期間
+    min_data_days: [90, 120]                          # 2個數據需求
+    skip_days: [0, 1]                                  # 2個交易頻率
+    weight_methods: ['equal']                          # 1個權重方法
+    
+  execution:
+    mode: "sampling"
+    num_strategies: 200
+    max_parallel: 1           # 單線程執行
+    timeout_seconds: 180
+    
+  backtest:
+    start_date: "2023-01-01"
+    end_date: "2024-12-31"
+    initial_capital: 1000000
+    commission_rate: 0.001
+    slippage_rate: 0.0005
+    
+  output:
+    base_dir: "results"
+    save_intermediate: false  # 節省空間
+    save_configs: false       # 節省空間
+    
+  analysis:
+    top_strategies_count: 5
+    metrics_to_analyze: ['annual_return', 'sharpe_ratio', 'max_drawdown']
+
+# =====================================================
+# 🎮 **場景9：快速驗證配置**
+# 用途：配置變更後的快速驗證
+# 執行時間：1-5分鐘
+# 策略數量：20-50
+# 資源需求：極低
+# =====================================================
+
+quick_validation: &quick_validation
+  parameters:
+    factor_functions: ['trend_slope']                  # 單因子
+    window_periods: [20, 30]                          # 2個窗口期
+    roi_columns: ['roi_7d']                            # 1個收益期間
+    min_data_days: [90]                                # 1個數據需求
+    skip_days: [0]                                     # 1個交易頻率
+    weight_methods: ['equal']                          # 1個權重方法
+    
+  execution:
+    mode: "exhaustive"        # 小範圍可以窮舉
+    max_parallel: 2
+    timeout_seconds: 60
+    
+  backtest:
+    start_date: "2024-01-01"  # 短期回測
+    end_date: "2024-12-31"
+    initial_capital: 1000000
+    commission_rate: 0.001
+    slippage_rate: 0.0005
+    
+  output:
+    base_dir: "results"
+    save_intermediate: false
+    save_configs: false
+    
+  analysis:
+    top_strategies_count: 3
+    metrics_to_analyze: ['annual_return', 'sharpe_ratio']
+
+# =====================================================
+# 🎯 **使用建議**
+# =====================================================
+
+# 1. 新手用戶：
+#    - 使用 newbie_test_config
+#    - 先執行 python main.py --test --test-strategies 5 驗證環境
+
+# 2. 有經驗用戶：
+#    - 階段1：使用 comprehensive_exploration
+#    - 階段2：基於結果使用 fine_tuning
+#    - 階段3：使用 production_grade 最終確定
+
+# 3. 研究用戶：
+#    - 使用 research_grade
+#    - 配合高性能計算資源
+
+# 4. 資源受限：
+#    - 使用 low_resource
+#    - 或縮小任何配置的參數範圍
+
+# 5. 快速測試：
+#    - 使用 quick_validation
+#    - 驗證配置變更
+
+# =====================================================
+# 📝 **配置選擇決策樹**
+# =====================================================
+
+# 問題1：你是第一次使用嗎？
+#   是 → newbie_test_config
+
+# 問題2：你的電腦配置如何？
+#   低配置 → low_resource
+#   高配置 → 繼續下一問題
+
+# 問題3：你的主要目標是什麼？
+#   快速驗證 → quick_validation
+#   全面探索 → comprehensive_exploration
+#   精細調優 → fine_tuning
+#   生產部署 → production_grade
+#   學術研究 → research_grade
+
+# 問題4：你的交易風格是什麼？
+#   高頻交易 → high_frequency
+#   長期投資 → long_term_stable
+#   其他 → 使用通用配置
+
+# 複製對應的配置到 config.yaml 文件中即可使用！ 
