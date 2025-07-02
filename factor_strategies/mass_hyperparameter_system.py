@@ -112,7 +112,7 @@ class MassHyperparameterSystem:
         # 结果数据库
         with sqlite3.connect(self.results_db_path) as conn:
             conn.execute("""
-                CREATE TABLE IF NOT EXISTS backtest_results (
+                CREATE TABLE IF NOT EXISTS hyperparameter_tuning_results (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     session_id TEXT NOT NULL,
                     strategy_id TEXT NOT NULL,
@@ -153,8 +153,8 @@ class MassHyperparameterSystem:
             """)
             
             conn.execute("""
-                CREATE INDEX IF NOT EXISTS idx_backtest_performance ON backtest_results(total_return, sharpe_ratio);
-                CREATE INDEX IF NOT EXISTS idx_backtest_session ON backtest_results(session_id);
+                CREATE INDEX IF NOT EXISTS idx_hyperparameter_tuning_performance ON hyperparameter_tuning_results(total_return, sharpe_ratio);
+                CREATE INDEX IF NOT EXISTS idx_hyperparameter_tuning_session ON hyperparameter_tuning_results(session_id);
             """)
     
     def generate_parameter_space(self, mode: str = "exhaustive", sample_size: Optional[int] = None) -> List[Dict[str, Any]]:
@@ -586,7 +586,7 @@ class MassHyperparameterSystem:
         
         with sqlite3.connect(self.results_db_path) as conn:
             conn.execute("""
-                INSERT OR REPLACE INTO backtest_results (
+                INSERT OR REPLACE INTO hyperparameter_tuning_results (
                     session_id, strategy_id, factors, window, input_column,
                     min_data_days, skip_first_n_days, weight_method,
                     start_date, end_date, initial_capital,
@@ -640,7 +640,7 @@ class MassHyperparameterSystem:
         # 获取所有完成的回测结果
         with sqlite3.connect(self.results_db_path) as conn:
             df = pd.read_sql_query("""
-                SELECT * FROM backtest_results 
+                SELECT * FROM hyperparameter_tuning_results 
                 WHERE session_id = ? AND total_return IS NOT NULL
                 ORDER BY total_return DESC, sharpe_ratio DESC
             """, conn, params=(self.session_id,))

@@ -25,7 +25,7 @@ class DatabaseManager:
         
         if db_path is None:
             # 使用默認路徑
-            db_path = Path(__file__).parent.parent / "hyperparameter_tuning.db"
+            db_path = Path(__file__).parent.parent / "../../data/funding_rate.db"
             
         self.db_path = Path(db_path)
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
@@ -78,7 +78,7 @@ class DatabaseManager:
                 
                 # 創建回測結果匯總表
                 cursor.execute('''
-                    CREATE TABLE IF NOT EXISTS backtest_results (
+                    CREATE TABLE IF NOT EXISTS hyperparameter_tuning_results (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         session_id TEXT NOT NULL,
                         strategy_id TEXT NOT NULL,
@@ -119,8 +119,8 @@ class DatabaseManager:
                 
                 # 創建索引以提高查詢性能
                 cursor.execute('CREATE INDEX IF NOT EXISTS idx_strategy_queue_session_status ON strategy_queue (session_id, status)')
-                cursor.execute('CREATE INDEX IF NOT EXISTS idx_backtest_results_session ON backtest_results (session_id)')
-                cursor.execute('CREATE INDEX IF NOT EXISTS idx_backtest_results_performance ON backtest_results (sharpe_ratio, annual_return)')
+                cursor.execute('CREATE INDEX IF NOT EXISTS idx_hyperparameter_tuning_results_session ON hyperparameter_tuning_results (session_id)')
+                cursor.execute('CREATE INDEX IF NOT EXISTS idx_hyperparameter_tuning_results_performance ON hyperparameter_tuning_results (sharpe_ratio, annual_return)')
                 cursor.execute('CREATE INDEX IF NOT EXISTS idx_execution_log_session ON execution_log (session_id)')
                 
                 conn.commit()
@@ -315,7 +315,7 @@ class DatabaseManager:
                 metrics = result.get('metrics', {})
                 
                 cursor.execute('''
-                    INSERT OR REPLACE INTO backtest_results 
+                    INSERT OR REPLACE INTO hyperparameter_tuning_results 
                     (session_id, strategy_id, factors, window_size, rebalance_frequency,
                      data_period, selection_count, weight_method, total_return, 
                      annual_return, sharpe_ratio, max_drawdown, win_rate, trade_count,
@@ -390,7 +390,7 @@ class DatabaseManager:
                 # 獲取最佳結果
                 cursor.execute('''
                     SELECT strategy_id, sharpe_ratio, annual_return
-                    FROM backtest_results 
+                    FROM hyperparameter_tuning_results 
                     WHERE session_id = ? 
                     ORDER BY sharpe_ratio DESC 
                     LIMIT 5
@@ -462,7 +462,7 @@ class DatabaseManager:
                     ''', (session_id, session_id))
                 else:
                     # 清理整個會話
-                    cursor.execute('DELETE FROM backtest_results WHERE session_id = ?', (session_id,))
+                    cursor.execute('DELETE FROM hyperparameter_tuning_results WHERE session_id = ?', (session_id,))
                     cursor.execute('DELETE FROM strategy_queue WHERE session_id = ?', (session_id,))
                     cursor.execute('DELETE FROM execution_log WHERE session_id = ?', (session_id,))
                     cursor.execute('DELETE FROM tuning_sessions WHERE session_id = ?', (session_id,))
@@ -483,7 +483,7 @@ class DatabaseManager:
                 if failed_only:
                     cursor.execute("DELETE FROM strategy_queue WHERE status = 'failed'")
                 else:
-                    cursor.execute('DELETE FROM backtest_results')
+                    cursor.execute('DELETE FROM hyperparameter_tuning_results')
                     cursor.execute('DELETE FROM strategy_queue')
                     cursor.execute('DELETE FROM execution_log')
                     cursor.execute('DELETE FROM tuning_sessions')

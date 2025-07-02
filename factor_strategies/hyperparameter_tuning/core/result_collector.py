@@ -81,7 +81,7 @@ class ResultCollector:
                            data_period, selection_count, weight_method,
                            total_return, annual_return, sharpe_ratio, max_drawdown,
                            win_rate, trade_count, start_date, end_date
-                    FROM backtest_results 
+                    FROM hyperparameter_tuning_results 
                     WHERE session_id = ?
                 '''
                 
@@ -174,7 +174,7 @@ class ResultCollector:
                         MIN(sharpe_ratio) as worst_sharpe_ratio,
                         MAX(annual_return) as best_annual_return,
                         MIN(annual_return) as worst_annual_return
-                    FROM backtest_results 
+                    FROM hyperparameter_tuning_results 
                     WHERE session_id = ?
                 ''', (session_id,))
                 
@@ -236,7 +236,7 @@ class ResultCollector:
                            AVG(sharpe_ratio) as avg_sharpe,
                            AVG(annual_return) as avg_return,
                            COUNT(*) as count
-                    FROM backtest_results 
+                    FROM hyperparameter_tuning_results 
                     WHERE session_id = ? AND sharpe_ratio IS NOT NULL
                     GROUP BY window_size
                     ORDER BY avg_sharpe DESC
@@ -258,7 +258,7 @@ class ResultCollector:
                            AVG(sharpe_ratio) as avg_sharpe,
                            AVG(annual_return) as avg_return,
                            COUNT(*) as count
-                    FROM backtest_results 
+                    FROM hyperparameter_tuning_results 
                     WHERE session_id = ? AND sharpe_ratio IS NOT NULL
                     GROUP BY rebalance_frequency
                     ORDER BY avg_sharpe DESC
@@ -280,7 +280,7 @@ class ResultCollector:
                            AVG(sharpe_ratio) as avg_sharpe,
                            AVG(annual_return) as avg_return,
                            COUNT(*) as count
-                    FROM backtest_results 
+                    FROM hyperparameter_tuning_results 
                     WHERE session_id = ? AND sharpe_ratio IS NOT NULL
                     GROUP BY weight_method
                     ORDER BY avg_sharpe DESC

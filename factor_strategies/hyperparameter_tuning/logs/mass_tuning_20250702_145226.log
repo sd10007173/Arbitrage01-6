@@ -1,0 +1,12 @@
+2025-07-02 14:52:26,004 - __main__ - INFO - 大規模超參數調優系統初始化完成
+2025-07-02 14:52:26,428 - __main__ - INFO - 開始生成策略參數組合 - 模式: sampling
+2025-07-02 14:52:26,428 - factor_strategies.hyperparameter_tuning.core.parameter_generator - INFO - 開始生成策略參數組合 - 模式: sampling, 方法: random
+2025-07-02 14:52:26,428 - factor_strategies.hyperparameter_tuning.core.parameter_generator - INFO - 開始生成隨機抽樣參數組合，樣本數量: 10
+2025-07-02 14:52:26,428 - factor_strategies.hyperparameter_tuning.core.parameter_generator - INFO - 成功生成 10 個唯一策略配置
+2025-07-02 14:52:26,428 - factor_strategies.hyperparameter_tuning.core.parameter_generator - INFO - 成功生成 10 個策略配置
+2025-07-02 14:52:26,431 - factor_strategies.hyperparameter_tuning.core.database_manager - INFO - 創建會話成功: session_20250702_145226_7737
+2025-07-02 14:52:26,431 - factor_strategies.hyperparameter_tuning.core.progress_manager - INFO - 創建會話成功: session_20250702_145226_7737
+2025-07-02 14:52:26,432 - factor_strategies.hyperparameter_tuning.core.database_manager - INFO - 添加 10 個策略到隊列
+2025-07-02 14:52:26,432 - factor_strategies.hyperparameter_tuning.core.progress_manager - INFO - 添加策略到隊列成功: 10 個
+2025-07-02 14:52:26,432 - __main__ - INFO - 成功生成 10 個策略配置
+2025-07-02 14:52:26,432 - __main__ - INFO - 會話ID: session_20250702_145226_7737

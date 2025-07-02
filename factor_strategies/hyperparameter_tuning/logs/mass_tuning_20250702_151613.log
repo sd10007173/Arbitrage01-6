@@ -1,0 +1,18 @@
+2025-07-02 15:16:13,043 - __main__ - INFO - 大規模超參數調優系統初始化完成
+2025-07-02 15:16:13,043 - __main__ - INFO - 開始執行批量回測 - 會話: session_20250702_151612_2937, 並發: 2
+2025-07-02 15:16:13,043 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 開始執行批量回測 - 會話: session_20250702_151612_2937, 並發: 2
+2025-07-02 15:16:13,044 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 待執行策略數量: 10
+2025-07-02 15:16:14,008 - factor_strategies.hyperparameter_tuning.core.execution_engine - ERROR - 策略執行失敗: sampling_000002 - 策略排行榜生成失敗: 因子策略執行失敗 (返回碼: 2)
+2025-07-02 15:16:14,009 - factor_strategies.hyperparameter_tuning.core.execution_engine - ERROR - 策略執行失敗: sampling_000001 - 策略排行榜生成失敗: 因子策略執行失敗 (返回碼: 2)
+2025-07-02 15:16:14,511 - factor_strategies.hyperparameter_tuning.core.execution_engine - ERROR - 策略執行失敗: sampling_000003 - 策略排行榜生成失敗: 因子策略執行失敗 (返回碼: 2)
+2025-07-02 15:16:14,511 - factor_strategies.hyperparameter_tuning.core.execution_engine - ERROR - 策略執行失敗: sampling_000004 - 策略排行榜生成失敗: 因子策略執行失敗 (返回碼: 2)
+2025-07-02 15:16:15,048 - factor_strategies.hyperparameter_tuning.core.execution_engine - ERROR - 策略執行失敗: sampling_000006 - 策略排行榜生成失敗: 因子策略執行失敗 (返回碼: 2)
+2025-07-02 15:16:15,049 - factor_strategies.hyperparameter_tuning.core.execution_engine - ERROR - 策略執行失敗: sampling_000005 - 策略排行榜生成失敗: 因子策略執行失敗 (返回碼: 2)
+2025-07-02 15:16:15,562 - factor_strategies.hyperparameter_tuning.core.execution_engine - ERROR - 策略執行失敗: sampling_000007 - 策略排行榜生成失敗: 因子策略執行失敗 (返回碼: 2)
+2025-07-02 15:16:15,563 - factor_strategies.hyperparameter_tuning.core.execution_engine - ERROR - 策略執行失敗: sampling_000008 - 策略排行榜生成失敗: 因子策略執行失敗 (返回碼: 2)
+2025-07-02 15:16:16,374 - factor_strategies.hyperparameter_tuning.core.execution_engine - ERROR - 策略執行失敗: sampling_000009 - 策略排行榜生成失敗: 因子策略執行失敗 (返回碼: 2)
+2025-07-02 15:16:16,375 - factor_strategies.hyperparameter_tuning.core.execution_engine - ERROR - 策略執行失敗: sampling_000010 - 策略排行榜生成失敗: 因子策略執行失敗 (返回碼: 2)
+2025-07-02 15:16:16,375 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 執行進度: 完成 0, 失敗 10
+2025-07-02 15:16:16,375 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 並行執行完成 - 成功: 0, 失敗: 10
+2025-07-02 15:16:16,376 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 批量回測執行完成
+2025-07-02 15:16:16,376 - __main__ - INFO - 批量回測執行完成

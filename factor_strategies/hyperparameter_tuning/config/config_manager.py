@@ -23,7 +23,7 @@ class ParameterConfig:
 @dataclass
 class SystemConfig:
     """系統配置類"""
-    database_path: str = "hyperparameter_tuning.db"
+    database_path: str = "../../data/funding_rate.db"
     max_parallel: int = 4
     timeout_minutes: int = 30
     cleanup_failed: bool = True
@@ -77,7 +77,7 @@ class ConfigManager:
         """創建默認配置"""
         self.config_data = {
             'system': {
-                'database_path': 'hyperparameter_tuning.db',
+                'database_path': '../../data/funding_rate.db',
                 'max_parallel': 4,
                 'timeout_minutes': 30,
                 'cleanup_failed': True,
@@ -122,7 +122,7 @@ class ConfigManager:
         # 解析系統配置
         system_cfg = self.config_data.get('system', {})
         self.system_config = SystemConfig(
-            database_path=system_cfg.get('database_path', 'hyperparameter_tuning.db'),
+            database_path=system_cfg.get('database_path', '../../data/funding_rate.db'),
             max_parallel=system_cfg.get('max_parallel', 4),
             timeout_minutes=system_cfg.get('timeout_minutes', 30),
             cleanup_failed=system_cfg.get('cleanup_failed', True),

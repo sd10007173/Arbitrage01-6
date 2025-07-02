@@ -1,0 +1,228 @@
+2025-07-02 17:30:32,662 - __main__ - INFO - 大規模超參數調優系統初始化完成
+2025-07-02 17:30:39,788 - __main__ - INFO - 開始生成策略參數組合 - 模式: sampling
+2025-07-02 17:30:39,789 - factor_strategies.hyperparameter_tuning.core.parameter_generator - INFO - 開始生成策略參數組合 - 模式: sampling, 方法: random
+2025-07-02 17:30:39,789 - factor_strategies.hyperparameter_tuning.core.parameter_generator - INFO - 開始生成隨機抽樣參數組合，樣本數量: 10
+2025-07-02 17:30:39,790 - factor_strategies.hyperparameter_tuning.core.parameter_generator - INFO - 成功生成 10 個唯一策略配置
+2025-07-02 17:30:39,790 - factor_strategies.hyperparameter_tuning.core.parameter_generator - INFO - 成功生成 10 個策略配置
+2025-07-02 17:30:39,797 - factor_strategies.hyperparameter_tuning.core.database_manager - INFO - 創建會話成功: session_20250702_173039_7534
+2025-07-02 17:30:39,799 - factor_strategies.hyperparameter_tuning.core.progress_manager - INFO - 創建會話成功: session_20250702_173039_7534
+2025-07-02 17:30:39,802 - factor_strategies.hyperparameter_tuning.core.database_manager - INFO - 添加 10 個策略到隊列
+2025-07-02 17:30:39,802 - factor_strategies.hyperparameter_tuning.core.progress_manager - INFO - 添加策略到隊列成功: 10 個
+2025-07-02 17:30:39,802 - __main__ - INFO - 成功生成 10 個策略配置
+2025-07-02 17:30:39,803 - __main__ - INFO - 會話ID: session_20250702_173039_7534
+2025-07-02 17:30:42,321 - __main__ - INFO - 開始執行批量回測 - 會話: session_20250702_173039_7534, 並發: 4
+2025-07-02 17:30:42,321 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 開始執行批量回測 - 會話: session_20250702_173039_7534, 並發: 4
+2025-07-02 17:30:42,328 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 待執行策略數量: 10
+2025-07-02 17:30:47,937 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000003 (5.6s)
+2025-07-02 17:30:47,939 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000004 (5.6s)
+2025-07-02 17:30:49,169 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000002 (6.8s)
+2025-07-02 17:30:49,962 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000001 (7.6s)
+2025-07-02 17:30:51,500 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000005 (3.6s)
+2025-07-02 17:30:53,155 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000008 (3.2s)
+2025-07-02 17:30:53,278 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000006 (5.3s)
+2025-07-02 17:30:54,403 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000009 (2.9s)
+2025-07-02 17:30:54,860 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000007 (5.7s)
+2025-07-02 17:30:55,197 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000010 (2.1s)
+2025-07-02 17:30:55,197 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 執行進度: 完成 10, 失敗 0
+2025-07-02 17:30:55,198 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 並行執行完成 - 成功: 10, 失敗: 0
+2025-07-02 17:30:55,199 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 批量回測執行完成
+2025-07-02 17:30:55,199 - __main__ - INFO - 批量回測執行完成
+2025-07-02 17:31:50,376 - __main__ - INFO - 開始生成策略參數組合 - 模式: sampling
+2025-07-02 17:31:50,376 - factor_strategies.hyperparameter_tuning.core.parameter_generator - INFO - 開始生成策略參數組合 - 模式: sampling, 方法: random
+2025-07-02 17:31:50,376 - factor_strategies.hyperparameter_tuning.core.parameter_generator - INFO - 開始生成隨機抽樣參數組合，樣本數量: 50
+2025-07-02 17:31:50,377 - factor_strategies.hyperparameter_tuning.core.parameter_generator - INFO - 成功生成 50 個唯一策略配置
+2025-07-02 17:31:50,377 - factor_strategies.hyperparameter_tuning.core.parameter_generator - INFO - 成功生成 50 個策略配置
+2025-07-02 17:31:50,381 - factor_strategies.hyperparameter_tuning.core.database_manager - INFO - 創建會話成功: session_20250702_173150_1155
+2025-07-02 17:31:50,383 - factor_strategies.hyperparameter_tuning.core.progress_manager - INFO - 創建會話成功: session_20250702_173150_1155
+2025-07-02 17:31:50,385 - factor_strategies.hyperparameter_tuning.core.database_manager - INFO - 添加 50 個策略到隊列
+2025-07-02 17:31:50,387 - factor_strategies.hyperparameter_tuning.core.progress_manager - INFO - 添加策略到隊列成功: 50 個
+2025-07-02 17:31:50,387 - __main__ - INFO - 成功生成 50 個策略配置
+2025-07-02 17:31:50,387 - __main__ - INFO - 會話ID: session_20250702_173150_1155
+2025-07-02 17:31:54,509 - __main__ - INFO - 開始執行批量回測 - 會話: session_20250702_173150_1155, 並發: 4
+2025-07-02 17:31:54,510 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 開始執行批量回測 - 會話: session_20250702_173150_1155, 並發: 4
+2025-07-02 17:31:54,516 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 待執行策略數量: 50
+2025-07-02 17:31:57,647 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000003 (3.1s)
+2025-07-02 17:31:57,837 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000002 (3.3s)
+2025-07-02 17:31:58,719 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000004 (4.2s)
+2025-07-02 17:31:59,849 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000001 (5.3s)
+2025-07-02 17:32:00,989 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000006 (3.2s)
+2025-07-02 17:32:01,043 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000005 (3.4s)
+2025-07-02 17:32:01,446 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000007 (2.7s)
+2025-07-02 17:32:01,969 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000008 (2.1s)
+2025-07-02 17:32:03,835 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000010 (2.8s)
+2025-07-02 17:32:04,938 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000009 (3.9s)
+2025-07-02 17:32:04,938 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 執行進度: 完成 10, 失敗 0
+2025-07-02 17:32:05,150 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000012 (3.2s)
+2025-07-02 17:32:06,488 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000011 (5.0s)
+2025-07-02 17:32:07,984 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000013 (4.1s)
+2025-07-02 17:32:09,414 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000014 (4.5s)
+2025-07-02 17:32:10,376 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000016 (3.9s)
+2025-07-02 17:32:11,771 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000015 (6.6s)
+2025-07-02 17:32:13,049 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000017 (5.1s)
+2025-07-02 17:32:13,199 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000019 (2.8s)
+2025-07-02 17:32:14,246 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000018 (4.8s)
+2025-07-02 17:32:15,663 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000020 (3.9s)
+2025-07-02 17:32:15,664 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 執行進度: 完成 20, 失敗 0
+2025-07-02 17:32:15,940 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000022 (2.8s)
+2025-07-02 17:32:16,421 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000023 (2.2s)
+2025-07-02 17:32:17,854 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000021 (4.8s)
+2025-07-02 17:32:18,840 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000024 (3.2s)
+2025-07-02 17:32:20,443 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000026 (4.0s)
+2025-07-02 17:32:20,464 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000025 (4.5s)
+2025-07-02 17:32:21,065 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000028 (2.2s)
+2025-07-02 17:32:22,141 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000027 (4.3s)
+2025-07-02 17:32:22,548 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000029 (2.1s)
+2025-07-02 17:32:23,740 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000030 (3.3s)
+2025-07-02 17:32:23,740 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 執行進度: 完成 30, 失敗 0
+2025-07-02 17:32:24,908 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000031 (3.8s)
+2025-07-02 17:32:25,282 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000033 (2.7s)
+2025-07-02 17:32:26,840 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000032 (4.7s)
+2025-07-02 17:32:26,857 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000034 (3.1s)
+2025-07-02 17:32:27,641 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000036 (2.4s)
+2025-07-02 17:32:28,900 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000035 (4.0s)
+2025-07-02 17:32:29,353 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000038 (2.5s)
+2025-07-02 17:32:30,237 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000039 (2.6s)
+2025-07-02 17:32:31,205 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000037 (4.4s)
+2025-07-02 17:32:32,087 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000041 (2.7s)
+2025-07-02 17:32:32,087 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 執行進度: 完成 40, 失敗 0
+2025-07-02 17:32:33,024 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000042 (2.8s)
+2025-07-02 17:32:34,039 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000040 (5.1s)
+2025-07-02 17:32:34,054 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000043 (2.9s)
+2025-07-02 17:32:35,167 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000044 (3.1s)
+2025-07-02 17:32:35,369 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000045 (2.3s)
+2025-07-02 17:32:37,228 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000047 (3.2s)
+2025-07-02 17:32:38,125 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000049 (2.5s)
+2025-07-02 17:32:39,324 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000048 (4.2s)
+2025-07-02 17:32:40,237 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000046 (6.2s)
+2025-07-02 17:32:40,780 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000050 (3.6s)
+2025-07-02 17:32:40,780 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 執行進度: 完成 50, 失敗 0
+2025-07-02 17:32:40,780 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 並行執行完成 - 成功: 50, 失敗: 0
+2025-07-02 17:32:40,784 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 批量回測執行完成
+2025-07-02 17:32:40,784 - __main__ - INFO - 批量回測執行完成
+2025-07-02 21:48:21,325 - __main__ - INFO - 開始生成策略參數組合 - 模式: sampling
+2025-07-02 21:48:21,325 - factor_strategies.hyperparameter_tuning.core.parameter_generator - INFO - 開始生成策略參數組合 - 模式: sampling, 方法: random
+2025-07-02 21:48:21,325 - factor_strategies.hyperparameter_tuning.core.parameter_generator - INFO - 開始生成隨機抽樣參數組合，樣本數量: 100
+2025-07-02 21:48:21,326 - factor_strategies.hyperparameter_tuning.core.parameter_generator - INFO - 成功生成 100 個唯一策略配置
+2025-07-02 21:48:21,326 - factor_strategies.hyperparameter_tuning.core.parameter_generator - INFO - 成功生成 100 個策略配置
+2025-07-02 21:48:21,329 - factor_strategies.hyperparameter_tuning.core.database_manager - INFO - 創建會話成功: session_20250702_214821_2091
+2025-07-02 21:48:21,330 - factor_strategies.hyperparameter_tuning.core.progress_manager - INFO - 創建會話成功: session_20250702_214821_2091
+2025-07-02 21:48:21,331 - factor_strategies.hyperparameter_tuning.core.database_manager - INFO - 添加 100 個策略到隊列
+2025-07-02 21:48:21,333 - factor_strategies.hyperparameter_tuning.core.progress_manager - INFO - 添加策略到隊列成功: 100 個
+2025-07-02 21:48:21,333 - __main__ - INFO - 成功生成 100 個策略配置
+2025-07-02 21:48:21,333 - __main__ - INFO - 會話ID: session_20250702_214821_2091
+2025-07-02 21:48:23,507 - __main__ - INFO - 開始執行批量回測 - 會話: session_20250702_214821_2091, 並發: 4
+2025-07-02 21:48:23,507 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 開始執行批量回測 - 會話: session_20250702_214821_2091, 並發: 4
+2025-07-02 21:48:23,510 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 待執行策略數量: 100
+2025-07-02 21:48:26,537 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000004 (3.0s)
+2025-07-02 21:48:26,605 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000002 (3.1s)
+2025-07-02 21:48:26,770 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000001 (3.2s)
+2025-07-02 21:48:27,468 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000003 (3.9s)
+2025-07-02 21:48:28,436 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000005 (1.9s)
+2025-07-02 21:48:28,856 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000007 (2.1s)
+2025-07-02 21:48:31,135 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000008 (3.7s)
+2025-07-02 21:48:31,141 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000006 (4.5s)
+2025-07-02 21:48:31,506 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000009 (3.1s)
+2025-07-02 21:48:32,016 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000010 (3.2s)
+2025-07-02 21:48:32,016 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 執行進度: 完成 10, 失敗 0
+2025-07-02 21:48:33,560 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000012 (2.4s)
+2025-07-02 21:48:35,273 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000011 (4.1s)
+2025-07-02 21:48:36,021 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000014 (4.0s)
+2025-07-02 21:48:37,520 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000013 (6.0s)
+2025-07-02 21:48:38,968 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000015 (5.4s)
+2025-07-02 21:48:40,609 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000016 (5.3s)
+2025-07-02 21:48:40,970 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000019 (2.0s)
+2025-07-02 21:48:43,888 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000017 (7.9s)
+2025-07-02 21:48:43,909 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000018 (6.4s)
+2025-07-02 21:48:45,083 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000020 (4.5s)
+2025-07-02 21:48:45,083 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 執行進度: 完成 20, 失敗 0
+2025-07-02 21:48:46,538 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000021 (5.6s)
+2025-07-02 21:48:47,563 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000022 (3.7s)
+2025-07-02 21:48:48,272 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000023 (4.4s)
+2025-07-02 21:48:49,840 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000024 (4.8s)
+2025-07-02 21:48:50,490 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000027 (2.2s)
+2025-07-02 21:48:53,246 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000026 (5.7s)
+2025-07-02 21:48:53,247 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000025 (6.7s)
+2025-07-02 21:48:53,798 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000028 (4.0s)
+2025-07-02 21:48:54,411 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000029 (3.9s)
+2025-07-02 21:48:56,195 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000030 (3.0s)
+2025-07-02 21:48:56,195 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 執行進度: 完成 30, 失敗 0
+2025-07-02 21:48:56,250 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000031 (3.0s)
+2025-07-02 21:48:57,254 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000033 (2.8s)
+2025-07-02 21:48:57,279 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000032 (3.5s)
+2025-07-02 21:48:58,263 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000034 (2.1s)
+2025-07-02 21:48:58,518 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000035 (2.2s)
+2025-07-02 21:48:59,923 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000037 (2.6s)
+2025-07-02 21:49:00,520 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000038 (2.2s)
+2025-07-02 21:49:01,947 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000036 (4.7s)
+2025-07-02 21:49:02,590 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000041 (2.1s)
+2025-07-02 21:49:03,455 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000040 (3.5s)
+2025-07-02 21:49:03,455 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 執行進度: 完成 40, 失敗 0
+2025-07-02 21:49:04,439 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000039 (5.9s)
+2025-07-02 21:49:07,015 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000042 (5.0s)
+2025-07-02 21:49:07,053 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000043 (4.4s)
+2025-07-02 21:49:08,291 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000045 (3.9s)
+2025-07-02 21:49:10,019 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000044 (6.5s)
+2025-07-02 21:49:10,665 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000047 (3.7s)
+2025-07-02 21:49:11,277 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000048 (3.0s)
+2025-07-02 21:49:12,233 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000046 (5.3s)
+2025-07-02 21:49:14,081 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000049 (4.1s)
+2025-07-02 21:49:15,231 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000050 (4.6s)
+2025-07-02 21:49:15,231 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 執行進度: 完成 50, 失敗 0
+2025-07-02 21:49:15,491 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000052 (3.3s)
+2025-07-02 21:49:16,964 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000051 (5.7s)
+2025-07-02 21:49:18,198 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000055 (2.7s)
+2025-07-02 21:49:18,265 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000054 (3.0s)
+2025-07-02 21:49:19,279 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000053 (5.2s)
+2025-07-02 21:49:21,608 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000056 (4.6s)
+2025-07-02 21:49:22,487 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000058 (4.2s)
+2025-07-02 21:49:24,113 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000057 (5.9s)
+2025-07-02 21:49:24,845 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000060 (3.3s)
+2025-07-02 21:49:25,855 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000061 (3.4s)
+2025-07-02 21:49:25,855 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 執行進度: 完成 60, 失敗 0
+2025-07-02 21:49:26,554 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000059 (7.3s)
+2025-07-02 21:49:28,203 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000064 (2.3s)
+2025-07-02 21:49:28,667 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000062 (4.6s)
+2025-07-02 21:49:30,703 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000063 (5.9s)
+2025-07-02 21:49:31,048 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000065 (4.5s)
+2025-07-02 21:49:31,659 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000066 (3.4s)
+2025-07-02 21:49:32,531 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000067 (3.8s)
+2025-07-02 21:49:33,106 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000069 (2.1s)
+2025-07-02 21:49:33,603 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000070 (1.9s)
+2025-07-02 21:49:34,852 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000068 (4.1s)
+2025-07-02 21:49:34,852 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 執行進度: 完成 70, 失敗 0
+2025-07-02 21:49:35,535 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000071 (3.1s)
+2025-07-02 21:49:36,177 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000073 (2.6s)
+2025-07-02 21:49:37,883 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000072 (4.8s)
+2025-07-02 21:49:38,488 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000074 (3.6s)
+2025-07-02 21:49:39,325 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000076 (3.1s)
+2025-07-02 21:49:39,355 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000075 (3.8s)
+2025-07-02 21:49:40,255 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000077 (2.4s)
+2025-07-02 21:49:40,952 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000078 (2.4s)
+2025-07-02 21:49:42,059 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000080 (2.7s)
+2025-07-02 21:49:42,073 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000079 (2.8s)
+2025-07-02 21:49:42,075 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 執行進度: 完成 80, 失敗 0
+2025-07-02 21:49:42,309 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000081 (2.1s)
+2025-07-02 21:49:43,575 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000082 (2.6s)
+2025-07-02 21:49:45,924 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000084 (3.8s)
+2025-07-02 21:49:46,258 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000085 (3.9s)
+2025-07-02 21:49:47,698 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000083 (5.6s)
+2025-07-02 21:49:48,549 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000086 (5.0s)
+2025-07-02 21:49:49,354 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000087 (3.4s)
+2025-07-02 21:49:50,350 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000088 (4.1s)
+2025-07-02 21:49:51,045 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000090 (2.5s)
+2025-07-02 21:49:51,757 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000089 (4.1s)
+2025-07-02 21:49:51,758 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 執行進度: 完成 90, 失敗 0
+2025-07-02 21:49:52,509 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000091 (3.2s)
+2025-07-02 21:49:53,825 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000092 (3.5s)
+2025-07-02 21:49:55,582 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000093 (4.5s)
+2025-07-02 21:49:56,453 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000094 (4.7s)
+2025-07-02 21:50:00,192 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000095 (7.7s)
+2025-07-02 21:50:00,243 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000096 (6.4s)
+2025-07-02 21:50:00,890 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000098 (4.5s)
+2025-07-02 21:50:02,395 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000097 (6.8s)
+2025-07-02 21:50:02,907 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000100 (2.7s)
+2025-07-02 21:50:03,830 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000099 (3.7s)
+2025-07-02 21:50:03,830 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 執行進度: 完成 100, 失敗 0
+2025-07-02 21:50:03,830 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 並行執行完成 - 成功: 100, 失敗: 0
+2025-07-02 21:50:03,834 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 批量回測執行完成
+2025-07-02 21:50:03,834 - __main__ - INFO - 批量回測執行完成

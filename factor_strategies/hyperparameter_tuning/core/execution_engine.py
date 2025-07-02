@@ -18,6 +18,12 @@ from dataclasses import dataclass
 from .database_manager import DatabaseManager
 from .progress_manager import ProgressManager
 
+# 導入因子引擎
+import sys
+sys.path.append(str(Path(__file__).parent.parent.parent.parent))
+from factor_strategies.factor_engine import FactorEngine
+from factor_strategies.factor_strategy_config import FACTOR_STRATEGIES
+
 @dataclass
 class ExecutionResult:
     """執行結果類"""
@@ -227,6 +233,11 @@ class BatchExecutionEngine:
         """
         strategy_id = strategy['strategy_id']
         strategy_config = strategy['strategy_config']
+        
+        # 如果是字符串，需要解析為字典
+        if isinstance(strategy_config, str):
+            strategy_config = json.loads(strategy_config)
+        
         start_time = time.time()
         
         try:
@@ -235,14 +246,27 @@ class BatchExecutionEngine:
             # 更新策略狀態為運行中
             self.progress_manager.update_strategy_status(strategy['id'], 'running')
             
+            # 補充完整的回測配置
+            complete_config = self._build_complete_config(strategy_config)
+            
             # 創建臨時配置文件
             with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-                json.dump(strategy_config, f, indent=2)
+                json.dump(complete_config, f, indent=2)
                 config_file = f.name
                 
             try:
-                # 執行真實回測腳本 (BR-002: 真實回測執行)
-                result = self._run_backtest_script(strategy_id, config_file, timeout_seconds)
+                # 步驟1: 先生成策略排行榜數據
+                factor_result = self._run_factor_strategies(complete_config, timeout_seconds // 2)
+                if not factor_result['success']:
+                    return ExecutionResult(
+                        success=False,
+                        strategy_id=strategy_id,
+                        execution_time=time.time() - start_time,
+                        error_message=f"策略排行榜生成失敗: {factor_result['error']}"
+                    )
+                
+                # 步驟2: 執行真實回測腳本 (BR-002: 真實回測執行)
+                result = self._run_backtest_script(strategy_id, config_file, timeout_seconds // 2)
                 
                 execution_time = time.time() - start_time
                 
@@ -314,18 +338,66 @@ class BatchExecutionEngine:
             )
             
             if process.returncode == 0:
-                # 解析輸出結果
+                # 解析輸出結果 - 從混合輸出中提取JSON
                 try:
-                    result_data = json.loads(process.stdout)
-                    return {
-                        'success': True,
-                        'data': result_data,
-                        'stdout': process.stdout
-                    }
+                    # 嘗試從stdout末尾提取JSON
+                    stdout_lines = process.stdout.strip().split('\n')
+                    
+                    # 查找最後一個看起來像JSON的部分
+                    json_data = None
+                    for i in range(len(stdout_lines) - 1, -1, -1):
+                        line = stdout_lines[i].strip()
+                        if line.startswith('{') and line.endswith('}'):
+                            try:
+                                json_data = json.loads(line)
+                                break
+                            except json.JSONDecodeError:
+                                continue
+                    
+                    # 如果沒找到單行JSON，嘗試多行JSON
+                    if json_data is None:
+                        # 從最後開始向前查找JSON開始標記
+                        json_start = -1
+                        brace_count = 0
+                        for i in range(len(stdout_lines) - 1, -1, -1):
+                            line = stdout_lines[i].strip()
+                            if '}' in line:
+                                brace_count += line.count('}')
+                            if '{' in line:
+                                brace_count -= line.count('{')
+                                if brace_count == 0:
+                                    json_start = i
+                                    break
+                        
+                        if json_start >= 0:
+                            json_text = '\n'.join(stdout_lines[json_start:])
+                            json_data = json.loads(json_text)
+                    
+                    if json_data:
+                        return {
+                            'success': True,
+                            'data': json_data,
+                            'stdout': process.stdout
+                        }
+                    else:
+                        return {
+                            'success': False,
+                            'error': 'No valid JSON found in output',
+                            'stdout': process.stdout,
+                            'stderr': process.stderr
+                        }
+                        
                 except json.JSONDecodeError as e:
                     return {
                         'success': False,
                         'error': f'JSON解析失敗: {e}',
+                        'stdout': process.stdout,
+                        'stderr': process.stderr
+                    }
+                except Exception as e:
+                    return {
+                        'success': False,
+                        'error': f'輸出解析異常: {e}',
                         'stdout': process.stdout,
                         'stderr': process.stderr
                     }
@@ -347,6 +419,171 @@ class BatchExecutionEngine:
                 'success': False,
                 'error': f'執行異常: {str(e)}'
             }
+            
+    def _build_complete_config(self, strategy_config: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        構建完整的回測配置，添加必要的回測參數
+        
+        Args:
+            strategy_config: 原始策略配置
+            
+        Returns:
+            完整的配置
+        """
+        # 根據factors生成strategy_name
+        factors_str = '_'.join(strategy_config['factors'])
+        strategy_name = f"{factors_str}_W{strategy_config['window_size']}_{strategy_config['rebalance_frequency']}D_D{strategy_config['data_period']}_S{strategy_config['selection_count']}_{strategy_config['weight_method']}"
+        
+        # 創建完整配置
+        complete_config = strategy_config.copy()
+        complete_config.update({
+            'strategy_name': strategy_name,
+            'start_date': '2024-12-01',  # 默認回測日期
+            'end_date': '2024-12-05',
+            'initial_capital': 10000,
+            'position_size': 0.25,
+            'fee_rate': 0.001,
+            'exit_size': 1.0,
+            'max_positions': 4,
+            'entry_top_n': 4,
+            'exit_threshold': 10,
+            'position_mode': 'percentage_based'
+        })
+        
+        return complete_config
+        
+    def _create_dynamic_strategy(self, config: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        將簡化的策略配置轉換為完整的FactorEngine策略配置
+        
+        Args:
+            config: 簡化的策略配置
+            
+        Returns:
+            完整的策略配置
+        """
+        # 因子名稱映射表
+        factor_mapping = {
+            'SR': {
+                'name': 'F_sharpe',
+                'function': 'calculate_sharpe_ratio',
+                'input_col': 'roi_1d',
+                'params': {'annualizing_factor': 365}
+            },
+            'DD': {
+                'name': 'F_drawdown', 
+                'function': 'calculate_max_drawdown',
+                'input_col': 'roi_1d',
+                'params': {}
+            },
+            'TR': {
+                'name': 'F_trend',
+                'function': 'calculate_trend_slope',
+                'input_col': 'roi_1d',
+                'params': {}
+            },
+            'ST': {
+                'name': 'F_stability',
+                'function': 'calculate_inv_std_dev',
+                'input_col': 'roi_1d',
+                'params': {'epsilon': 1e-9}
+            },
+            'WR': {
+                'name': 'F_winrate',
+                'function': 'calculate_win_rate',
+                'input_col': 'roi_1d',
+                'params': {}
+            },
+            'SO': {
+                'name': 'F_sortino',
+                'function': 'calculate_sortino_ratio',
+                'input_col': 'roi_1d', 
+                'params': {'annualizing_factor': 365}
+            }
+        }
+        
+        # 構建factors配置
+        factors_config = {}
+        for factor_code in config['factors']:
+            if factor_code in factor_mapping:
+                factor_info = factor_mapping[factor_code]
+                factors_config[factor_info['name']] = {
+                    'function': factor_info['function'],
+                    'window': config['window_size'],
+                    'input_col': factor_info['input_col'],
+                    'params': factor_info['params']
+                }
+        
+        # 構建完整策略配置
+        strategy_config = {
+            'name': f"Dynamic Strategy {config['strategy_name']}",
+            'description': f"動態生成的策略：{config['factors']}",
+            'data_requirements': {
+                'min_data_days': config['data_period'],
+                'skip_first_n_days': 3,
+            },
+            'factors': factors_config,
+            'ranking_logic': {
+                'indicators': list(factors_config.keys()),
+                'weights': [1.0 / len(factors_config)] * len(factors_config)  # 均等權重
+            }
+        }
+        
+        return strategy_config
+
+    def _run_factor_strategies(self, config: Dict[str, Any], timeout_seconds: int) -> Dict[str, Any]:
+        """
+        運行因子策略生成排行榜數據 - 使用FactorEngine直接執行
+        
+        Args:
+            config: 完整的策略配置
+            timeout_seconds: 超時時間
+            
+        Returns:
+            執行結果
+        """
+        try:
+            strategy_name = config['strategy_name']
+            
+            # 創建動態策略配置
+            dynamic_strategy_config = self._create_dynamic_strategy(config)
+            
+            # 動態添加到FACTOR_STRATEGIES字典
+            FACTOR_STRATEGIES[strategy_name] = dynamic_strategy_config
+            
+            self.logger.debug(f"動態添加策略: {strategy_name}")
+            self.logger.debug(f"策略配置: {dynamic_strategy_config}")
+            
+            # 創建FactorEngine實例
+            engine = FactorEngine()
+            
+            # 執行策略 - 使用固定日期範圍生成數據
+            target_date = '2024-12-04'  # 使用較晚的日期確保有足夠歷史數據
+            result_df = engine.run_strategy(strategy_name, target_date, save_to_db=True)
+            
+            if not result_df.empty:
+                return {
+                    'success': True,
+                    'message': f'成功生成 {len(result_df)} 條排行榜記錄',
+                    'records_count': len(result_df)
+                }
+            else:
+                return {
+                    'success': False,
+                    'error': '策略執行成功但沒有生成排行榜數據'
+                }
+                
+        except Exception as e:
+            self.logger.error(f"動態策略執行異常: {e}")
+            return {
+                'success': False,
+                'error': f'動態策略執行異常: {str(e)}'
+            }
+        finally:
+            # 清理動態添加的策略配置（可選）
+            if strategy_name in FACTOR_STRATEGIES:
+                # 可以選擇保留或刪除
+                pass
             
     def _record_execution_time(self, execution_time: float):
         """記錄執行時間用於性能分析"""

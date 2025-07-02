@@ -501,7 +501,7 @@ class ProgressManager:
                 cursor = conn.cursor()
                 cursor.execute('''
                     SELECT strategy_id, sharpe_ratio, annual_return, total_return, max_drawdown
-                    FROM backtest_results 
+                    FROM hyperparameter_tuning_results 
                     WHERE session_id = ? 
                     ORDER BY sharpe_ratio DESC 
                     LIMIT ?

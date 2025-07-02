@@ -1,0 +1,30 @@
+2025-07-02 15:23:11,156 - __main__ - INFO - 大規模超參數調優系統初始化完成
+2025-07-02 15:23:11,156 - __main__ - INFO - 開始生成策略參數組合 - 模式: sampling
+2025-07-02 15:23:11,156 - factor_strategies.hyperparameter_tuning.core.parameter_generator - INFO - 開始生成策略參數組合 - 模式: sampling, 方法: random
+2025-07-02 15:23:11,156 - factor_strategies.hyperparameter_tuning.core.parameter_generator - INFO - 開始生成隨機抽樣參數組合，樣本數量: 10
+2025-07-02 15:23:11,156 - factor_strategies.hyperparameter_tuning.core.parameter_generator - INFO - 成功生成 10 個唯一策略配置
+2025-07-02 15:23:11,156 - factor_strategies.hyperparameter_tuning.core.parameter_generator - INFO - 成功生成 10 個策略配置
+2025-07-02 15:23:11,157 - factor_strategies.hyperparameter_tuning.core.database_manager - INFO - 創建會話成功: session_20250702_152311_8399
+2025-07-02 15:23:11,158 - factor_strategies.hyperparameter_tuning.core.progress_manager - INFO - 創建會話成功: session_20250702_152311_8399
+2025-07-02 15:23:11,158 - factor_strategies.hyperparameter_tuning.core.database_manager - INFO - 添加 10 個策略到隊列
+2025-07-02 15:23:11,158 - factor_strategies.hyperparameter_tuning.core.progress_manager - INFO - 添加策略到隊列成功: 10 個
+2025-07-02 15:23:11,158 - __main__ - INFO - 成功生成 10 個策略配置
+2025-07-02 15:23:11,158 - __main__ - INFO - 會話ID: session_20250702_152311_8399
+2025-07-02 15:23:11,661 - __main__ - INFO - 大規模超參數調優系統初始化完成
+2025-07-02 15:23:11,661 - __main__ - INFO - 開始執行批量回測 - 會話: session_20250702_152311_8399, 並發: 2
+2025-07-02 15:23:11,661 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 開始執行批量回測 - 會話: session_20250702_152311_8399, 並發: 2
+2025-07-02 15:23:11,663 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 待執行策略數量: 10
+2025-07-02 15:23:12,718 - factor_strategies.hyperparameter_tuning.core.execution_engine - ERROR - 策略執行失敗: sampling_000001 - JSON解析失敗: Expecting value: line 1 column 2 (char 1)
+2025-07-02 15:23:13,040 - factor_strategies.hyperparameter_tuning.core.execution_engine - ERROR - 策略執行失敗: sampling_000002 - JSON解析失敗: Expecting value: line 1 column 2 (char 1)
+2025-07-02 15:23:13,440 - factor_strategies.hyperparameter_tuning.core.execution_engine - ERROR - 策略執行失敗: sampling_000003 - JSON解析失敗: Expecting value: line 1 column 2 (char 1)
+2025-07-02 15:23:13,657 - factor_strategies.hyperparameter_tuning.core.execution_engine - ERROR - 策略執行失敗: sampling_000004 - JSON解析失敗: Expecting value: line 1 column 2 (char 1)
+2025-07-02 15:23:14,269 - factor_strategies.hyperparameter_tuning.core.execution_engine - ERROR - 策略執行失敗: sampling_000006 - JSON解析失敗: Expecting value: line 1 column 2 (char 1)
+2025-07-02 15:23:15,062 - factor_strategies.hyperparameter_tuning.core.execution_engine - ERROR - 策略執行失敗: sampling_000005 - JSON解析失敗: Expecting value: line 1 column 2 (char 1)
+2025-07-02 15:23:15,426 - factor_strategies.hyperparameter_tuning.core.execution_engine - ERROR - 策略執行失敗: sampling_000007 - JSON解析失敗: Expecting value: line 1 column 2 (char 1)
+2025-07-02 15:23:15,668 - factor_strategies.hyperparameter_tuning.core.execution_engine - ERROR - 策略執行失敗: sampling_000008 - JSON解析失敗: Expecting value: line 1 column 2 (char 1)
+2025-07-02 15:23:16,169 - factor_strategies.hyperparameter_tuning.core.execution_engine - ERROR - 策略執行失敗: sampling_000009 - JSON解析失敗: Expecting value: line 1 column 2 (char 1)
+2025-07-02 15:23:17,284 - factor_strategies.hyperparameter_tuning.core.execution_engine - ERROR - 策略執行失敗: sampling_000010 - JSON解析失敗: Expecting value: line 1 column 2 (char 1)
+2025-07-02 15:23:17,284 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 執行進度: 完成 0, 失敗 10
+2025-07-02 15:23:17,285 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 並行執行完成 - 成功: 0, 失敗: 10
+2025-07-02 15:23:17,286 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 批量回測執行完成
+2025-07-02 15:23:17,286 - __main__ - INFO - 批量回測執行完成

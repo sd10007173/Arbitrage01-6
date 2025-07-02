@@ -1,0 +1,30 @@
+2025-07-02 15:27:33,347 - __main__ - INFO - 大規模超參數調優系統初始化完成
+2025-07-02 15:27:33,347 - __main__ - INFO - 開始生成策略參數組合 - 模式: sampling
+2025-07-02 15:27:33,347 - factor_strategies.hyperparameter_tuning.core.parameter_generator - INFO - 開始生成策略參數組合 - 模式: sampling, 方法: random
+2025-07-02 15:27:33,347 - factor_strategies.hyperparameter_tuning.core.parameter_generator - INFO - 開始生成隨機抽樣參數組合，樣本數量: 10
+2025-07-02 15:27:33,347 - factor_strategies.hyperparameter_tuning.core.parameter_generator - INFO - 成功生成 10 個唯一策略配置
+2025-07-02 15:27:33,347 - factor_strategies.hyperparameter_tuning.core.parameter_generator - INFO - 成功生成 10 個策略配置
+2025-07-02 15:27:33,349 - factor_strategies.hyperparameter_tuning.core.database_manager - INFO - 創建會話成功: session_20250702_152733_4382
+2025-07-02 15:27:33,349 - factor_strategies.hyperparameter_tuning.core.progress_manager - INFO - 創建會話成功: session_20250702_152733_4382
+2025-07-02 15:27:33,350 - factor_strategies.hyperparameter_tuning.core.database_manager - INFO - 添加 10 個策略到隊列
+2025-07-02 15:27:33,350 - factor_strategies.hyperparameter_tuning.core.progress_manager - INFO - 添加策略到隊列成功: 10 個
+2025-07-02 15:27:33,350 - __main__ - INFO - 成功生成 10 個策略配置
+2025-07-02 15:27:33,350 - __main__ - INFO - 會話ID: session_20250702_152733_4382
+2025-07-02 15:27:33,929 - __main__ - INFO - 大規模超參數調優系統初始化完成
+2025-07-02 15:27:33,929 - __main__ - INFO - 開始執行批量回測 - 會話: session_20250702_152733_4382, 並發: 2
+2025-07-02 15:27:33,930 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 開始執行批量回測 - 會話: session_20250702_152733_4382, 並發: 2
+2025-07-02 15:27:33,931 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 待執行策略數量: 10
+2025-07-02 15:27:35,327 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000002 (1.4s)
+2025-07-02 15:27:36,789 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000001 (2.8s)
+2025-07-02 15:27:37,332 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000003 (2.0s)
+2025-07-02 15:27:37,701 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000004 (0.9s)
+2025-07-02 15:27:38,142 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000005 (0.8s)
+2025-07-02 15:27:39,211 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000006 (1.5s)
+2025-07-02 15:27:39,730 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000007 (1.6s)
+2025-07-02 15:27:40,287 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000008 (1.1s)
+2025-07-02 15:27:41,159 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000009 (1.4s)
+2025-07-02 15:27:41,557 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 策略執行成功: sampling_000010 (1.3s)
+2025-07-02 15:27:41,557 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 執行進度: 完成 10, 失敗 0
+2025-07-02 15:27:41,557 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 並行執行完成 - 成功: 10, 失敗: 0
+2025-07-02 15:27:41,559 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 批量回測執行完成
+2025-07-02 15:27:41,559 - __main__ - INFO - 批量回測執行完成
