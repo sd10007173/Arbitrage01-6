@@ -4,6 +4,9 @@ import os
 from datetime import datetime, timedelta
 import glob
 import re
+import json
+import argparse
+import sys
 
 # 添加數據庫支持
 from database_operations import DatabaseManager
@@ -1320,57 +1323,242 @@ class FundingRateBacktest:
             best_strategy = sorted_results[0]
             print(f"\n🏆 最佳策略: {best_strategy['strategy']} (報酬率: {best_strategy['total_roi']:.2%})")
 
+    def run_batch_mode(self, config_file: str, strategy_id: str, output_format: str = 'json', quiet: bool = False) -> dict:
+        """
+        批量執行模式 - 用於超參數調優系統調用
+        
+        Args:
+            config_file: 配置文件路徑
+            strategy_id: 策略ID
+            output_format: 輸出格式
+            quiet: 靜默模式
+            
+        Returns:
+            回測結果字典
+        """
+        try:
+            # 讀取配置文件
+            with open(config_file, 'r', encoding='utf-8') as f:
+                config = json.load(f)
+            
+            # 更新回測器參數
+            self.initial_capital = config.get('initial_capital', 10000)
+            self.position_size = config.get('position_size', 0.25)
+            self.fee_rate = config.get('fee_rate', 0.001)
+            self.exit_size = config.get('exit_size', 1.0)
+            self.max_positions = config.get('max_positions', 4)
+            self.entry_top_n = config.get('entry_top_n', 4)
+            self.exit_threshold = config.get('exit_threshold', 10)
+            self.position_mode = config.get('position_mode', 'percentage_based')
+            
+            # 重置回測器狀態
+            self.cash_balance = self.initial_capital
+            self.position_balance = 0.0
+            self.total_balance = self.initial_capital
+            self.positions = {}
+            self.positions_entry_date = {}
+            self.event_log = []
+            self.position_log = []
+            self.event_counter = 1
+            self.max_balance = self.initial_capital
+            self.max_drawdown = 0.0
+            self.daily_pnl_records = []
+            self.profit_days = 0
+            self.loss_days = 0
+            self.break_even_days = 0
+            self.holding_periods = []
+            self.position_counter = 0
+            self.start_date = None
+            self.end_date = None
+            self.backtest_days = 0
+            self.equity_curve_data = []
+            self.strategy_name = None
+            self.daily_returns = []
+            
+            # 獲取回測參數
+            strategy_name = config.get('strategy_name')
+            start_date = config.get('start_date', '2024-01-01')
+            end_date = config.get('end_date', '2025-06-20')
+            
+            if not strategy_name:
+                raise ValueError("配置文件中缺少 strategy_name")
+            
+            if not quiet:
+                print(f"[BATCH] 執行策略: {strategy_name} (ID: {strategy_id})")
+                print(f"[BATCH] 參數: 資金={self.initial_capital}, 倉位={self.max_positions}, 進場前{self.entry_top_n}名")
+            
+            # 執行回測
+            self.run_backtest(strategy_name, start_date, end_date)
+            
+            # 計算性能指標
+            final_capital = self.total_balance if pd.notna(self.total_balance) and np.isfinite(self.total_balance) else self.initial_capital
+            total_return = final_capital - self.initial_capital
+            total_roi = total_return / self.initial_capital
+            win_rate = self.calculate_win_rate()
+            avg_holding_days = self.calculate_average_holding_days()
+            sharpe_ratio = self.calculate_sharpe_ratio()
+            
+            # 構建結果
+            result = {
+                'success': True,
+                'strategy_id': strategy_id,
+                'strategy_name': strategy_name,
+                'backtest_period': {
+                    'start_date': start_date,
+                    'end_date': end_date,
+                    'backtest_days': self.backtest_days
+                },
+                'parameters': {
+                    'initial_capital': self.initial_capital,
+                    'position_size': self.position_size,
+                    'fee_rate': self.fee_rate,
+                    'max_positions': self.max_positions,
+                    'entry_top_n': self.entry_top_n,
+                    'exit_threshold': self.exit_threshold,
+                    'position_mode': self.position_mode
+                },
+                'performance': {
+                    'final_capital': float(final_capital),
+                    'total_return': float(total_return),
+                    'total_roi': float(total_roi),
+                    'win_rate': float(win_rate),
+                    'max_drawdown': float(self.max_drawdown),
+                    'avg_holding_days': float(avg_holding_days) if avg_holding_days else 0.0,
+                    'sharpe_ratio': float(sharpe_ratio) if sharpe_ratio else 0.0,
+                    'profit_days': self.profit_days,
+                    'loss_days': self.loss_days,
+                    'break_even_days': self.break_even_days
+                },
+                'execution_summary': {
+                    'total_events': len(self.event_log),
+                    'positions_taken': self.position_counter,
+                    'final_positions': len(self.positions)
+                }
+            }
+            
+            if not quiet:
+                print(f"[BATCH] 回測完成: 報酬率={total_roi:.2%}, 勝率={win_rate:.1%}, 最大回撤={self.max_drawdown:.2%}")
+            
+            return result
+            
+        except Exception as e:
+            error_result = {
+                'success': False,
+                'strategy_id': strategy_id,
+                'error': str(e),
+                'error_type': type(e).__name__
+            }
+            
+            if not quiet:
+                print(f"[BATCH] 回測失敗: {e}")
+            
+            return error_result
+
 
 # 使用範例
 if __name__ == "__main__":
-    print("\n" + "="*70)
-    print("🚀 智能策略回測系統")
-    print("="*70)
+    # 解析命令行參數
+    parser = argparse.ArgumentParser(description='智能策略回測系統 - 支持交互式和批量執行模式')
+    parser.add_argument('--config', help='配置文件路徑 (批量執行模式)')
+    parser.add_argument('--strategy_id', help='策略ID (批量執行模式)')
+    parser.add_argument('--output_format', default='json', help='輸出格式 (默認: json)')
+    parser.add_argument('--quiet', action='store_true', help='靜默模式，減少輸出')
     
-    # 初始化回測器（使用全域變數，v5版本加入 position_mode）
-    backtest = FundingRateBacktest(
-        initial_capital=INITIAL_CAPITAL,
-        position_size=POSITION_SIZE,
-        fee_rate=FEE_RATE,
-        exit_size=EXIT_SIZE,
-        max_positions=MAX_POSITIONS,
-        entry_top_n=ENTRY_TOP_N,
-        exit_threshold=EXIT_THRESHOLD,
-        position_mode=POSITION_MODE
-    )
-
-    # 互動式策略選擇（從數據庫）
-    selected_strategies = backtest.interactive_strategy_selection(START_DATE, END_DATE)
+    args, unknown = parser.parse_known_args()
     
-    if not selected_strategies:
-        print("❌ 沒有選擇任何策略，程式結束")
-        exit(0)
-
-    # 顯示當前參數設定
-    print("\n" + "="*70)
-    print("📋 回測參數設定")
-    print("="*70)
-    print("策略參數 (backtest_v5):")
-    print(f"- 初始資金: ${INITIAL_CAPITAL:,}")
-    print(f"- 進場模式: {POSITION_MODE}")
-    print(f"- 每次進場資金比例: {POSITION_SIZE:.1%}")
-    print(f"- 手續費率: {FEE_RATE:.4%}")
-    print(f"- 每次離場資金比例: {EXIT_SIZE:.1%}")
-    print(f"- 最大持倉數: {MAX_POSITIONS}")
-    print(f"- 進場條件: 綜合評分前{ENTRY_TOP_N}名")
-    print(f"- 離場條件: 排名跌出前{EXIT_THRESHOLD}名")
-    print(f"- 回測期間: {START_DATE} 至 {END_DATE}")
-    print(f"- 選擇的策略: {selected_strategies}")
-    print("- 💾 數據源: 數據庫 (策略排行榜表)")
-    print("=" * 70)
-
-    # 執行回測（從數據庫）
-    if len(selected_strategies) == 1:
-        # 單一策略回測
-        strategy = selected_strategies[0]
-        print(f"\n🎯 執行單一策略回測: {strategy}")
-        backtest.run_backtest(strategy, START_DATE, END_DATE)
+    # 檢查是否為批量執行模式
+    if args.config and args.strategy_id:
+        # ===== 批量執行模式 (用於超參數調優系統) =====
+        try:
+            # 初始化回測器 (將使用配置文件中的參數覆蓋)
+            backtest = FundingRateBacktest()
+            
+            # 執行批量回測
+            result = backtest.run_batch_mode(
+                config_file=args.config,
+                strategy_id=args.strategy_id,
+                output_format=args.output_format,
+                quiet=args.quiet
+            )
+            
+            # 輸出結果
+            if args.output_format.lower() == 'json':
+                print(json.dumps(result, ensure_ascii=False, indent=2))
+            else:
+                # 簡化輸出
+                if result['success']:
+                    print(f"SUCCESS: ROI={result['performance']['total_roi']:.4f}, WinRate={result['performance']['win_rate']:.4f}")
+                else:
+                    print(f"FAILED: {result['error']}")
+            
+            # 退出碼
+            sys.exit(0 if result['success'] else 1)
+            
+        except Exception as e:
+            error_result = {
+                'success': False,
+                'strategy_id': args.strategy_id,
+                'error': str(e),
+                'error_type': type(e).__name__
+            }
+            
+            if args.output_format.lower() == 'json':
+                print(json.dumps(error_result, ensure_ascii=False, indent=2))
+            else:
+                print(f"FAILED: {e}")
+            
+            sys.exit(1)
+    
     else:
-        # 多策略回測
-        print(f"\n🎯 執行多策略回測: {len(selected_strategies)} 個策略")
-        backtest.run_multiple_backtests(selected_strategies, START_DATE, END_DATE)
+        # ===== 交互式模式 (原有功能) =====
+        print("\n" + "="*70)
+        print("🚀 智能策略回測系統")
+        print("="*70)
+        
+        # 初始化回測器（使用全域變數，v5版本加入 position_mode）
+        backtest = FundingRateBacktest(
+            initial_capital=INITIAL_CAPITAL,
+            position_size=POSITION_SIZE,
+            fee_rate=FEE_RATE,
+            exit_size=EXIT_SIZE,
+            max_positions=MAX_POSITIONS,
+            entry_top_n=ENTRY_TOP_N,
+            exit_threshold=EXIT_THRESHOLD,
+            position_mode=POSITION_MODE
+        )
+
+        # 互動式策略選擇（從數據庫）
+        selected_strategies = backtest.interactive_strategy_selection(START_DATE, END_DATE)
+        
+        if not selected_strategies:
+            print("❌ 沒有選擇任何策略，程式結束")
+            exit(0)
+
+        # 顯示當前參數設定
+        print("\n" + "="*70)
+        print("📋 回測參數設定")
+        print("="*70)
+        print("策略參數 (backtest_v5):")
+        print(f"- 初始資金: ${INITIAL_CAPITAL:,}")
+        print(f"- 進場模式: {POSITION_MODE}")
+        print(f"- 每次進場資金比例: {POSITION_SIZE:.1%}")
+        print(f"- 手續費率: {FEE_RATE:.4%}")
+        print(f"- 每次離場資金比例: {EXIT_SIZE:.1%}")
+        print(f"- 最大持倉數: {MAX_POSITIONS}")
+        print(f"- 進場條件: 綜合評分前{ENTRY_TOP_N}名")
+        print(f"- 離場條件: 排名跌出前{EXIT_THRESHOLD}名")
+        print(f"- 回測期間: {START_DATE} 至 {END_DATE}")
+        print(f"- 選擇的策略: {selected_strategies}")
+        print("- 💾 數據源: 數據庫 (策略排行榜表)")
+        print("=" * 70)
+
+        # 執行回測（從數據庫）
+        if len(selected_strategies) == 1:
+            # 單一策略回測
+            strategy = selected_strategies[0]
+            print(f"\n🎯 執行單一策略回測: {strategy}")
+            backtest.run_backtest(strategy, START_DATE, END_DATE)
+        else:
+            # 多策略回測
+            print(f"\n🎯 執行多策略回測: {len(selected_strategies)} 個策略")
+            backtest.run_multiple_backtests(selected_strategies, START_DATE, END_DATE)

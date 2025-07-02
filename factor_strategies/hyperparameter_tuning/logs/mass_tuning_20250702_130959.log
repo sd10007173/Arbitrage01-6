@@ -1,0 +1,29 @@
+2025-07-02 13:09:59,894 - __main__ - INFO - 大規模超參數調優系統初始化完成
+2025-07-02 13:10:12,281 - __main__ - INFO - 開始生成策略參數組合 - 模式: sampling
+2025-07-02 13:10:12,282 - factor_strategies.hyperparameter_tuning.core.parameter_generator - INFO - 開始生成策略參數組合 - 模式: sampling, 方法: random
+2025-07-02 13:10:12,282 - factor_strategies.hyperparameter_tuning.core.parameter_generator - INFO - 開始生成隨機抽樣參數組合，樣本數量: 10
+2025-07-02 13:10:12,282 - factor_strategies.hyperparameter_tuning.core.parameter_generator - INFO - 成功生成 10 個唯一策略配置
+2025-07-02 13:10:12,282 - factor_strategies.hyperparameter_tuning.core.parameter_generator - INFO - 成功生成 10 個策略配置
+2025-07-02 13:10:12,284 - factor_strategies.hyperparameter_tuning.core.database_manager - INFO - 創建會話成功: session_20250702_131012_2386
+2025-07-02 13:10:12,285 - factor_strategies.hyperparameter_tuning.core.progress_manager - INFO - 創建會話成功: session_20250702_131012_2386
+2025-07-02 13:10:12,286 - factor_strategies.hyperparameter_tuning.core.database_manager - INFO - 添加 10 個策略到隊列
+2025-07-02 13:10:12,287 - factor_strategies.hyperparameter_tuning.core.progress_manager - INFO - 添加策略到隊列成功: 10 個
+2025-07-02 13:10:12,287 - __main__ - INFO - 成功生成 10 個策略配置
+2025-07-02 13:10:12,287 - __main__ - INFO - 會話ID: session_20250702_131012_2386
+2025-07-02 13:10:17,888 - __main__ - INFO - 開始執行批量回測 - 會話: session_20250702_131012_2386, 並發: 4
+2025-07-02 13:10:17,888 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 開始執行批量回測 - 會話: session_20250702_131012_2386, 並發: 4
+2025-07-02 13:10:17,892 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 待執行策略數量: 10
+2025-07-02 13:10:18,286 - factor_strategies.hyperparameter_tuning.core.execution_engine - ERROR - 策略執行失敗: sampling_000004 - 回測腳本執行失敗 (返回碼: 1)
+2025-07-02 13:10:18,310 - factor_strategies.hyperparameter_tuning.core.execution_engine - ERROR - 策略執行失敗: sampling_000001 - 回測腳本執行失敗 (返回碼: 1)
+2025-07-02 13:10:18,311 - factor_strategies.hyperparameter_tuning.core.execution_engine - ERROR - 策略執行失敗: sampling_000002 - 回測腳本執行失敗 (返回碼: 1)
+2025-07-02 13:10:18,312 - factor_strategies.hyperparameter_tuning.core.execution_engine - ERROR - 策略執行失敗: sampling_000003 - 回測腳本執行失敗 (返回碼: 1)
+2025-07-02 13:10:18,580 - factor_strategies.hyperparameter_tuning.core.execution_engine - ERROR - 策略執行失敗: sampling_000005 - 回測腳本執行失敗 (返回碼: 1)
+2025-07-02 13:10:18,581 - factor_strategies.hyperparameter_tuning.core.execution_engine - ERROR - 策略執行失敗: sampling_000007 - 回測腳本執行失敗 (返回碼: 1)
+2025-07-02 13:10:18,582 - factor_strategies.hyperparameter_tuning.core.execution_engine - ERROR - 策略執行失敗: sampling_000006 - 回測腳本執行失敗 (返回碼: 1)
+2025-07-02 13:10:18,604 - factor_strategies.hyperparameter_tuning.core.execution_engine - ERROR - 策略執行失敗: sampling_000008 - 回測腳本執行失敗 (返回碼: 1)
+2025-07-02 13:10:18,809 - factor_strategies.hyperparameter_tuning.core.execution_engine - ERROR - 策略執行失敗: sampling_000009 - 回測腳本執行失敗 (返回碼: 1)
+2025-07-02 13:10:18,818 - factor_strategies.hyperparameter_tuning.core.execution_engine - ERROR - 策略執行失敗: sampling_000010 - 回測腳本執行失敗 (返回碼: 1)
+2025-07-02 13:10:18,818 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 執行進度: 完成 0, 失敗 10
+2025-07-02 13:10:18,818 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 並行執行完成 - 成功: 0, 失敗: 10
+2025-07-02 13:10:18,819 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 批量回測執行完成
+2025-07-02 13:10:18,819 - __main__ - INFO - 批量回測執行完成
