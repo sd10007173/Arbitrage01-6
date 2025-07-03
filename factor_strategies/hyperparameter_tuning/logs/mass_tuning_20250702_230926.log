@@ -1,0 +1,8 @@
+2025-07-02 23:09:26,033 - __main__ - INFO - 大規模超參數調優系統初始化完成
+2025-07-02 23:09:26,034 - __main__ - INFO - 開始執行批量回測 - 會話: session_20250702_230925_8655, 並發: 1
+2025-07-02 23:09:26,034 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 開始執行批量回測 - 會話: session_20250702_230925_8655, 並發: 1
+2025-07-02 23:09:26,035 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 待執行策略數量: 1
+2025-07-02 23:09:26,036 - factor_strategies.hyperparameter_tuning.core.execution_engine - ERROR - 策略執行失敗: sampling_000001 - 'ConfigManager' object has no attribute 'config'
+2025-07-02 23:09:26,036 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 並行執行完成 - 成功: 0, 失敗: 1
+2025-07-02 23:09:26,037 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 批量回測執行完成
+2025-07-02 23:09:26,037 - __main__ - INFO - 批量回測執行完成

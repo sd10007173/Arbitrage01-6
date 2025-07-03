@@ -48,7 +48,8 @@ class MassTuningSystem:
         self.param_generator = ParameterSpaceGenerator(self.config_manager)
         self.execution_engine = BatchExecutionEngine(
             self.db_manager, 
-            self.progress_manager
+            self.progress_manager,
+            self.config_manager
         )
         self.result_collector = ResultCollector(self.db_manager)
         
@@ -524,7 +525,14 @@ class MassTuningInteractiveUI:
     
     def _clear_screen(self):
         """清屏"""
-        os.system('clear' if os.name == 'posix' else 'cls')
+        try:
+            # 設置 TERM 環境變量以避免警告
+            if os.name == 'posix' and 'TERM' not in os.environ:
+                os.environ['TERM'] = 'xterm'
+            os.system('clear' if os.name == 'posix' else 'cls')
+        except:
+            # 如果清屏失敗，使用簡單的換行代替
+            print('\n' * 50)
         
     def _show_error(self, message: str):
         """顯示錯誤信息"""

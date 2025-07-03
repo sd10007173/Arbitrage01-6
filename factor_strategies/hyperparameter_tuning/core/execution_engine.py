@@ -38,16 +38,18 @@ class ExecutionResult:
 class BatchExecutionEngine:
     """批量執行引擎"""
     
-    def __init__(self, db_manager: DatabaseManager, progress_manager: ProgressManager):
+    def __init__(self, db_manager: DatabaseManager, progress_manager: ProgressManager, config_manager=None):
         """
         初始化批量執行引擎
         
         Args:
             db_manager: 數據庫管理器
             progress_manager: 進度管理器
+            config_manager: 配置管理器
         """
         self.db_manager = db_manager
         self.progress_manager = progress_manager
+        self.config_manager = config_manager
         self.logger = logging.getLogger(__name__)
         
         # 執行配置
@@ -434,15 +436,18 @@ class BatchExecutionEngine:
         factors_str = '_'.join(strategy_config['factors'])
         strategy_name = f"{factors_str}_W{strategy_config['window_size']}_{strategy_config['rebalance_frequency']}D_D{strategy_config['data_period']}_S{strategy_config['selection_count']}_{strategy_config['weight_method']}"
         
+        # 從配置文件讀取回測參數
+        backtest_config = self.config_manager.config_data.get('system', {}).get('backtest', {})
+        
         # 創建完整配置
         complete_config = strategy_config.copy()
         complete_config.update({
             'strategy_name': strategy_name,
-            'start_date': '2024-12-01',  # 默認回測日期
-            'end_date': '2024-12-05',
-            'initial_capital': 10000,
-            'position_size': 0.25,
-            'fee_rate': 0.001,
+            'start_date': backtest_config.get('start_date', '2024-11-01'),
+            'end_date': backtest_config.get('end_date', '2024-12-05'),
+            'initial_capital': backtest_config.get('initial_capital', 10000),
+            'position_size': backtest_config.get('position_size', 0.25),
+            'fee_rate': backtest_config.get('fee_rate', 0.001),
             'exit_size': 1.0,
             'max_positions': 4,
             'entry_top_n': 4,
@@ -534,6 +539,7 @@ class BatchExecutionEngine:
     def _run_factor_strategies(self, config: Dict[str, Any], timeout_seconds: int) -> Dict[str, Any]:
         """
         運行因子策略生成排行榜數據 - 使用FactorEngine直接執行
+        支持單日模式和範圍模式
         
         Args:
             config: 完整的策略配置
@@ -557,20 +563,86 @@ class BatchExecutionEngine:
             # 創建FactorEngine實例
             engine = FactorEngine()
             
-            # 執行策略 - 使用固定日期範圍生成數據
-            target_date = '2024-12-04'  # 使用較晚的日期確保有足夠歷史數據
-            result_df = engine.run_strategy(strategy_name, target_date, save_to_db=True)
+            # 讀取回測配置
+            backtest_config = self.config_manager.config_data.get('system', {}).get('backtest', {})
+            ranking_mode = backtest_config.get('ranking_mode', 'single')
             
-            if not result_df.empty:
+            total_records = 0
+            success_dates = []
+            failed_dates = []
+            
+            if ranking_mode == 'range':
+                # 範圍模式：生成多日數據
+                from datetime import datetime, timedelta
+                
+                start_date_str = backtest_config.get('ranking_start_date', '2024-04-03')
+                end_date_str = backtest_config.get('ranking_end_date', '2025-06-20')
+                
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
+                
+                current_date = start_date
+                date_count = (end_date - start_date).days + 1
+                
+                self.logger.info(f"範圍模式：生成 {date_count} 天的策略排名數據 ({start_date_str} 到 {end_date_str})")
+                
+                processed_days = 0
+                while current_date <= end_date:
+                    target_date_str = current_date.strftime('%Y-%m-%d')
+                    
+                    try:
+                        result_df = engine.run_strategy(strategy_name, target_date_str, save_to_db=True)
+                        
+                        if not result_df.empty:
+                            total_records += len(result_df)
+                            success_dates.append(target_date_str)
+                            self.logger.debug(f"成功生成 {target_date_str}: {len(result_df)} 條記錄")
+                        else:
+                            failed_dates.append(target_date_str)
+                            self.logger.warning(f"跳過 {target_date_str}: 沒有生成數據")
+                            
+                    except Exception as e:
+                        failed_dates.append(target_date_str)
+                        self.logger.error(f"日期 {target_date_str} 執行失敗: {e}")
+                    
+                    current_date += timedelta(days=1)
+                    processed_days += 1
+                    
+                    # 進度報告（每50天報告一次）
+                    if processed_days % 50 == 0:
+                        self.logger.info(f"進度: {processed_days}/{date_count} 天已處理 ({processed_days/date_count*100:.1f}%)")
+                
+                self.logger.info(f"範圍模式完成: 成功 {len(success_dates)} 天, 失敗 {len(failed_dates)} 天, 總記錄 {total_records} 條")
+                
+            else:
+                # 單日模式：原有邏輯
+                target_date = backtest_config.get('ranking_date', '2024-12-04')
+                result_df = engine.run_strategy(strategy_name, target_date, save_to_db=True)
+                
+                if not result_df.empty:
+                    total_records = len(result_df)
+                    success_dates = [target_date]
+                    self.logger.info(f"單日模式完成: {target_date}, {total_records} 條記錄")
+                else:
+                    failed_dates = [target_date]
+                    self.logger.warning(f"單日模式失敗: {target_date}, 沒有生成數據")
+            
+            # 返回結果
+            if total_records > 0:
                 return {
                     'success': True,
-                    'message': f'成功生成 {len(result_df)} 條排行榜記錄',
-                    'records_count': len(result_df)
+                    'message': f'成功生成 {total_records} 條排行榜記錄 (成功: {len(success_dates)} 天, 失敗: {len(failed_dates)} 天)',
+                    'records_count': total_records,
+                    'success_dates': len(success_dates),
+                    'failed_dates': len(failed_dates),
+                    'ranking_mode': ranking_mode
                 }
             else:
                 return {
                     'success': False,
-                    'error': '策略執行成功但沒有生成排行榜數據'
+                    'error': f'策略執行失敗，沒有生成排行榜數據 (失敗: {len(failed_dates)} 天)',
+                    'failed_dates': failed_dates,
+                    'ranking_mode': ranking_mode
                 }
                 
         except Exception as e:

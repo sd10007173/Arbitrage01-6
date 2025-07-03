@@ -312,7 +312,7 @@ def main():
 
         # 设置查询日期范围
         start_date = "2025-06-05"  # 开始日期
-        end_date = "2025-06-08"  # 结束日期
+        end_date = "2025-07-02"  # 结束日期
 
         # 获取资金费用历史记录
         raw_data = checker.get_funding_fee_batch(start_date, end_date, limit=100)

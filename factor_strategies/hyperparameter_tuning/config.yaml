@@ -1,75 +1,200 @@
-# 超參數調優系統配置文件
-# ===================================
+# 大規模超參數調優系統配置文件
+# Mass Hyperparameter Tuning System Configuration
 
-# 參數空間定義
+# 系統配置
+system:
+  # 數據庫路徑（統一使用production數據庫）
+  database_path: "../../data/funding_rate.db"
+  
+  # 最大並發數
+  max_parallel: 4
+  
+  # 單個策略超時時間（分鐘）
+  timeout_minutes: 30
+  
+  # 是否自動清理失敗記錄
+  cleanup_failed: true
+  
+  # 結果保留天數
+  results_retention_days: 30
+
+  # 回測配置
+  backtest:
+    # 回測開始日期（調整為用戶需求）
+    start_date: "2024-01-01"
+    # 回測結束日期  
+    end_date: "2025-06-20"
+    # 策略排名開始日期
+    ranking_start_date: "2024-01-01"
+    # 策略排名結束日期
+    ranking_end_date: "2025-06-20"
+    # 策略排名基準日期（單日模式）
+    ranking_date: "2024-12-04"
+    # 排名模式：single（單日）或 range（範圍）
+    ranking_mode: "range"
+    # 初始資金
+    initial_capital: 10000
+    # 單倉位大小比例
+    position_size: 0.25
+    # 手續費率
+    fee_rate: 0.001
+
+# 參數空間配置 - 按照現有因子策略系統設計
 parameters:
-  # 可用的因子計算函式
-  available_factors:
-    - calculate_trend_slope      # 趨勢斜率
-    - calculate_sharpe_ratio     # 夏普比率
-    - calculate_inv_std_dev      # 穩定性指標
-    - calculate_win_rate         # 勝率
-    - calculate_max_drawdown     # 最大回撤
-    - calculate_sortino_ratio    # 索提諾比率
-  
-  # 窗口期選項
-  windows: [5, 10, 15, 20, 30, 45, 60, 90, 120, 150, 180, 210, 240, 270, 300]
-  
-  # 輸入數據列（ROI週期）
-  input_columns: 
-    - roi_1d
-    - roi_2d  
-    - roi_7d
-    - roi_14d
-    - roi_30d
-  
-  # 數據要求參數
-  min_data_days: [10, 15, 20, 30, 45, 60, 90, 120, 150, 180, 210, 240, 270, 300]
-  skip_first_n_days: [0, 1, 2, 3, 5, 7, 10, 15]
-  
-  # 因子組合設定
-  max_factors_per_strategy: 3    # 每個策略最多包含幾個因子
-  min_factors_per_strategy: 1    # 每個策略最少包含幾個因子
-  
-  # 權重分配方式
-  weight_methods:
-    - equal                      # 等權重
-    - factor_strength            # 因子強度加權
-    - inverse_correlation        # 反相關加權
+  # 因子組合 - 支持單因子和多因子組合
+  factors:
+    type: "choice"
+    choices:
+      # 單因子策略
+      - ["SR"]  # 成功率
+      - ["ST"]  # 穩定度  
+      - ["DD"]  # 回撤度
+      - ["WR"]  # 勝率
+      - ["SO"]  # 索提諾比率
+      - ["TR"]  # 交易度
+      
+      # 雙因子組合
+      - ["SR", "ST"]
+      - ["SR", "DD"] 
+      - ["SR", "WR"]
+      - ["ST", "DD"]
+      - ["ST", "WR"]
+      - ["DD", "WR"]
+      - ["WR", "SO"]
+      - ["TR", "SR"]
+      - ["TR", "ST"]
+      - ["SO", "DD"]
+      
+      # 三因子組合
+      - ["SR", "ST", "DD"]
+      - ["SR", "ST", "WR"]
+      - ["SR", "DD", "WR"]
+      - ["ST", "DD", "WR"]
+      - ["TR", "SR", "ST"]
+      - ["WR", "SO", "DD"]
 
-# 執行設定
+  # 窗口大小（天數）
+  window_size:
+    type: "choice"
+    choices: [5, 10, 20, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300]
+
+  # 重平衡頻率（天數）
+  rebalance_frequency:
+    type: "choice"
+    choices: [1, 2, 7, 14, 30]
+
+  # 數據期間（天數）
+  data_period:
+    type: "choice"
+    choices: [10, 15, 20, 30, 45, 60, 90, 120, 150, 180, 210, 240, 270, 300]
+
+  # 選股數量
+  selection_count:
+    type: "range"
+    min_value: 0
+    max_value: 15
+    step: 1
+
+  # 權重方法
+  weight_method:
+    type: "choice"
+    choices: ["EQ", "IC", "FS"]  # 等權重, 信息係數加權, 因子值加權
+
+# 採樣配置
+sampling:
+  # 默認採樣方法
+  default_method: "random"
+  
+  # 可用採樣方法
+  available_methods:
+    - "random"           # 隨機抽樣
+    - "latin_hypercube"  # 拉丁超立方抽樣
+    - "grid"             # 網格抽樣
+    - "sobol"            # Sobol序列抽樣
+
+  # 默認採樣大小
+  default_size: 1000
+
+  # 最大採樣大小
+  max_size: 10000
+
+# 執行配置
 execution:
-  mode: "sampling"               # "exhaustive" 或 "sampling"
-  n_strategies: 100              # 抽樣模式下的策略數量
-  max_parallel_jobs: 4           # 並行執行數量
-  save_intermediate_results: true # 是否保存中間結果
+  # 默認並發數
+  default_parallel: 4
   
-# 回測設定
-backtest:
-  start_date: "2024-01-01"
-  end_date: "2025-06-20"
-  initial_capital: 10000
-  position_size: 0.25
-  fee_rate: 0.001
-  max_positions: 4
-  entry_top_n: 4
-  exit_threshold: 10
-  position_mode: "fixed_amount"
-
-# 輸出設定
-output:
-  save_all_configs: true         # 是否保存所有生成的策略配置
-  save_detailed_results: true    # 是否保存詳細的回測結果
-  generate_summary_report: true  # 是否生成總結報告
-  top_n_strategies: 20          # 報告中顯示前N個最佳策略
-
-# 分析設定
-analysis:
-  target_metrics:               # 目標優化指標
-    - annual_return             # 年化收益率
-    - sharpe_ratio             # 夏普比率
-    - max_drawdown             # 最大回撤
-    - win_rate                 # 勝率
+  # 最大並發數
+  max_parallel: 8
   
-  correlation_analysis: true    # 是否進行相關性分析
-  feature_importance: true      # 是否分析特徵重要性 
+  # 是否自動斷點續跑
+  auto_resume: true
+  
+  # 失敗重試次數
+  max_retries: 3
+  
+  # 批量大小（每次取多少個策略執行）
+  batch_size: 100
+
+# 結果配置
+results:
+  # 默認排序字段
+  default_sort: "sharpe_ratio"
+  
+  # 可用排序字段
+  available_sorts:
+    - "sharpe_ratio"
+    - "annual_return"
+    - "total_return"
+    - "max_drawdown"
+    - "win_rate"
+  
+  # 默認顯示前N個結果
+  default_top_n: 10
+  
+  # 導出格式
+  export_formats:
+    - "json"
+    - "csv"
+
+# 日誌配置
+logging:
+  # 日誌級別
+  level: "INFO"
+  
+  # 日誌格式
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  
+  # 是否保存到文件
+  save_to_file: true
+  
+  # 日誌文件保留天數
+  retention_days: 7
+
+# 性能配置
+performance:
+  # 統計緩存TTL（秒）
+  stats_cache_ttl: 30
+  
+  # 執行歷史保留數量
+  execution_history_size: 100
+  
+  # 是否啟用性能監控
+  enable_monitoring: true
+
+# 驗證配置
+validation:
+  # 是否驗證環境
+  check_environment: true
+  
+  # 必需的Python模塊
+  required_modules:
+    - "pandas"
+    - "numpy"
+    - "sqlite3"
+    - "yaml"
+    - "concurrent.futures"
+  
+  # 必需的腳本文件
+  required_scripts:
+    - "backtest_v5.py"
+    - "factor_strategies/run_factor_strategies.py" 

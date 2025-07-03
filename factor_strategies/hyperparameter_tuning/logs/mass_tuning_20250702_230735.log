@@ -1,0 +1,9 @@
+2025-07-02 23:07:35,469 - __main__ - INFO - 大規模超參數調優系統初始化完成
+2025-07-02 23:07:35,470 - __main__ - INFO - 開始執行批量回測 - 會話: session_20250702_230717_7730, 並發: 1
+2025-07-02 23:07:35,470 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 開始執行批量回測 - 會話: session_20250702_230717_7730, 並發: 1
+2025-07-02 23:07:35,471 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 待執行策略數量: 2
+2025-07-02 23:07:35,474 - factor_strategies.hyperparameter_tuning.core.execution_engine - ERROR - 策略執行失敗: sampling_000001 - 'BatchExecutionEngine' object has no attribute 'config_manager'
+2025-07-02 23:07:35,475 - factor_strategies.hyperparameter_tuning.core.execution_engine - ERROR - 策略執行失敗: sampling_000002 - 'BatchExecutionEngine' object has no attribute 'config_manager'
+2025-07-02 23:07:35,475 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 並行執行完成 - 成功: 0, 失敗: 2
+2025-07-02 23:07:35,475 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 批量回測執行完成
+2025-07-02 23:07:35,475 - __main__ - INFO - 批量回測執行完成

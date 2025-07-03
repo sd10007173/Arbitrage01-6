@@ -1,0 +1,5 @@
+2025-07-02 23:09:14,784 - __main__ - INFO - 大規模超參數調優系統初始化完成
+2025-07-02 23:09:14,785 - __main__ - INFO - 開始執行批量回測 - 會話: session_20250702_230717_7730, 並發: 1
+2025-07-02 23:09:14,785 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 開始執行批量回測 - 會話: session_20250702_230717_7730, 並發: 1
+2025-07-02 23:09:14,786 - factor_strategies.hyperparameter_tuning.core.execution_engine - INFO - 沒有待執行的策略
+2025-07-02 23:09:14,787 - __main__ - INFO - 批量回測執行完成
