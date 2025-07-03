@@ -97,11 +97,13 @@ class BinanceDataCollector:
             for pos in result:
                 symbol = pos['symbol']
                 position_amt = float(pos['positionAmt'])
-                mark_price = float(pos['markPrice'])
                 
                 if position_amt != 0:
-                    margin = abs(position_amt * mark_price)
-                    positions[symbol] = margin
+                    # 使用正確的初始保證金計算：名義價值 / 槓桿倍數
+                    notional = float(pos['notional'])
+                    leverage = float(pos['leverage'])
+                    initial_margin = abs(notional) / leverage if leverage > 0 else 0
+                    positions[symbol] = initial_margin
                     
             return positions
         return {}
@@ -288,17 +290,29 @@ class BybitDataCollector:
 
     def get_current_positions(self):
         """獲取當前持倉"""
-        params = {"category": "linear"}
+        params = {
+            "category": "linear",
+            "settleCoin": "USDT"
+        }
         result = self._make_request("/v5/position/list", params)
         
         if result and 'list' in result:
             positions = {}
             for pos in result['list']:
                 symbol = pos['symbol']
-                position_value = float(pos.get('positionValue', 0))
+                size = float(pos.get('size', 0))
                 
-                if position_value > 0:
-                    positions[symbol] = position_value
+                if size > 0:
+                    # 使用API提供的初始保證金
+                    position_im = float(pos.get('positionIM', 0))
+                    if position_im > 0:
+                        positions[symbol] = position_im
+                    else:
+                        # 備用方案：計算初始保證金
+                        position_value = float(pos.get('positionValue', 0))
+                        leverage = float(pos.get('leverage', 1))
+                        calc_margin = abs(position_value) / leverage if leverage > 0 else 0
+                        positions[symbol] = calc_margin
                     
             return positions
         return {}
@@ -312,6 +326,7 @@ class ArbitrageAnalyzer:
         self.bybit = BybitDataCollector(bybit_api_key, bybit_secret)
         
         self.margin_history_file = "csv/Return/margin_history.json"
+        self.margin_history_csv = "csv/Return/margin_history.csv"
         self.margin_history = self.load_margin_history()
         
     def load_margin_history(self):
@@ -325,31 +340,124 @@ class ArbitrageAnalyzer:
         return {}
     
     def save_margin_history(self):
-        """保存歷史保證金"""
+        """保存歷史保證金到JSON"""
         os.makedirs(os.path.dirname(self.margin_history_file), exist_ok=True)
         with open(self.margin_history_file, 'w') as f:
             json.dump(self.margin_history, f, indent=2)
     
-    def get_margin_for_date(self, date_str, is_today=False):
-        """獲取指定日期保證金"""
-        if is_today:
-            binance_positions = self.binance.get_current_positions()
-            bybit_positions = self.bybit.get_current_positions()
-            
-            self.margin_history[date_str] = {
-                'binance': binance_positions,
-                'bybit': bybit_positions,
-                'source': 'current_api_call'
-            }
-            self.save_margin_history()
-            
-            return binance_positions, bybit_positions, 'current_api_call'
+    def save_margin_to_csv(self, binance_positions, bybit_positions, timestamp_str):
+        """保存保證金數據到CSV"""
+        os.makedirs(os.path.dirname(self.margin_history_csv), exist_ok=True)
+        
+        # 準備CSV數據
+        csv_data = []
+        
+        # 添加幣安數據
+        for symbol, margin in binance_positions.items():
+            csv_data.append({
+                'Timestamp': timestamp_str,
+                'Exchange': 'Binance',
+                'Symbol': symbol,
+                'Position_Margin': margin,
+                'Source': 'current_api_call'
+            })
+        
+        # 添加Bybit數據
+        for symbol, margin in bybit_positions.items():
+            csv_data.append({
+                'Timestamp': timestamp_str,
+                'Exchange': 'Bybit',
+                'Symbol': symbol,
+                'Position_Margin': margin,
+                'Source': 'current_api_call'
+            })
+        
+        # 創建DataFrame
+        new_df = pd.DataFrame(csv_data)
+        
+        # 如果CSV文件已存在，追加數據
+        if os.path.exists(self.margin_history_csv):
+            existing_df = pd.read_csv(self.margin_history_csv)
+            combined_df = pd.concat([existing_df, new_df], ignore_index=True)
         else:
-            if date_str in self.margin_history:
-                data = self.margin_history[date_str]
-                return data['binance'], data['bybit'], data['source']
-            else:
+            combined_df = new_df
+        
+        # 保存到CSV
+        combined_df.to_csv(self.margin_history_csv, index=False)
+        print(f"💾 保證金數據已保存到 {self.margin_history_csv}")
+    
+    def update_current_margin_data(self):
+        """更新當前保證金數據"""
+        print("📊 獲取當前保證金數據...")
+        
+        # 獲取當前保證金
+        binance_positions = self.binance.get_current_positions()
+        bybit_positions = self.bybit.get_current_positions()
+        
+        # 生成時間戳（精確到秒，UTC+0）
+        timestamp_str = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+        date_str = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+        
+        # 保存到JSON（保持原格式兼容）
+        self.margin_history[date_str] = {
+            'binance': binance_positions,
+            'bybit': bybit_positions,
+            'source': 'current_api_call',
+            'timestamp': timestamp_str
+        }
+        self.save_margin_history()
+        
+        # 保存到CSV
+        self.save_margin_to_csv(binance_positions, bybit_positions, timestamp_str)
+        
+        print(f"✅ 保證金數據已更新: {timestamp_str}")
+    
+    def get_latest_margin_from_csv(self, date_str):
+        """從CSV中獲取指定日期的最新保證金數據"""
+        if not os.path.exists(self.margin_history_csv):
+            return {}, {}, 'no_margin_data'
+        
+        try:
+            df = pd.read_csv(self.margin_history_csv)
+            
+            # 篩選指定日期的數據
+            df['Date'] = pd.to_datetime(df['Timestamp']).dt.strftime('%Y-%m-%d')
+            date_df = df[df['Date'] == date_str]
+            
+            if date_df.empty:
                 return {}, {}, 'no_margin_data'
+            
+            # 轉換時間戳為datetime對象進行正確比較
+            date_df['Timestamp_dt'] = pd.to_datetime(date_df['Timestamp'])
+            latest_timestamp_dt = date_df['Timestamp_dt'].max()
+            latest_df = date_df[date_df['Timestamp_dt'] == latest_timestamp_dt]
+            
+            # 分離幣安和Bybit數據
+            binance_data = latest_df[latest_df['Exchange'] == 'Binance']
+            bybit_data = latest_df[latest_df['Exchange'] == 'Bybit']
+            
+            binance_positions = dict(zip(binance_data['Symbol'], binance_data['Position_Margin']))
+            bybit_positions = dict(zip(bybit_data['Symbol'], bybit_data['Position_Margin']))
+            
+            # 使用原始時間戳字符串
+            latest_timestamp_str = latest_df['Timestamp'].iloc[0]
+            
+            return binance_positions, bybit_positions, f'csv_data_{latest_timestamp_str}'
+            
+        except Exception as e:
+            print(f"⚠️ 讀取CSV保證金數據時出錯: {e}")
+            return {}, {}, 'csv_read_error'
+    
+    def get_margin_for_date(self, date_str, force_update=False):
+        """獲取指定日期保證金（統一從歷史記錄中取最新時間的數據）"""
+        today = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+        
+        # 如果是今天且需要更新，則先獲取當前數據
+        if date_str == today and force_update:
+            self.update_current_margin_data()
+        
+        # 從CSV中讀取該日期的最新保證金數據
+        return self.get_latest_margin_from_csv(date_str)
 
     def analyze_data(self, start_date, end_date):
         """分析數據"""
@@ -386,16 +494,20 @@ class ArbitrageAnalyzer:
         
         print(f"找到 {len(all_symbols)} 個交易對")
         
-        today = datetime.now().strftime('%Y-%m-%d')
+        today = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+        
+        # 如果分析範圍包含今天，先更新當日保證金數據
+        if today in [date.strftime('%Y-%m-%d') for date in date_range]:
+            print("🔄 檢測到分析範圍包含今天，先更新當日保證金數據...")
+            self.update_current_margin_data()
         
         for date in date_range:
             date_str = date.strftime('%Y-%m-%d')
-            is_today = (date_str == today)
             
             print(f"處理日期: {date_str}")
             
-            # 獲取保證金
-            binance_margins, bybit_margins, margin_source = self.get_margin_for_date(date_str, is_today)
+            # 獲取保證金（統一從歷史記錄中取最新時間的數據）
+            binance_margins, bybit_margins, margin_source = self.get_margin_for_date(date_str, force_update=False)
             
             for symbol in all_symbols:
                 # 計算幣安數據
@@ -444,11 +556,11 @@ class ArbitrageAnalyzer:
                         'Binance TF': binance_tf,
                         'Bybit TF': bybit_tf,
                         'Net P&L': net_pnl,
-                        'Binance M': binance_margin,
-                        'Bybit M': bybit_margin,
-                        'Total M': total_margin,
-                        'Return': daily_return,
-                        'ROI': roi
+                        'Binance M': binance_margin if binance_margin is not None else 'null',
+                        'Bybit M': bybit_margin if bybit_margin is not None else 'null',
+                        'Total M': total_margin if total_margin is not None else 'null',
+                        'Return': daily_return if daily_return is not None else 'null',
+                        'ROI': roi if roi is not None else 'null'
                     })
                     
                     if binance_ff != 0 or binance_tf != 0 or binance_margin is not None:
@@ -457,7 +569,7 @@ class ArbitrageAnalyzer:
                             'Symbol': symbol,
                             'Funding_Fee': binance_ff,
                             'Trading_Fee': binance_tf,
-                            'Position_Margin': binance_margin,
+                            'Position_Margin': binance_margin if binance_margin is not None else 'null',
                             'API_Source': margin_source if binance_margin is not None else 'no_margin_data'
                         })
                     
@@ -467,7 +579,7 @@ class ArbitrageAnalyzer:
                             'Symbol': symbol,
                             'Funding_Fee': bybit_ff,
                             'Trading_Fee': bybit_tf,
-                            'Position_Margin': bybit_margin,
+                            'Position_Margin': bybit_margin if bybit_margin is not None else 'null',
                             'API_Source': margin_source if bybit_margin is not None else 'no_margin_data'
                         })
         
@@ -617,12 +729,21 @@ def main():
             total_net_pnl = overall_df['Net P&L'].sum()
             print(f"   總淨損益: ${total_net_pnl:.2f}")
             
-            # 計算有效收益率記錄
-            valid_returns = overall_df['Return'].dropna()
+            # 計算有效收益率記錄（排除null值）
+            valid_returns = overall_df['Return'][overall_df['Return'] != 'null'].dropna()
             if len(valid_returns) > 0:
-                avg_return = valid_returns.mean()
-                print(f"   平均日收益率: {avg_return*100:.4f}%")
-                print(f"   平均年化收益率: {avg_return*365*100:.2f}%")
+                # 轉換為數值類型
+                valid_returns = pd.to_numeric(valid_returns, errors='coerce')
+                valid_returns = valid_returns.dropna()
+                
+                if len(valid_returns) > 0:
+                    avg_return = valid_returns.mean()
+                    print(f"   平均日收益率: {avg_return*100:.4f}%")
+                    print(f"   平均年化收益率: {avg_return*365*100:.2f}%")
+                else:
+                    print("   平均收益率: 無有效數據")
+            else:
+                print("   平均收益率: 無保證金數據")
             
     except Exception as e:
         print(f"❌ 執行錯誤: {e}")
