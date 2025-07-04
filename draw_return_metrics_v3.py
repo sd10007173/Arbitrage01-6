@@ -145,11 +145,11 @@ class ReturnMetricsVisualizer:
         if 'roi_all' in data.columns:
             roi_values = data['roi_all'].dropna()
             if not roi_values.empty:
-                roi_display = f"{roi_values.iloc[-1]:.2f}%"  # 使用最後一個有效的ROI值
+                roi_display = f"{roi_values.iloc[-1]:.2f}"  # 使用最後一個有效的ROI值
         
-        stats_text = f'Total Return: {total_return:.2f}%\n'
-        stats_text += f'Avg Daily: {avg_daily_return:.3f}%\n'
-        stats_text += f'Std Daily: {std_daily_return:.3f}%\n'
+        stats_text = f'Total Return: {total_return:.2f}\n'
+        stats_text += f'Avg Daily: {avg_daily_return:.3f}\n'
+        stats_text += f'Std Daily: {std_daily_return:.3f}\n'
         stats_text += f'ROI: {roi_display}'
         
         ax1.text(0.02, 0.98, stats_text, transform=ax1.transAxes, 
@@ -171,7 +171,7 @@ class ReturnMetricsVisualizer:
         plt.close()
         
         print(f"✅ 已生成圖表: {filename}")
-        print(f"   📈 總收益: {total_return:.2f}%")
+        print(f"   📈 總收益: {total_return:.2f}")
         print(f"   💰 ROI: {roi_display}")
         print(f"   📊 數據點: {len(data)} 天")
         print(f"   📅 時間範圍: {start_date} 到 {end_date}")
