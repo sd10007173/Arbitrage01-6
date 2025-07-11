@@ -6,6 +6,7 @@ import time
 import ssl
 import certifi
 import pandas as pd
+import argparse
 
 # --- 全局配置 ---
 # 將並發限制從 10 調降到 5，以避免觸發幣安的速率限制
@@ -290,67 +291,110 @@ async def fetch_and_save_fr(session, task, start_date, end_date):
     else:
         print(f"ℹ️ ({exchange_id.upper()}) {symbol}: 在指定區間內未找到數據。")
 
-async def main():
-    """主執行程序"""
-    # 獲取用戶輸入
+async def main(exchanges=None, top_n=None, start_date=None, end_date=None):
+    """
+    主執行程序 - 支持命令行參數和交互式模式
+    
+    Args:
+        exchanges: 交易所列表，None則交互式輸入
+        top_n: 市值排名前N名，None則交互式輸入  
+        start_date: 開始日期字符串，None則交互式輸入
+        end_date: 結束日期字符串，None則交互式輸入
+    """
     print("--- 資金費率歷史數據獲取工具 V2 ---")
     
-    # 獲取交易所，並加入驗證
-    exchanges = []
-    while not exchanges:
-        exchanges_input = input("請輸入要查詢的交易所, 用空格分隔 (例如: binance bybit okx): ").strip().lower()
-        input_list = [ex.strip() for ex in exchanges_input.split() if ex.strip()]
-        
-        if not input_list:
-            print("未輸入任何交易所，請重新輸入。")
-            continue
+    # 獲取交易所（命令行或交互式）
+    if exchanges is None:
+        # 交互式輸入
+        exchanges = []
+        while not exchanges:
+            exchanges_input = input("請輸入要查詢的交易所, 用空格分隔 (例如: binance bybit okx): ").strip().lower()
+            input_list = [ex.strip() for ex in exchanges_input.split() if ex.strip()]
+            
+            if not input_list:
+                print("未輸入任何交易所，請重新輸入。")
+                continue
 
-        # 驗證所有輸入的交易所是否都有效
-        invalid_exchanges = [ex for ex in input_list if ex not in SUPPORTED_EXCHANGES]
-        
+            # 驗證所有輸入的交易所是否都有效
+            invalid_exchanges = [ex for ex in input_list if ex not in SUPPORTED_EXCHANGES]
+            
+            if invalid_exchanges:
+                print(f"❌ 錯誤：包含不支援或拼寫錯誤的交易所: {', '.join(invalid_exchanges)}")
+                print(f"   目前支援的交易所為: {', '.join(SUPPORTED_EXCHANGES)}")
+            else:
+                exchanges = input_list # 全部有效，賦值並結束循環
+    else:
+        # 命令行模式 - 驗證交易所
+        invalid_exchanges = [ex for ex in exchanges if ex not in SUPPORTED_EXCHANGES]
         if invalid_exchanges:
-            print(f"❌ 錯誤：包含不支援或拼寫錯誤的交易所: {', '.join(invalid_exchanges)}")
-            print(f"   目前支援的交易所為: {', '.join(SUPPORTED_EXCHANGES)}")
-        else:
-            exchanges = input_list # 全部有效，賦值並結束循環
+            print(f"❌ 不支持的交易所: {invalid_exchanges}")
+            print(f"✅ 支持的交易所: {SUPPORTED_EXCHANGES}")
+            return
+        print(f"🎯 指定交易所: {exchanges}")
 
-    # 獲取市值排名
-    top_n = 0
-    while top_n <= 0:
-        try:
-            top_n = int(input("請輸入要查詢的市值排名前 N (例如: 500): ").strip())
-            if top_n <= 0:
-                print("請輸入一個大於 0 的整數。")
-        except ValueError:
-            print("無效的輸入，請輸入一個數字。")
+    # 獲取市值排名（命令行或交互式）
+    if top_n is None:
+        # 交互式輸入
+        top_n = 0
+        while top_n <= 0:
+            try:
+                top_n = int(input("請輸入要查詢的市值排名前 N (例如: 500): ").strip())
+                if top_n <= 0:
+                    print("請輸入一個大於 0 的整數。")
+            except ValueError:
+                print("無效的輸入，請輸入一個數字。")
+    else:
+        print(f"📊 市值排名: 前 {top_n} 名")
 
-    # 獲取開始日期
-    start_date_str = ""
-    while not start_date_str:
+    # 獲取開始日期（命令行或交互式）
+    start_date_str = start_date
+    if start_date_str is None:
+        # 交互式輸入
+        start_date_str = ""
+        while not start_date_str:
+            try:
+                start_date_str = input("請輸入開始日期 (格式 YYYY-MM-DD): ").strip()
+                datetime.fromisoformat(start_date_str)
+            except ValueError:
+                print("日期格式錯誤，請使用 YYYY-MM-DD 格式。")
+                start_date_str = ""
+    else:
+        # 命令行模式 - 驗證日期格式
         try:
-            start_date_str = input("請輸入開始日期 (格式 YYYY-MM-DD): ").strip()
             datetime.fromisoformat(start_date_str)
+            print(f"📅 開始日期: {start_date_str}")
         except ValueError:
-            print("日期格式錯誤，請使用 YYYY-MM-DD 格式。")
-            start_date_str = ""
+            print(f"❌ 開始日期格式錯誤: {start_date_str}")
+            return
     
-    # 獲取結束日期
-    end_date_str = ""
-    while not end_date_str:
+    # 獲取結束日期（命令行或交互式）
+    end_date_str = end_date
+    if end_date_str is None:
+        # 交互式輸入
+        end_date_str = ""
+        while not end_date_str:
+            try:
+                end_date_str = input("請輸入結束日期 (格式 YYYY-MM-DD): ").strip()
+                datetime.fromisoformat(end_date_str)
+            except ValueError:
+                print("日期格式錯誤，請使用 YYYY-MM-DD 格式。")
+                end_date_str = ""
+    else:
+        # 命令行模式 - 驗證日期格式
         try:
-            end_date_str = input("請輸入結束日期 (格式 YYYY-MM-DD): ").strip()
             datetime.fromisoformat(end_date_str)
+            print(f"📅 結束日期: {end_date_str}")
         except ValueError:
-            print("日期格式錯誤，請使用 YYYY-MM-DD 格式。")
-            end_date_str = ""
+            print(f"❌ 結束日期格式錯誤: {end_date_str}")
+            return
             
     print("-------------------------------------\n")
     
     # 解析並設定時區
-    start_date = datetime.fromisoformat(start_date_str).replace(tzinfo=timezone.utc)
+    start_date_dt = datetime.fromisoformat(start_date_str).replace(tzinfo=timezone.utc)
     # 修正：將結束日期視為包含當天。例如，輸入 2025-06-11，則抓取到 2025-06-11 23:00:00 的數據
     # 我們透過將日期加一天，並將其作為開區間的結束點來實現
-    end_date = datetime.fromisoformat(end_date_str).replace(tzinfo=timezone.utc) + timedelta(days=1)
+    end_date_dt = datetime.fromisoformat(end_date_str).replace(tzinfo=timezone.utc) + timedelta(days=1)
     
     # 建立資料庫連線
     conn = get_connection()
@@ -377,10 +421,70 @@ async def main():
 
     ssl_context = ssl.create_default_context(cafile=certifi.where())
     async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=ssl_context)) as session:
-        fetch_tasks = [run_with_semaphore(fetch_and_save_fr(session, task, start_date, end_date)) for task in tasks]
+        fetch_tasks = [run_with_semaphore(fetch_and_save_fr(session, task, start_date_dt, end_date_dt)) for task in tasks]
         await asyncio.gather(*fetch_tasks)
 
     print("\n🎉 所有任務執行完畢！")
 
+def run_main():
+    """包裝函數，處理命令行參數"""
+    parser = argparse.ArgumentParser(
+        description='資金費率歷史數據獲取工具 V2 - 批量獲取交易對資金費率',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+使用範例:
+  # 交互式模式
+  python fetch_FR_history_group_v2.py
+  
+  # 命令行模式 - 基本用法
+  python fetch_FR_history_group_v2.py --exchanges binance bybit --top_n 100 --start_date 2025-07-01 --end_date 2025-07-09
+  
+  # 命令行模式 - 單個交易所
+  python fetch_FR_history_group_v2.py --exchanges binance --top_n 50 --start_date 2025-07-01 --end_date 2025-07-03
+  
+  # 命令行模式 - 所有支持的交易所
+  python fetch_FR_history_group_v2.py --exchanges binance bybit okx --top_n 200 --start_date 2025-07-01 --end_date 2025-07-09
+        """
+    )
+    
+    parser.add_argument('--exchanges', nargs='+',
+                       choices=SUPPORTED_EXCHANGES,
+                       help='指定要查詢的交易所（空格分隔），例如：binance bybit okx')
+    
+    parser.add_argument('--top_n', type=int,
+                       help='市值排名前N名，例如：100')
+    
+    parser.add_argument('--start_date', type=str,
+                       help='開始日期，格式：YYYY-MM-DD，例如：2025-07-01')
+    
+    parser.add_argument('--end_date', type=str,
+                       help='結束日期，格式：YYYY-MM-DD，例如：2025-07-09')
+    
+    args = parser.parse_args()
+    
+    # 檢查參數完整性
+    cmd_params = [args.exchanges, args.top_n, args.start_date, args.end_date]
+    has_any_param = any(param is not None for param in cmd_params)
+    has_all_params = all(param is not None for param in cmd_params)
+    
+    if has_any_param and not has_all_params:
+        print("❌ 命令行模式需要提供所有參數：--exchanges, --top_n, --start_date, --end_date")
+        print("💡 或者不提供任何參數使用交互式模式")
+        parser.print_help()
+        return
+    
+    # 調用主函數
+    if has_all_params:
+        print("🚀 命令行模式")
+        asyncio.run(main(
+            exchanges=args.exchanges,
+            top_n=args.top_n,
+            start_date=args.start_date,
+            end_date=args.end_date
+        ))
+    else:
+        print("🚀 交互式模式")
+        asyncio.run(main())
+
 if __name__ == "__main__":
-    asyncio.run(main())
+    run_main()

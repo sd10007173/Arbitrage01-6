@@ -15,11 +15,17 @@ V10重要修復：
 - 修正Bybit所有交易對的支援狀態和上市日期
 - 達到100%準確的Bybit永續合約檢測
 - 保持其他交易所的正確性
+
+V10.1更新：
+- 添加命令行參數支持
+- 支持指定交易所和市值排名篩選
+- 保持向後兼容性
 """
 
 import ccxt
 import sqlite3
 import time
+import argparse
 from datetime import datetime, timedelta
 
 def connect_db():
@@ -216,7 +222,14 @@ def test_symbol_exists_and_get_date(exchange, symbol_slash, exchange_name):
     """
     return check_volume_and_get_listing_date(exchange, symbol_slash, exchange_name)
 
-def main():
+def main(exchanges=None, top_n=None):
+    """
+    主函數 - 支持命令行參數和交互式模式
+    
+    Args:
+        exchanges: 要檢查的交易所列表，None則檢查全部
+        top_n: 市值排名前N名，None則處理全部
+    """
     start_time = time.time()
     
     print("=" * 60)
@@ -237,15 +250,39 @@ def main():
     conn = connect_db()
     cursor = conn.cursor()
     
-    # 獲取所有交易對
-    cursor.execute("SELECT id, symbol, trading_pair FROM trading_pair ORDER BY id")
+    # 構建查詢語句 - 支持市值篩選
+    query = "SELECT id, symbol, trading_pair FROM trading_pair"
+    params = []
+    
+    if top_n is not None:
+        query += " WHERE market_cap_rank IS NOT NULL AND market_cap_rank <= ?"
+        params.append(top_n)
+        print(f"📊 篩選條件: 市值排名前 {top_n} 名")
+    
+    query += " ORDER BY market_cap_rank"
+    
+    cursor.execute(query, params)
     trading_pairs_from_db = cursor.fetchall()
     
     total_pairs = len(trading_pairs_from_db)
     print(f"\n📊 總共需要處理 {total_pairs} 個交易對")
     
-    # 初始化交易所 (僅處理這四個)
-    exchanges_to_check = ['binance', 'bybit', 'okx', 'gate']
+    # 確定要檢查的交易所
+    all_supported_exchanges = ['binance', 'bybit', 'okx', 'gate']
+    if exchanges is not None:
+        # 驗證輸入的交易所
+        invalid_exchanges = [ex for ex in exchanges if ex not in all_supported_exchanges]
+        if invalid_exchanges:
+            print(f"❌ 不支持的交易所: {invalid_exchanges}")
+            print(f"✅ 支持的交易所: {all_supported_exchanges}")
+            return
+        
+        exchanges_to_check = exchanges
+        print(f"🎯 指定檢查交易所: {exchanges_to_check}")
+    else:
+        exchanges_to_check = all_supported_exchanges
+        print(f"🔍 檢查所有支持的交易所: {exchanges_to_check}")
+    
     all_exchanges = {}
     all_markets = {}
     
@@ -363,4 +400,33 @@ def main():
     print("=" * 60)
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(
+        description='交易所交易對支持檢查工具 V10 - 修正Bybit永續合約格式',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+使用範例:
+  # 交互式模式（檢查所有交易所和交易對）
+  python exchange_trading_pair_v10.py
+  
+  # 命令行模式 - 指定交易所
+  python exchange_trading_pair_v10.py --exchanges binance bybit
+  
+  # 命令行模式 - 指定市值排名
+  python exchange_trading_pair_v10.py --top_n 100
+  
+  # 命令行模式 - 組合參數
+  python exchange_trading_pair_v10.py --exchanges binance bybit --top_n 50
+        """
+    )
+    
+    parser.add_argument('--exchanges', nargs='+', 
+                       choices=['binance', 'bybit', 'okx', 'gate'],
+                       help='指定要檢查的交易所（空格分隔），例如：binance bybit')
+    
+    parser.add_argument('--top_n', type=int,
+                       help='只檢查市值排名前N名的交易對，例如：100')
+    
+    args = parser.parse_args()
+    
+    # 調用主函數
+    main(exchanges=args.exchanges, top_n=args.top_n)
