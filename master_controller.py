@@ -423,27 +423,27 @@ class MasterController:
         try:
             if script == 'market_cap_trading_pair.py':
                 # 步驟0: 市值數據更新
-                cmd = ['python', script, '--top_n', str(top_n)]
+                cmd = [sys.executable, script, '--top_n', str(top_n)]
                 
             elif script == 'exchange_trading_pair_v10.py':
                 # 步驟1: 交易所支持檢查
-                cmd = ['python', script, '--exchanges'] + exchanges + ['--top_n', str(top_n)]
+                cmd = [sys.executable, script, '--exchanges'] + exchanges + ['--top_n', str(top_n)]
                 
             elif script == 'fetch_FR_history_group_v2.py':
                 # 步驟2: 資金費率獲取
-                cmd = ['python', script, '--exchanges'] + exchanges + ['--top_n', str(top_n), '--start_date', start_date, '--end_date', end_date]
+                cmd = [sys.executable, script, '--exchanges'] + exchanges + ['--top_n', str(top_n), '--start_date', start_date, '--end_date', end_date]
                 
             elif script == 'calculate_FR_diff_v3.py':
                 # 步驟3: 差異計算
-                cmd = ['python', script, '--start-date', start_date, '--end-date', end_date, '--exchanges'] + exchanges
+                cmd = [sys.executable, script, '--start-date', start_date, '--end-date', end_date, '--exchanges'] + exchanges
                 
             elif script == 'calculate_FR_return_list_v2.py':
                 # 步驟4: 收益計算
-                cmd = ['python', script, '--start-date', start_date, '--end-date', end_date]
+                cmd = [sys.executable, script, '--start-date', start_date, '--end-date', end_date]
                 
             elif script == 'strategy_ranking_v2.py':
                 # 步驟5: 策略排名
-                cmd = ['python', script, '--start_date', start_date, '--end_date', end_date]
+                cmd = [sys.executable, script, '--start_date', start_date, '--end_date', end_date]
                 if strategy == 'all':
                     # 不添加 --strategies 參數，會自動選擇全部策略
                     pass
@@ -452,7 +452,7 @@ class MasterController:
                     
             elif script == 'draw_return_metrics_v3.py':
                 # 步驟6: 收益圖表生成
-                cmd = ['python', script, '--output-dir', 'data/picture']
+                cmd = [sys.executable, script, '--output-dir', 'data/picture']
                     
             else:
                 print(f"❌ 未知腳本: {script}")
