@@ -518,10 +518,12 @@ def main():
   python master_controller.py --exchanges binance bybit --top_n 500 --start_date 2025-07-01 --end_date 2025-07-09 --strategy original
   python master_controller.py --exchanges binance bybit --top_n 1000 --start_date 2025-07-01 --end_date 2025-07-09 --strategy all
   python master_controller.py --exchanges binance bybit --top_n 100 --start_date up_to_date --end_date up_to_date --strategy 1
+  python master_controller.py --exchanges binance bybit --top_n 750 --start_date up_to_date --end_date up_to_date --strategy all --yes
 
 注意事項:
 - top_n 參數必須是正整數，不能是 'all'，因為需要調用 CoinGecko API
 - 系統會先更新市值數據，然後依序執行7個步驟的完整流程
+- 使用 --yes 參數可跳過確認步驟，適用於 crontab 自動化執行
         '''
     )
     
@@ -531,6 +533,7 @@ def main():
     parser.add_argument('--start_date', help='開始日期 (YYYY-MM-DD) 或 up_to_date (從最新數據開始)')
     parser.add_argument('--end_date', help='結束日期 (YYYY-MM-DD) 或 up_to_date (更新到昨天)')
     parser.add_argument('--strategy', help='策略選擇 (策略名稱、編號或 all)')
+    parser.add_argument('--yes', action='store_true', help='自動確認執行，跳過手動確認步驟（適用於crontab自動化）')
     
     args = parser.parse_args()
     
@@ -590,11 +593,14 @@ def main():
     # 顯示執行計劃
     controller.display_execution_plan(exchanges, top_n, start_date, end_date, strategy)
     
-    # 獲取用戶確認
-    confirm = input("\n是否繼續執行? (y/N): ").strip().lower()
-    if confirm not in ['y', 'yes', '是']:
-        print("👋 用戶取消執行")
-        return
+    # 獲取用戶確認（如果有 --yes 參數則跳過確認）
+    if not args.yes:
+        confirm = input("\n是否繼續執行? (y/N): ").strip().lower()
+        if confirm not in ['y', 'yes', '是']:
+            print("👋 用戶取消執行")
+            return
+    else:
+        print("\n✅ 自動確認執行（--yes 參數）")
     
     # 執行完整流程
     success = controller.run_complete_process(exchanges, top_n, start_date, end_date, strategy)
