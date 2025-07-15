@@ -32,6 +32,7 @@ import argparse
 import sys
 import time
 import sqlite3
+import requests
 from datetime import datetime, timedelta, timezone
 from typing import List, Tuple, Optional
 
@@ -132,12 +133,42 @@ def validate_date_range(start_date_str, end_date_str, is_auto_mode=False):
         print("❌ 日期格式錯誤")
         return False
 
+class TelegramNotifier:
+    """Telegram通知器"""
+    
+    def __init__(self, bot_token, chat_id):
+        self.bot_token = bot_token
+        self.chat_id = chat_id
+        self.base_url = f"https://api.telegram.org/bot{bot_token}"
+
+    def send_message(self, message):
+        """發送消息到Telegram"""
+        try:
+            url = f"{self.base_url}/sendMessage"
+            data = {
+                'chat_id': self.chat_id,
+                'text': message,
+                'parse_mode': 'HTML'
+            }
+            response = requests.post(url, data=data, timeout=30)
+            if response.status_code == 200:
+                print(f"✅ Telegram通知已發送")
+                return True
+            else:
+                print(f"❌ Telegram發送失敗: {response.status_code}")
+                print(f"回應內容: {response.text}")
+                return False
+        except Exception as e:
+            print(f"❌ Telegram通知異常: {str(e)}")
+            return False
+
 class MasterController:
     """資金費率分析系統總控制器"""
     
     def __init__(self):
         self.supported_exchanges = ['binance', 'bybit', 'okx', 'gate']
         self.available_strategies = self._load_available_strategies()
+        self.notifier = self._init_telegram_notifier()
         self.steps = [
             {
                 'name': '市值數據更新',
@@ -175,6 +206,23 @@ class MasterController:
                 'description': '生成交易對收益圖表（累積收益圖和每日收益圖）'
             }
         ]
+    
+    def _init_telegram_notifier(self):
+        """初始化Telegram通知器"""
+        try:
+            from api_config import TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
+            return TelegramNotifier(TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID)
+        except ImportError:
+            print("ℹ️ 未找到 Telegram 配置，跳過通知功能")
+            return None
+        except Exception as e:
+            print(f"⚠️ Telegram 配置載入失敗: {e}")
+            return None
+    
+    def send_telegram_notification(self, message):
+        """發送Telegram通知（帶錯誤處理）"""
+        if self.notifier:
+            self.notifier.send_message(message)
     
     def _load_available_strategies(self) -> List[Tuple[str, str]]:
         """加載可用策略列表"""
@@ -483,8 +531,15 @@ class MasterController:
             print(f"   📤 錯誤: {str(e)}")
             return False
     
-    def run_complete_process(self, exchanges: List[str], top_n: int, start_date: str, end_date: str, strategy: str):
+    def run_complete_process(self, exchanges: List[str], top_n: int, start_date: str, end_date: str, strategy: str, args=None):
         """執行完整流程"""
+        
+        # 發送開始通知
+        if args and not args.no_telegram:
+            start_time_utc = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')
+            message = f"🎛️ master_controller開始執行\n⏰ 開始時間: {start_time_utc}"
+            self.send_telegram_notification(message)
+        
         print("\n🚀 開始執行完整的資金費率分析流程")
         print("=" * 60)
         
@@ -495,10 +550,24 @@ class MasterController:
             
             if not success:
                 print(f"\n❌ 步驟 {i + 1} 失敗，流程中斷")
+                
+                # 發送失敗通知
+                if args and not args.no_telegram:
+                    end_time_utc = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')
+                    message = f"❌ master_controller執行失敗\n⏰ 失敗時間: {end_time_utc}"
+                    self.send_telegram_notification(message)
+                
                 return False
         
         overall_end_time = time.time()
         total_elapsed = overall_end_time - overall_start_time
+        
+        # 發送完成通知
+        if args and not args.no_telegram:
+            end_time_utc = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')
+            elapsed_minutes = total_elapsed / 60
+            message = f"🎉 master_controller執行完成\n⏰ 完成時間: {end_time_utc}\n⏱️ 總耗時: {elapsed_minutes:.1f}分鐘"
+            self.send_telegram_notification(message)
         
         print("\n" + "="*60)
         print("🎉 流程完成!")
@@ -534,6 +603,7 @@ def main():
     parser.add_argument('--end_date', help='結束日期 (YYYY-MM-DD) 或 up_to_date (更新到昨天)')
     parser.add_argument('--strategy', help='策略選擇 (策略名稱、編號或 all)')
     parser.add_argument('--yes', action='store_true', help='自動確認執行，跳過手動確認步驟（適用於crontab自動化）')
+    parser.add_argument('--no-telegram', action='store_true', help='禁用 Telegram 通知')
     
     args = parser.parse_args()
     
@@ -603,7 +673,7 @@ def main():
         print("\n✅ 自動確認執行（--yes 參數）")
     
     # 執行完整流程
-    success = controller.run_complete_process(exchanges, top_n, start_date, end_date, strategy)
+    success = controller.run_complete_process(exchanges, top_n, start_date, end_date, strategy, args)
     
     if success:
         print("\n🎊 資金費率分析完成！")
