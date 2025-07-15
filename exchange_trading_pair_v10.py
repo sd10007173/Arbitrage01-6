@@ -414,6 +414,9 @@ if __name__ == "__main__":
   # 命令行模式 - 指定市值排名
   python exchange_trading_pair_v10.py --top_n 100
   
+  # 命令行模式 - 檢查所有交易對
+  python exchange_trading_pair_v10.py --top_n all
+  
   # 命令行模式 - 組合參數
   python exchange_trading_pair_v10.py --exchanges binance bybit --top_n 50
         """

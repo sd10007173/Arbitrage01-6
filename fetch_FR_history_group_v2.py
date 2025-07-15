@@ -7,6 +7,7 @@ import ssl
 import certifi
 import pandas as pd
 import argparse
+import sys
 
 # --- 全局配置 ---
 # 將並發限制從 10 調降到 5，以避免觸發幣安的速率限制
@@ -35,10 +36,93 @@ def get_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
+def get_latest_funding_rate_date():
+    """獲取funding_rate_history表中最新記錄的日期"""
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT MAX(DATE(timestamp_utc)) as latest_date
+            FROM funding_rate_history
+        """)
+        result = cursor.fetchone()
+        conn.close()
+        
+        if result and result[0]:
+            return result[0]
+        else:
+            print("❌ funding_rate_history表為空")
+            sys.exit(1)
+    except Exception as e:
+        print(f"❌ 查詢funding_rate_history表時發生錯誤: {e}")
+        sys.exit(1)
+
+def process_date_input(date_input, date_type="start"):
+    """處理日期輸入，支持up_to_date，並記錄日誌"""
+    if date_input == "up_to_date":
+        if date_type == "start":
+            latest_date = get_latest_funding_rate_date()
+            print(f"📅 自動設定開始日期: {latest_date} (來自funding_rate_history最新記錄)")
+            return latest_date
+        else:  # end
+            utc_now = datetime.now(timezone.utc)
+            yesterday = utc_now - timedelta(days=1)
+            yesterday_str = yesterday.strftime('%Y-%m-%d')
+            print(f"📅 自動設定結束日期: {yesterday_str} (UTC+0昨天)")
+            return yesterday_str
+    else:
+        # 驗證日期格式
+        try:
+            datetime.fromisoformat(date_input)
+            print(f"📅 使用指定日期: {date_input}")
+            return date_input
+        except ValueError:
+            raise ValueError(f"無效的日期格式: {date_input}")
+
+def validate_date_range(start_date_str, end_date_str, is_auto_mode=False):
+    """
+    驗證日期範圍的邏輯性
+    
+    Args:
+        start_date_str: 開始日期字符串
+        end_date_str: 結束日期字符串  
+        is_auto_mode: 是否為自動模式（up_to_date）
+    
+    Returns:
+        bool: 是否有效
+    """
+    start_dt = datetime.fromisoformat(start_date_str)
+    end_dt = datetime.fromisoformat(end_date_str)
+    
+    if start_dt > end_dt:
+        if is_auto_mode:
+            print("❌ 自動模式檢測到異常：最新數據日期晚於昨天")
+            print(f"   最新數據日期: {start_date_str}")
+            print(f"   目標結束日期: {end_date_str}")
+            print("💡 建議：檢查系統時間或數據庫中的時間戳是否正確")
+        else:
+            print("❌ 開始日期不能晚於結束日期")
+        return False
+    
+    if start_dt == end_dt:
+        if is_auto_mode:
+            print("⚠️ 自動模式檢測：開始日期等於結束日期")
+            print(f"   處理日期: {start_date_str}")
+            print("💡 系統將嘗試獲取該日期的數據")
+        else:
+            print("⚠️ 開始日期等於結束日期，將只處理一天的數據")
+    
+    return True
+
 async def get_target_pairs(conn, exchanges, top_n):
     """
     從資料庫中根據市值排名和交易所支援情況，篩選出目標交易對。
     返回一個任務列表，每個任務包含 symbol, exchange 和 list_date。
+    
+    Args:
+        conn: 資料庫連接
+        exchanges: 交易所列表
+        top_n: 市值排名前N名，或 "all" 表示所有交易對
     """
     cursor = conn.cursor()
     tasks = []
@@ -46,16 +130,33 @@ async def get_target_pairs(conn, exchanges, top_n):
     # 構建查詢語句
     # 我們需要動態地檢查每個請求的交易所是否被支援
     placeholders = ','.join('?' for _ in exchanges)
-    query = f"""
-        SELECT id, symbol, trading_pair, market_cap_rank, 
-               {', '.join([f'{ex}_support' for ex in exchanges])},
-               {', '.join([f'{ex}_list_date' for ex in exchanges])}
-        FROM trading_pair
-        WHERE market_cap_rank IS NOT NULL AND market_cap_rank <= ?
-        ORDER BY market_cap_rank
-    """
     
-    cursor.execute(query, (top_n,))
+    # 根據 top_n 參數動態構建 WHERE 條件
+    if top_n == "all":
+        # 查詢所有交易對（有市值排名的和沒有市值排名的）
+        query = f"""
+            SELECT id, symbol, trading_pair, market_cap_rank, 
+                   {', '.join([f'{ex}_support' for ex in exchanges])},
+                   {', '.join([f'{ex}_list_date' for ex in exchanges])}
+            FROM trading_pair
+            ORDER BY CASE 
+                WHEN market_cap_rank IS NOT NULL THEN market_cap_rank 
+                ELSE 999999 
+            END
+        """
+        cursor.execute(query)
+    else:
+        # 查詢市值排名前N名的交易對
+        query = f"""
+            SELECT id, symbol, trading_pair, market_cap_rank, 
+                   {', '.join([f'{ex}_support' for ex in exchanges])},
+                   {', '.join([f'{ex}_list_date' for ex in exchanges])}
+            FROM trading_pair
+            WHERE market_cap_rank IS NOT NULL AND market_cap_rank <= ?
+            ORDER BY market_cap_rank
+        """
+        cursor.execute(query, (top_n,))
+    
     rows = cursor.fetchall()
     
     for row in rows:
@@ -335,16 +436,26 @@ async def main(exchanges=None, top_n=None, start_date=None, end_date=None):
     # 獲取市值排名（命令行或交互式）
     if top_n is None:
         # 交互式輸入
-        top_n = 0
-        while top_n <= 0:
+        top_n = None
+        while top_n is None:
             try:
-                top_n = int(input("請輸入要查詢的市值排名前 N (例如: 500): ").strip())
-                if top_n <= 0:
-                    print("請輸入一個大於 0 的整數。")
+                user_input = input("請輸入要查詢的市值排名前 N (例如: 500) 或輸入 'all' 查詢所有交易對: ").strip()
+                if user_input.lower() == 'all':
+                    top_n = "all"
+                else:
+                    top_n_int = int(user_input)
+                    if top_n_int <= 0:
+                        print("請輸入一個大於 0 的整數，或輸入 'all'。")
+                        top_n = None
+                    else:
+                        top_n = top_n_int
             except ValueError:
-                print("無效的輸入，請輸入一個數字。")
+                print("無效的輸入，請輸入一個數字或 'all'。")
     else:
-        print(f"📊 市值排名: 前 {top_n} 名")
+        if top_n == "all":
+            print("📊 市值排名: 所有交易對")
+        else:
+            print(f"📊 市值排名: 前 {top_n} 名")
 
     # 獲取開始日期（命令行或交互式）
     start_date_str = start_date
@@ -353,18 +464,18 @@ async def main(exchanges=None, top_n=None, start_date=None, end_date=None):
         start_date_str = ""
         while not start_date_str:
             try:
-                start_date_str = input("請輸入開始日期 (格式 YYYY-MM-DD): ").strip()
-                datetime.fromisoformat(start_date_str)
-            except ValueError:
-                print("日期格式錯誤，請使用 YYYY-MM-DD 格式。")
+                start_date_input = input("請輸入開始日期 (格式 YYYY-MM-DD) 或輸入 'up_to_date' 從最新數據開始: ").strip()
+                start_date_str = process_date_input(start_date_input, "start")
+                break
+            except ValueError as e:
+                print(f"❌ {e}")
                 start_date_str = ""
     else:
-        # 命令行模式 - 驗證日期格式
+        # 命令行模式 - 處理日期參數
         try:
-            datetime.fromisoformat(start_date_str)
-            print(f"📅 開始日期: {start_date_str}")
-        except ValueError:
-            print(f"❌ 開始日期格式錯誤: {start_date_str}")
+            start_date_str = process_date_input(start_date_str, "start")
+        except ValueError as e:
+            print(f"❌ 開始日期處理錯誤: {e}")
             return
     
     # 獲取結束日期（命令行或交互式）
@@ -374,19 +485,25 @@ async def main(exchanges=None, top_n=None, start_date=None, end_date=None):
         end_date_str = ""
         while not end_date_str:
             try:
-                end_date_str = input("請輸入結束日期 (格式 YYYY-MM-DD): ").strip()
-                datetime.fromisoformat(end_date_str)
-            except ValueError:
-                print("日期格式錯誤，請使用 YYYY-MM-DD 格式。")
+                end_date_input = input("請輸入結束日期 (格式 YYYY-MM-DD) 或輸入 'up_to_date' 更新到昨天: ").strip()
+                end_date_str = process_date_input(end_date_input, "end")
+                break
+            except ValueError as e:
+                print(f"❌ {e}")
                 end_date_str = ""
     else:
-        # 命令行模式 - 驗證日期格式
+        # 命令行模式 - 處理日期參數
         try:
-            datetime.fromisoformat(end_date_str)
-            print(f"📅 結束日期: {end_date_str}")
-        except ValueError:
-            print(f"❌ 結束日期格式錯誤: {end_date_str}")
+            end_date_str = process_date_input(end_date_str, "end")
+        except ValueError as e:
+            print(f"❌ 結束日期處理錯誤: {e}")
             return
+    
+    # 檢查日期邏輯
+    is_auto_mode = (start_date == "up_to_date" or end_date == "up_to_date")
+    if not validate_date_range(start_date_str, end_date_str, is_auto_mode):
+        print("❌ 日期範圍驗證失敗")
+        return
             
     print("-------------------------------------\n")
     
@@ -400,7 +517,10 @@ async def main(exchanges=None, top_n=None, start_date=None, end_date=None):
     conn = get_connection()
     
     # 1. 獲取目標任務列表
-    print(f"正在從資料庫查詢 市值前 {top_n} 且支援 {', '.join(exchanges)} 的交易對...")
+    if top_n == "all":
+        print(f"正在從資料庫查詢 所有支援 {', '.join(exchanges)} 的交易對...")
+    else:
+        print(f"正在從資料庫查詢 市值前 {top_n} 且支援 {', '.join(exchanges)} 的交易對...")
     tasks = await get_target_pairs(conn, exchanges, top_n)
     conn.close()
     
@@ -444,6 +564,12 @@ def run_main():
   
   # 命令行模式 - 所有支持的交易所
   python fetch_FR_history_group_v2.py --exchanges binance bybit okx --top_n 200 --start_date 2025-07-01 --end_date 2025-07-09
+  
+  # 命令行模式 - 查詢所有交易對
+  python fetch_FR_history_group_v2.py --exchanges binance --top_n all --start_date 2025-07-01 --end_date 2025-07-09
+  
+  # 命令行模式 - 使用up_to_date
+  python fetch_FR_history_group_v2.py --exchanges binance --top_n 100 --start_date up_to_date --end_date up_to_date
         """
     )
     
@@ -451,14 +577,14 @@ def run_main():
                        choices=SUPPORTED_EXCHANGES,
                        help='指定要查詢的交易所（空格分隔），例如：binance bybit okx')
     
-    parser.add_argument('--top_n', type=int,
-                       help='市值排名前N名，例如：100')
+    parser.add_argument('--top_n', type=str,
+                       help='市值排名前N名（例如：100）或輸入 "all" 查詢所有交易對')
     
     parser.add_argument('--start_date', type=str,
-                       help='開始日期，格式：YYYY-MM-DD，例如：2025-07-01')
+                       help='開始日期，格式：YYYY-MM-DD，例如：2025-07-01 或 up_to_date (從最新數據開始)')
     
     parser.add_argument('--end_date', type=str,
-                       help='結束日期，格式：YYYY-MM-DD，例如：2025-07-09')
+                       help='結束日期，格式：YYYY-MM-DD，例如：2025-07-09 或 up_to_date (更新到昨天)')
     
     args = parser.parse_args()
     
@@ -473,14 +599,44 @@ def run_main():
         parser.print_help()
         return
     
+    # 驗證參數
+    if has_all_params:
+        # 驗證 top_n 參數
+        if args.top_n.lower() == 'all':
+            top_n_validated = "all"
+        else:
+            try:
+                top_n_int = int(args.top_n)
+                if top_n_int <= 0:
+                    print("❌ --top_n 參數必須是正整數或 'all'")
+                    return
+                top_n_validated = top_n_int
+            except ValueError:
+                print("❌ --top_n 參數必須是正整數或 'all'")
+                return
+        
+        # 驗證日期參數
+        try:
+            start_date_validated = process_date_input(args.start_date, "start")
+            end_date_validated = process_date_input(args.end_date, "end")
+            
+            # 檢查日期邏輯
+            is_auto_mode = (args.start_date == "up_to_date" or args.end_date == "up_to_date")
+            if not validate_date_range(start_date_validated, end_date_validated, is_auto_mode):
+                print("❌ 日期範圍驗證失敗")
+                return
+        except ValueError as e:
+            print(f"❌ 日期參數錯誤: {e}")
+            return
+    
     # 調用主函數
     if has_all_params:
         print("🚀 命令行模式")
         asyncio.run(main(
             exchanges=args.exchanges,
-            top_n=args.top_n,
-            start_date=args.start_date,
-            end_date=args.end_date
+            top_n=top_n_validated,
+            start_date=start_date_validated,
+            end_date=end_date_validated
         ))
     else:
         print("🚀 交互式模式")

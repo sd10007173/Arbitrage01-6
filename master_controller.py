@@ -5,7 +5,7 @@
 =============================
 
 功能：自動化執行完整的資金費率分析流程
-包含：交易所支持檢查 → 資金費率獲取 → 差異計算 → 收益計算 → 策略排名 → 收益圖表生成
+包含：市值數據更新 → 交易所支持檢查 → 資金費率獲取 → 差異計算 → 收益計算 → 策略排名 → 收益圖表生成
 
 使用方式：
 - 交互式模式：python master_controller.py
@@ -18,15 +18,21 @@ V2.0 更新：
 
 V2.1 更新：
 - 添加收益圖表生成功能
-- 6步驟完整流程，包含視覺化圖表輸出
+- 7步驟完整流程，包含視覺化圖表輸出
 - 圖表保存到 data/picture/ 目錄
+
+V2.2 更新：
+- 添加市值數據更新步驟
+- 整合 market_cap_trading_pair.py 作為第一步
+- 統一使用 top_n 參數控制市值排名範圍
 """
 
 import subprocess
 import argparse
 import sys
 import time
-from datetime import datetime, timedelta
+import sqlite3
+from datetime import datetime, timedelta, timezone
 from typing import List, Tuple, Optional
 
 # 導入策略配置
@@ -36,6 +42,96 @@ except ImportError:
     print("❌ 無法導入策略配置，請確保 ranking_config.py 存在")
     sys.exit(1)
 
+# 添加數據庫相關函數
+DB_PATH = "data/funding_rate.db"
+
+def get_connection():
+    """獲取資料庫連接"""
+    conn = sqlite3.connect(DB_PATH, detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+def get_latest_funding_rate_date():
+    """獲取funding_rate_history表中最新記錄的日期"""
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT MAX(DATE(timestamp_utc)) as latest_date
+            FROM funding_rate_history
+        """)
+        result = cursor.fetchone()
+        conn.close()
+        
+        if result and result[0]:
+            return result[0]
+        else:
+            print("❌ funding_rate_history表為空")
+            sys.exit(1)
+    except Exception as e:
+        print(f"❌ 查詢funding_rate_history表時發生錯誤: {e}")
+        sys.exit(1)
+
+def process_date_input(date_input, date_type="start"):
+    """處理日期輸入，支持up_to_date，並記錄日誌"""
+    if date_input == "up_to_date":
+        if date_type == "start":
+            latest_date = get_latest_funding_rate_date()
+            print(f"📅 自動設定開始日期: {latest_date} (來自funding_rate_history最新記錄)")
+            return latest_date
+        else:  # end
+            utc_now = datetime.now(timezone.utc)
+            yesterday = utc_now - timedelta(days=1)
+            yesterday_str = yesterday.strftime('%Y-%m-%d')
+            print(f"📅 自動設定結束日期: {yesterday_str} (UTC+0昨天)")
+            return yesterday_str
+    else:
+        # 驗證日期格式
+        try:
+            datetime.strptime(date_input, '%Y-%m-%d')
+            print(f"📅 使用指定日期: {date_input}")
+            return date_input
+        except ValueError:
+            raise ValueError(f"無效的日期格式: {date_input}")
+
+def validate_date_range(start_date_str, end_date_str, is_auto_mode=False):
+    """
+    驗證日期範圍的邏輯性
+    
+    Args:
+        start_date_str: 開始日期字符串
+        end_date_str: 結束日期字符串  
+        is_auto_mode: 是否為自動模式（up_to_date）
+    
+    Returns:
+        bool: 驗證是否通過
+    """
+    try:
+        start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
+        end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
+        
+        # 如果是自動模式，允許相同日期
+        if is_auto_mode:
+            if start_date > end_date:
+                print("❌ 開始日期不能晚於結束日期")
+                return False
+        else:
+            # 非自動模式，開始日期必須早於結束日期
+            if start_date >= end_date:
+                print("❌ 開始日期必須早於結束日期")
+                return False
+        
+        # 檢查日期範圍是否合理
+        date_diff = (end_date - start_date).days
+        if date_diff > 365:
+            print(f"⚠️  日期範圍為{date_diff}天，超過1年，處理時間可能很長")
+        
+        return True
+        
+    except ValueError:
+        print("❌ 日期格式錯誤")
+        return False
+
 class MasterController:
     """資金費率分析系統總控制器"""
     
@@ -43,6 +139,11 @@ class MasterController:
         self.supported_exchanges = ['binance', 'bybit', 'okx', 'gate']
         self.available_strategies = self._load_available_strategies()
         self.steps = [
+            {
+                'name': '市值數據更新',
+                'script': 'market_cap_trading_pair.py',
+                'description': '從 CoinGecko API 獲取市值排名前N的幣種數據並更新資料庫'
+            },
             {
                 'name': '交易所支持檢查',
                 'script': 'exchange_trading_pair_v10.py',
@@ -181,7 +282,7 @@ class MasterController:
                 print("\n👋 用戶中斷，退出程式")
                 return None
     
-    def validate_inputs(self, exchanges: List[str], top_n: int, start_date: str, end_date: str, strategy: str) -> bool:
+    def validate_inputs(self, exchanges: List[str], top_n, start_date: str, end_date: str, strategy: str) -> bool:
         """驗證輸入參數"""
         # 驗證交易所
         invalid_exchanges = [ex for ex in exchanges if ex not in self.supported_exchanges]
@@ -190,9 +291,10 @@ class MasterController:
             print(f"✅ 支持的交易所: {self.supported_exchanges}")
             return False
         
-        # 驗證市值排名
-        if top_n <= 0:
-            print("❌ 市值排名必須大於0")
+        # 驗證市值排名（V2.2 更新：top_n 必須是正整數，不能是 "all"）
+        if not isinstance(top_n, int) or top_n <= 0:
+            print("❌ 市值排名必須是大於0的正整數")
+            print("💡 提示：因為需要調用 CoinGecko API，top_n 不能是 'all'")
             return False
         
         # 驗證日期格式
@@ -200,8 +302,8 @@ class MasterController:
             start_dt = datetime.strptime(start_date, '%Y-%m-%d')
             end_dt = datetime.strptime(end_date, '%Y-%m-%d')
             
-            if start_dt >= end_dt:
-                print("❌ 開始日期必須早於結束日期")
+            if start_dt > end_dt:
+                print("❌ 開始日期不能晚於結束日期")
                 return False
             
             # 檢查日期範圍是否合理（不超過1年）
@@ -244,36 +346,39 @@ class MasterController:
         # 獲取市值排名
         while True:
             try:
-                top_n = int(input("請輸入市值排名前N名 (例如: 100): ").strip())
+                user_input = input("請輸入市值排名前N名 (例如: 100，必須為正整數): ").strip()
+                top_n = int(user_input)
                 if top_n <= 0:
                     print("❌ 市值排名必須大於0")
                     continue
                 break
             except ValueError:
                 print("❌ 請輸入有效的數字")
+                print("💡 提示：因為需要調用 CoinGecko API，不支持 'all' 選項")
         
         # 獲取開始日期
         while True:
-            start_date = input("請輸入開始日期 (YYYY-MM-DD): ").strip()
+            start_date_input = input("請輸入開始日期 (YYYY-MM-DD) 或輸入 'up_to_date' 從最新數據開始: ").strip()
             try:
-                datetime.strptime(start_date, '%Y-%m-%d')
+                start_date = process_date_input(start_date_input, "start")
                 break
-            except ValueError:
-                print("❌ 無效的日期格式，請使用 YYYY-MM-DD 格式")
+            except ValueError as e:
+                print(f"❌ {e}")
         
         # 獲取結束日期
         while True:
-            end_date = input("請輸入結束日期 (YYYY-MM-DD): ").strip()
+            end_date_input = input("請輸入結束日期 (YYYY-MM-DD) 或輸入 'up_to_date' 更新到昨天: ").strip()
             try:
-                end_dt = datetime.strptime(end_date, '%Y-%m-%d')
-                start_dt = datetime.strptime(start_date, '%Y-%m-%d')
-                
-                if start_dt >= end_dt:
-                    print("❌ 結束日期必須晚於開始日期")
-                    continue
+                end_date = process_date_input(end_date_input, "end")
                 break
-            except ValueError:
-                print("❌ 無效的日期格式，請使用 YYYY-MM-DD 格式")
+            except ValueError as e:
+                print(f"❌ {e}")
+        
+        # 檢查日期邏輯
+        is_auto_mode = (start_date_input == "up_to_date" or end_date_input == "up_to_date")
+        if not validate_date_range(start_date, end_date, is_auto_mode):
+            print("❌ 日期範圍驗證失敗")
+            return None, None, None, None, None
         
         # 獲取策略
         strategy = self.interactive_strategy_selection()
@@ -282,7 +387,7 @@ class MasterController:
         
         return exchanges, top_n, start_date, end_date, strategy
     
-    def display_execution_plan(self, exchanges: List[str], top_n: int, start_date: str, end_date: str, strategy: str):
+    def display_execution_plan(self, exchanges: List[str], top_n, start_date: str, end_date: str, strategy: str):
         """顯示執行計劃"""
         print("\n" + "="*60)
         print("📋 執行計劃確認")
@@ -316,7 +421,11 @@ class MasterController:
         start_time = time.time()
         
         try:
-            if script == 'exchange_trading_pair_v10.py':
+            if script == 'market_cap_trading_pair.py':
+                # 步驟0: 市值數據更新
+                cmd = ['python', script, '--top_n', str(top_n)]
+                
+            elif script == 'exchange_trading_pair_v10.py':
                 # 步驟1: 交易所支持檢查
                 cmd = ['python', script, '--exchanges'] + exchanges + ['--top_n', str(top_n)]
                 
@@ -406,16 +515,21 @@ def main():
         epilog='''
 使用範例:
   python master_controller.py --exchanges binance bybit --top_n 100 --start_date 2025-07-01 --end_date 2025-07-09 --strategy 1
-  python master_controller.py --exchanges binance bybit --top_n 50 --start_date 2025-07-01 --end_date 2025-07-09 --strategy original
-  python master_controller.py --exchanges binance bybit --top_n 100 --start_date 2025-07-01 --end_date 2025-07-09 --strategy all
+  python master_controller.py --exchanges binance bybit --top_n 500 --start_date 2025-07-01 --end_date 2025-07-09 --strategy original
+  python master_controller.py --exchanges binance bybit --top_n 1000 --start_date 2025-07-01 --end_date 2025-07-09 --strategy all
+  python master_controller.py --exchanges binance bybit --top_n 100 --start_date up_to_date --end_date up_to_date --strategy 1
+
+注意事項:
+- top_n 參數必須是正整數，不能是 'all'，因為需要調用 CoinGecko API
+- 系統會先更新市值數據，然後依序執行7個步驟的完整流程
         '''
     )
     
     parser.add_argument('--exchanges', nargs='+', choices=['binance', 'bybit', 'okx', 'gate'],
                         help='要分析的交易所 (可選多個)')
-    parser.add_argument('--top_n', type=int, help='市值排名前N名')
-    parser.add_argument('--start_date', help='開始日期 (YYYY-MM-DD)')
-    parser.add_argument('--end_date', help='結束日期 (YYYY-MM-DD)')
+    parser.add_argument('--top_n', type=int, help='市值排名前N名 (必須為正整數，用於CoinGecko API和分析)')
+    parser.add_argument('--start_date', help='開始日期 (YYYY-MM-DD) 或 up_to_date (從最新數據開始)')
+    parser.add_argument('--end_date', help='結束日期 (YYYY-MM-DD) 或 up_to_date (更新到昨天)')
     parser.add_argument('--strategy', help='策略選擇 (策略名稱、編號或 all)')
     
     args = parser.parse_args()
@@ -432,8 +546,20 @@ def main():
         print("🖥️  命令行模式")
         exchanges = args.exchanges
         top_n = args.top_n
-        start_date = args.start_date
-        end_date = args.end_date
+        
+        # 處理日期參數
+        try:
+            start_date = process_date_input(args.start_date, "start")
+            end_date = process_date_input(args.end_date, "end")
+            
+            # 檢查日期邏輯
+            is_auto_mode = (args.start_date == "up_to_date" or args.end_date == "up_to_date")
+            if not validate_date_range(start_date, end_date, is_auto_mode):
+                print("❌ 日期範圍驗證失敗")
+                return
+        except ValueError as e:
+            print(f"❌ 日期處理錯誤: {e}")
+            return
         
         # 處理策略參數
         if args.strategy.isdigit():

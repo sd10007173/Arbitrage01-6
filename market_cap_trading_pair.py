@@ -1,5 +1,6 @@
 import sqlite3
 import os
+import argparse
 from pycoingecko import CoinGeckoAPI
 from datetime import datetime
 import requests
@@ -131,28 +132,41 @@ def upsert_coin_data(conn, coin):
         print(f"❌ 更新/插入 Symbol: {symbol} 時發生資料庫錯誤: {e}")
         return False
 
-def main():
-    """主執行程序"""
+def main(top_n=None):
+    """
+    主執行程序
+    
+    Args:
+        top_n: 市值排名前N名，None則交互式輸入
+    """
     print("市值與交易對更新腳本開始執行...")
     
-    # 讓用戶輸入 n
-    while True:
-        try:
-            top_n_str = input("請輸入您想獲取的市值排名前 N 大的幣種數量 (例如: 500): ")
-            top_n = int(top_n_str)
-            if top_n > 0:
-                break
-            else:
-                print("請輸入一個大於 0 的正整數。")
-        except ValueError:
-            print("無效的輸入，請輸入一個數字。")
+    # 獲取 top_n 參數
+    if top_n is None:
+        # 交互式輸入
+        while True:
+            try:
+                top_n_str = input("請輸入您想獲取的市值排名前 N 大的幣種數量 (例如: 500): ")
+                top_n = int(top_n_str)
+                if top_n > 0:
+                    break
+                else:
+                    print("請輸入一個大於 0 的正整數。")
+            except ValueError:
+                print("無效的輸入，請輸入一個數字。")
+    else:
+        # 命令行模式 - 驗證參數
+        if not isinstance(top_n, int) or top_n <= 0:
+            print("❌ top_n 必須是大於 0 的正整數")
+            return False
+        print(f"🎯 使用指定的市值排名: 前{top_n}名")
 
     # 獲取 API 數據
     coins_data = fetch_top_n_coins(top_n)
     
     if not coins_data:
         print("無法從 API 獲取數據，腳本終止。")
-        return
+        return False
 
     # 連接資料庫
     conn = get_connection()
@@ -179,6 +193,29 @@ def main():
     print(f"✅ 成功更新/插入: {success_count} 筆")
     print(f"❌ 失敗: {failure_count} 筆")
     print("腳本執行完畢。")
+    
+    return success_count > 0
 
 if __name__ == '__main__':
-    main() 
+    parser = argparse.ArgumentParser(
+        description='市值與交易對更新腳本',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog='''
+使用範例:
+  python market_cap_trading_pair.py --top_n 500
+  python market_cap_trading_pair.py --top_n 1000
+        '''
+    )
+    
+    parser.add_argument('--top_n', type=int, help='市值排名前N名 (必須為正整數)')
+    
+    args = parser.parse_args()
+    
+    if args.top_n:
+        # 命令行模式
+        success = main(args.top_n)
+        if not success:
+            exit(1)
+    else:
+        # 交互式模式
+        main() 
