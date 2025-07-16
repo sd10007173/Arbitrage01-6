@@ -66,7 +66,7 @@ class TelegramNotifier:
         else:
             return f"{amount:.2f}"
 
-    def send_success_notification(self, date_str, total_pnl, symbol_count, avg_return=None, binance_pnl=None, bybit_pnl=None, symbol_details=None):
+    def send_success_notification(self, date_str, total_pnl, symbol_count, avg_return=None, binance_pnl=None, bybit_pnl=None, symbol_details=None, total_margin=None, roi=None):
         """發送成功完成通知"""
         message = f"""<b>套利收益統計：</b>
 • 日期: {date_str}
@@ -76,6 +76,16 @@ class TelegramNotifier:
             message += f"""
 • Binance收益: ${self.format_amount(binance_pnl)}
 • Bybit收益: ${self.format_amount(bybit_pnl)}"""
+        
+        # 添加總倉位保證金
+        if total_margin is not None and total_margin != 'null':
+            message += f"""
+• 總倉位保證金: ${self.format_amount(total_margin)}"""
+        
+        # 添加等效年化
+        if roi is not None and roi != 'null':
+            message += f"""
+• 等效年化: {roi*100:.2f}%"""
         
         message += f"""
 • 淨收益: ${self.format_amount(total_pnl)}"""
@@ -682,18 +692,76 @@ class ArbitrageAnalyzer:
         else:
             suffix = f"{start_formatted}_to_{end_formatted}"
         
-        overall_file = f"{output_dir}/overall_stat_{suffix}.csv"
-        binance_file = f"{output_dir}/binance_stat_{suffix}.csv"
-        bybit_file = f"{output_dir}/bybit_stat_{suffix}.csv"
+        # 新命名規則
+        total_detail_file = f"{output_dir}/Total_detail_{suffix}.csv"
+        binance_detail_file = f"{output_dir}/binance_detail_{suffix}.csv"
+        bybit_detail_file = f"{output_dir}/bybit_detail_{suffix}.csv"
+        total_daily_file = f"{output_dir}/Total_daily_{suffix}.csv"
         
-        overall_df.to_csv(overall_file, index=False)
-        binance_df.to_csv(binance_file, index=False)
-        bybit_df.to_csv(bybit_file, index=False)
+        # 保存明細檔案
+        overall_df.to_csv(total_detail_file, index=False)
+        binance_df.to_csv(binance_detail_file, index=False)
+        bybit_df.to_csv(bybit_detail_file, index=False)
+        
+        # 生成 Total_daily 檔案
+        daily_df = self.generate_total_daily(overall_df)
+        daily_df.to_csv(total_daily_file, index=False)
         
         print(f"\n✅ 結果已保存:")
-        print(f"   {overall_file}")
-        print(f"   {binance_file}")
-        print(f"   {bybit_file}")
+        print(f"   {total_detail_file}")
+        print(f"   {binance_detail_file}")
+        print(f"   {bybit_detail_file}")
+        print(f"   {total_daily_file}")
+
+    def generate_total_daily(self, overall_df):
+        """生成 Total_daily 檔案"""
+        if overall_df.empty:
+            return pd.DataFrame()
+        
+        # 按日期分組並計算加總
+        daily_records = []
+        
+        for date in overall_df['Date'].unique():
+            date_data = overall_df[overall_df['Date'] == date]
+            
+            # 計算各項目的加總
+            trading_pair_number = len(date_data)
+            binance_ff = date_data['Binance FF'].sum()
+            bybit_ff = date_data['Bybit FF'].sum()
+            net_pnl = date_data['Net P&L'].sum()
+            
+            # 計算保證金加總（排除 null 值）
+            binance_m = 0
+            bybit_m = 0
+            total_m = 0
+            
+            # 處理可能的 null 值
+            for _, row in date_data.iterrows():
+                if row['Binance M'] != 'null' and pd.notnull(row['Binance M']):
+                    binance_m += float(row['Binance M'])
+                if row['Bybit M'] != 'null' and pd.notnull(row['Bybit M']):
+                    bybit_m += float(row['Bybit M'])
+                if row['Total M'] != 'null' and pd.notnull(row['Total M']):
+                    total_m += float(row['Total M'])
+            
+            # 計算收益率
+            return_rate = net_pnl / total_m if total_m > 0 else 0
+            roi = return_rate * 365
+            
+            daily_records.append({
+                'Date': date,
+                'Trading pair number': trading_pair_number,
+                'Binance FF': binance_ff,
+                'Bybit FF': bybit_ff,
+                'Net P&L': net_pnl,
+                'Binance M': binance_m if binance_m > 0 else 'null',
+                'Bybit M': bybit_m if bybit_m > 0 else 'null',
+                'Total M': total_m if total_m > 0 else 'null',
+                'Return': return_rate if total_m > 0 else 'null',
+                'ROI': roi if total_m > 0 else 'null'
+            })
+        
+        return pd.DataFrame(daily_records)
 
 
 def get_user_input_dates():
@@ -814,18 +882,35 @@ def main():
             overall_df, binance_df, bybit_df = analyzer.analyze_data(start_date, end_date)
             analyzer.save_results(overall_df, binance_df, bybit_df, start_date, end_date)
             
-            # 計算統計信息
-            total_pnl = overall_df['Net P&L'].sum() if not overall_df.empty else 0
-            symbol_count = len(overall_df['Symbol'].unique()) if not overall_df.empty else 0
+            # 從 Total_daily 檔案讀取統計資料
+            output_dir = "csv/Return"
+            suffix = today.replace('-', '_')
+            total_daily_file = f"{output_dir}/Total_daily_{suffix}.csv"
             
-            # 計算 Binance 和 Bybit 分別的收益
-            binance_pnl = 0
-            bybit_pnl = 0
-            if not overall_df.empty:
-                binance_pnl = (overall_df['Binance FF'].sum() + overall_df['Binance TF'].sum())
-                bybit_pnl = (overall_df['Bybit FF'].sum() + overall_df['Bybit TF'].sum())
+            # 讀取 Total_daily 檔案
+            daily_df = pd.read_csv(total_daily_file)
+            daily_row = daily_df[daily_df['Date'] == today].iloc[0]
             
-            # 計算每個交易對的淨收益詳情
+            # 從 Total_daily 取得資料
+            symbol_count = int(daily_row['Trading pair number'])
+            binance_pnl = float(daily_row['Binance FF'])
+            bybit_pnl = float(daily_row['Bybit FF'])
+            total_pnl = float(daily_row['Net P&L'])
+            total_margin = daily_row['Total M']
+            roi = daily_row['ROI']
+            
+            # 處理可能的 null 值
+            if total_margin == 'null':
+                total_margin = None
+            else:
+                total_margin = float(total_margin)
+                
+            if roi == 'null':
+                roi = None
+            else:
+                roi = float(roi)
+            
+            # 從 Total_detail 檔案計算倉位總覽
             symbol_details = {}
             if not overall_df.empty:
                 for symbol in overall_df['Symbol'].unique():
@@ -836,27 +921,19 @@ def main():
                 # 按淨收益降序排序
                 symbol_details = dict(sorted(symbol_details.items(), key=lambda x: x[1], reverse=True))
             
-            # 計算平均收益率
-            avg_return = None
-            if not overall_df.empty:
-                valid_returns = overall_df['Return'][overall_df['Return'] != 'null'].dropna()
-                if len(valid_returns) > 0:
-                    valid_returns = pd.to_numeric(valid_returns, errors='coerce')
-                    valid_returns = valid_returns.dropna()
-                    if len(valid_returns) > 0:
-                        avg_return = valid_returns.mean()
-            
             # 發送成功通知
-            notifier.send_success_notification(today, total_pnl, symbol_count, avg_return, binance_pnl, bybit_pnl, symbol_details)
+            notifier.send_success_notification(today, total_pnl, symbol_count, None, binance_pnl, bybit_pnl, symbol_details, total_margin, roi)
             
             print(f"\n📊 統計資訊:")
             print(f"   總記錄數: {len(overall_df)}")
             print(f"   涉及交易對: {symbol_count}")
             print(f"   總淨損益: ${total_pnl:.2f}")
             
-            if avg_return is not None:
-                print(f"   平均日收益率: {avg_return*100:.4f}%")
-                print(f"   平均年化收益率: {avg_return*365*100:.2f}%")
+            if total_margin is not None:
+                print(f"   總倉位保證金: ${total_margin:.2f}")
+            
+            if roi is not None:
+                print(f"   等效年化收益率: {roi*100:.2f}%")
             
         except Exception as e:
             # 發送錯誤通知
