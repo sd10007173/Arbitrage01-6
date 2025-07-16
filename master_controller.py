@@ -35,6 +35,7 @@ import sqlite3
 import requests
 from datetime import datetime, timedelta, timezone
 from typing import List, Tuple, Optional
+import os # Added for os.path.exists
 
 # 導入策略配置
 try:
@@ -162,6 +163,35 @@ class TelegramNotifier:
             print(f"❌ Telegram通知異常: {str(e)}")
             return False
 
+    def send_photo(self, photo_path, caption=""):
+        """發送圖片到Telegram"""
+        try:
+            url = f"{self.base_url}/sendPhoto"
+            
+            # 檢查圖片是否存在
+            if not os.path.exists(photo_path):
+                print(f"圖片不存在: {photo_path}")
+                return False
+            
+            with open(photo_path, 'rb') as photo:
+                files = {'photo': photo}
+                data = {
+                    'chat_id': self.chat_id,
+                    'caption': caption
+                }
+                response = requests.post(url, files=files, data=data, timeout=30)
+                
+            if response.status_code == 200:
+                print(f"圖片已發送: {os.path.basename(photo_path)}")
+                return True
+            else:
+                print(f"圖片發送失敗: {response.status_code}")
+                print(f"回應內容: {response.text}")
+                return False
+        except Exception as e:
+            print(f"圖片發送異常: {str(e)}")
+            return False
+
 class MasterController:
     """資金費率分析系統總控制器"""
     
@@ -223,6 +253,99 @@ class MasterController:
         """發送Telegram通知（帶錯誤處理）"""
         if self.notifier:
             self.notifier.send_message(message)
+    
+    def send_ranking_charts(self, target_date: str, strategy: str = 'original'):
+        """
+        發送策略排名圖片到Telegram
+        
+        Args:
+            target_date: 目標日期（用於查詢排名）
+            strategy: 策略名稱，默認為 'original'
+        """
+        if not self.notifier:
+            print("Telegram通知器未配置，跳過圖片發送")
+            return
+        
+        print(f"\n開始發送策略排名圖片...")
+        print(f"   策略: {strategy}")
+        print(f"   排名日期: {target_date}")
+        print(f"   圖片類型: 全歷史數據")
+        
+        try:
+            # 查詢策略排名數據
+            conn = get_connection()
+            cursor = conn.cursor()
+            
+            # 使用目標日期的排名
+            query = """
+            SELECT trading_pair, rank_position 
+            FROM strategy_ranking 
+            WHERE strategy_name = ? AND date = ?
+            ORDER BY rank_position
+            """
+            
+            cursor.execute(query, (strategy, target_date))
+            ranking_data = cursor.fetchall()
+            conn.close()
+            
+            if not ranking_data:
+                print(f"找不到策略 {strategy} 在 {target_date} 的排名數據")
+                return
+            
+            print(f"找到 {len(ranking_data)} 個交易對的排名數據")
+            
+            # 獲取前15名和後15名
+            top_15 = ranking_data[:15]
+            bottom_15 = ranking_data[-15:] if len(ranking_data) >= 15 else []
+            
+            # 生成圖片路徑
+            picture_dir = "data/picture"
+            
+            # 發送前15名
+            print("\n發送前15名圖片...")
+            for i, (trading_pair, rank_position) in enumerate(top_15):
+                # 使用全歷史圖片命名
+                image_filename = f"{trading_pair}_full_history_return_pic.png"
+                image_path = os.path.join(picture_dir, image_filename)
+                
+                if os.path.exists(image_path):
+                    caption = f"【第{rank_position}名】{trading_pair}"
+                    success = self.notifier.send_photo(image_path, caption)
+                    if success:
+                        print(f"   第{rank_position}名: {trading_pair}")
+                    else:
+                        print(f"   第{rank_position}名發送失敗: {trading_pair}")
+                    
+                    # 避免發送太快
+                    time.sleep(1)
+                else:
+                    print(f"   第{rank_position}名圖片不存在: {image_filename}")
+            
+            # 發送後15名
+            if bottom_15:
+                print("\n發送後15名圖片...")
+                for i, (trading_pair, rank_position) in enumerate(bottom_15):
+                    # 使用全歷史圖片命名
+                    image_filename = f"{trading_pair}_full_history_return_pic.png"
+                    image_path = os.path.join(picture_dir, image_filename)
+                    
+                    if os.path.exists(image_path):
+                        caption = f"【第{rank_position}名】{trading_pair}"
+                        success = self.notifier.send_photo(image_path, caption)
+                        if success:
+                            print(f"   第{rank_position}名: {trading_pair}")
+                        else:
+                            print(f"   第{rank_position}名發送失敗: {trading_pair}")
+                        
+                        # 避免發送太快
+                        time.sleep(1)
+                    else:
+                        print(f"   第{rank_position}名圖片不存在: {image_filename}")
+            
+            print(f"\n策略排名圖片發送完成")
+            
+        except Exception as e:
+            print(f"發送策略排名圖片時出錯: {e}")
     
     def _load_available_strategies(self) -> List[Tuple[str, str]]:
         """加載可用策略列表"""
@@ -499,8 +622,9 @@ class MasterController:
                     cmd.extend(['--strategies', strategy])
                     
             elif script == 'draw_return_metrics_v3.py':
-                # 步驟6: 收益圖表生成
+                # 步驟6: 收益圖表生成 (全歷史數據)
                 cmd = [sys.executable, script, '--output-dir', 'data/picture']
+                # 不傳遞 start_date 和 end_date 參數，生成全歷史圖片
                     
             else:
                 print(f"❌ 未知腳本: {script}")
@@ -567,6 +691,10 @@ class MasterController:
         
         overall_end_time = time.time()
         total_elapsed = overall_end_time - overall_start_time
+        
+        # 發送策略排名圖片（當圖表生成完成且telegram未禁用時）
+        if args and not args.no_charts and not args.no_telegram:
+            self.send_ranking_charts(target_date=end_date, strategy='original')
         
         # 發送完成通知
         if args and not args.no_telegram:

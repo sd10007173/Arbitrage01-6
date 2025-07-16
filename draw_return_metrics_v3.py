@@ -40,27 +40,34 @@ class ReturnMetricsVisualizer:
         else:
             print(f"📁 輸出目錄已存在: {self.output_dir}")
     
-    def load_return_metrics_data(self, trading_pair=None):
+    def load_return_metrics_data(self, trading_pair=None, start_date=None, end_date=None):
         """
         從數據庫讀取 return_metrics 數據
         
         Args:
             trading_pair: 指定交易對，None則讀取所有
+            start_date: 開始日期 (YYYY-MM-DD)，None則從最早開始
+            end_date: 結束日期 (YYYY-MM-DD)，None則到最新
             
         Returns:
             DataFrame: 包含收益數據的DataFrame
         """
-        print("📊 正在從數據庫讀取 return_metrics 數據...")
+        print("正在從數據庫讀取 return_metrics 數據...")
         
-        if trading_pair:
-            df = self.db.get_return_metrics(trading_pair=trading_pair)
-            print(f"🔍 讀取指定交易對 {trading_pair} 的數據: {len(df)} 條記錄")
+        if start_date or end_date:
+            date_info = f" (時間範圍: {start_date or '最早'} 到 {end_date or '最新'})"
         else:
-            df = self.db.get_return_metrics()
-            print(f"📋 讀取所有交易對數據: {len(df)} 條記錄")
+            date_info = " (全歷史數據)"
+            
+        if trading_pair:
+            df = self.db.get_return_metrics(trading_pair=trading_pair, start_date=start_date, end_date=end_date)
+            print(f"讀取指定交易對 {trading_pair} 的數據{date_info}: {len(df)} 條記錄")
+        else:
+            df = self.db.get_return_metrics(start_date=start_date, end_date=end_date)
+            print(f"讀取所有交易對數據{date_info}: {len(df)} 條記錄")
         
         if df.empty:
-            print("⚠️ 沒有找到任何 return_metrics 數據")
+            print("沒有找到任何 return_metrics 數據")
             return df
         
         # 轉換日期格式
@@ -72,23 +79,25 @@ class ReturnMetricsVisualizer:
         filtered_count = len(df)
         
         if initial_count > filtered_count:
-            print(f"🧹 過濾掉 {initial_count - filtered_count} 條 return_1d 為空的記錄")
+            print(f"過濾掉 {initial_count - filtered_count} 條 return_1d 為空的記錄")
         
         # 按交易對和日期排序
         df = df.sort_values(['trading_pair', 'date'])
         
         return df
     
-    def create_return_charts(self, trading_pair, data):
+    def create_return_charts(self, trading_pair, data, start_date=None, end_date=None):
         """
         為單個交易對創建包含兩個子圖的圖表
         
         Args:
             trading_pair: 交易對名稱
             data: 該交易對的收益數據
+            start_date: 開始日期（用於命名）
+            end_date: 結束日期（用於命名）
         """
         if data.empty:
-            print(f"⚠️ {trading_pair} 沒有有效數據，跳過")
+            print(f"{trading_pair} 沒有有效數據，跳過")
             return
         
         # 確保數據按日期排序
@@ -160,9 +169,17 @@ class ReturnMetricsVisualizer:
         plt.tight_layout()
         
         # 生成文件名
-        start_date = data['date'].min().strftime('%Y-%m-%d')
-        end_date = data['date'].max().strftime('%Y-%m-%d')
-        filename = f"{trading_pair}_{start_date}-{end_date}_return_pic.png"
+        data_start_date = data['date'].min().strftime('%Y-%m-%d')
+        data_end_date = data['date'].max().strftime('%Y-%m-%d')
+        
+        # 決定圖片命名方式
+        if start_date and end_date:
+            # 如果有指定時間範圍，使用指定的日期
+            filename = f"{trading_pair}_{start_date}-{end_date}_return_pic.png"
+        else:
+            # 如果沒有指定時間範圍，使用全歷史命名
+            filename = f"{trading_pair}_full_history_return_pic.png"
+        
         filepath = os.path.join(self.output_dir, filename)
         
         # 保存圖片
@@ -170,27 +187,32 @@ class ReturnMetricsVisualizer:
                    facecolor='white', edgecolor='none')
         plt.close()
         
-        print(f"✅ 已生成圖表: {filename}")
-        print(f"   📈 總收益: {total_return:.2f}")
-        print(f"   💰 ROI: {roi_display}")
-        print(f"   📊 數據點: {len(data)} 天")
-        print(f"   📅 時間範圍: {start_date} 到 {end_date}")
+        print(f"已生成圖表: {filename}")
+        print(f"   總收益: {total_return:.2f}")
+        print(f"   ROI: {roi_display}")
+        print(f"   數據點: {len(data)} 天")
+        print(f"   時間範圍: {data_start_date} 到 {data_end_date}")
     
-    def process_all_trading_pairs(self, specific_pair=None):
+    def process_all_trading_pairs(self, specific_pair=None, start_date=None, end_date=None):
         """
         處理所有交易對或指定交易對
         
         Args:
             specific_pair: 指定的交易對，None則處理所有
+            start_date: 開始日期
+            end_date: 結束日期
         """
-        print("🚀 開始生成交易對收益圖表... (V3版本 - 每月標記 + ROI顯示)")
+        if start_date or end_date:
+            print(f"開始生成交易對收益圖表... (時間範圍: {start_date or '最早'} 到 {end_date or '最新'})")
+        else:
+            print("開始生成交易對收益圖表... (全歷史數據)")
         print("=" * 60)
         
         # 讀取數據
-        df = self.load_return_metrics_data(trading_pair=specific_pair)
+        df = self.load_return_metrics_data(trading_pair=specific_pair, start_date=start_date, end_date=end_date)
         
         if df.empty:
-            print("❌ 沒有可用的數據")
+            print("沒有可用的數據")
             return
         
         # 獲取所有交易對
@@ -199,7 +221,7 @@ class ReturnMetricsVisualizer:
         else:
             trading_pairs = df['trading_pair'].unique()
         
-        print(f"📋 找到 {len(trading_pairs)} 個交易對需要處理")
+        print(f"找到 {len(trading_pairs)} 個交易對需要處理")
         print("=" * 60)
         
         # 處理每個交易對
@@ -211,18 +233,18 @@ class ReturnMetricsVisualizer:
             pair_data = df[df['trading_pair'] == trading_pair].copy()
             
             try:
-                self.create_return_charts(trading_pair, pair_data)
+                self.create_return_charts(trading_pair, pair_data, start_date, end_date)
                 success_count += 1
             except Exception as e:
-                print(f"❌ 處理 {trading_pair} 時發生錯誤: {e}")
+                print(f"處理 {trading_pair} 時發生錯誤: {e}")
         
         print("\n" + "=" * 60)
-        print(f"🎉 處理完成！")
-        print(f"✅ 成功生成: {success_count} 個圖表")
-        print(f"📁 輸出目錄: {self.output_dir}")
+        print(f"處理完成！")
+        print(f"成功生成: {success_count} 個圖表")
+        print(f"輸出目錄: {self.output_dir}")
         
         if success_count < len(trading_pairs):
-            print(f"⚠️ 失敗: {len(trading_pairs) - success_count} 個")
+            print(f"失敗: {len(trading_pairs) - success_count} 個")
 
 def main():
     """主函數"""
@@ -231,6 +253,10 @@ def main():
                        help='指定要處理的交易對，例如：BTCUSDT_binance_bybit')
     parser.add_argument('--output-dir', type=str, default='data/picture',
                        help='輸出目錄，默認為 data/picture')
+    parser.add_argument('--start-date', type=str, 
+                       help='開始日期 (YYYY-MM-DD)，不指定則從最早開始')
+    parser.add_argument('--end-date', type=str,
+                       help='結束日期 (YYYY-MM-DD)，不指定則到最新')
     
     args = parser.parse_args()
     
@@ -238,7 +264,11 @@ def main():
     visualizer = ReturnMetricsVisualizer(output_dir=args.output_dir)
     
     # 處理交易對
-    visualizer.process_all_trading_pairs(specific_pair=args.trading_pair)
+    visualizer.process_all_trading_pairs(
+        specific_pair=args.trading_pair,
+        start_date=args.start_date,
+        end_date=args.end_date
+    )
 
 if __name__ == "__main__":
     main()
