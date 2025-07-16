@@ -773,7 +773,7 @@ def main():
     parser = argparse.ArgumentParser(description='套利收益分析工具 v2.0')
     parser.add_argument('--start', help='開始日期 (YYYY-MM-DD)')
     parser.add_argument('--end', help='結束日期 (YYYY-MM-DD)')
-    parser.add_argument('--auto', action='store_true', help='自動模式：計算昨天的收益')
+    parser.add_argument('--auto', action='store_true', help='自動模式：計算今天的收益')
     
     args = parser.parse_args()
     
@@ -800,11 +800,11 @@ def main():
     
     # 處理自動模式
     if args.auto:
-        # 自動計算昨天的日期
-        yesterday = (datetime.now(timezone.utc) - timedelta(days=1)).strftime('%Y-%m-%d')
-        start_date = end_date = yesterday
+        # 自動計算今天的日期
+        today = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+        start_date = end_date = today
         
-        print(f"🤖 自動模式：分析 {yesterday} 的收益")
+        print(f"🤖 自動模式：分析 {today} 的收益")
         
         # 創建Telegram通知器
         notifier = TelegramNotifier(TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID)
@@ -847,7 +847,7 @@ def main():
                         avg_return = valid_returns.mean()
             
             # 發送成功通知
-            notifier.send_success_notification(yesterday, total_pnl, symbol_count, avg_return, binance_pnl, bybit_pnl, symbol_details)
+            notifier.send_success_notification(today, total_pnl, symbol_count, avg_return, binance_pnl, bybit_pnl, symbol_details)
             
             print(f"\n📊 統計資訊:")
             print(f"   總記錄數: {len(overall_df)}")
@@ -860,7 +860,7 @@ def main():
             
         except Exception as e:
             # 發送錯誤通知
-            notifier.send_error_notification(yesterday, str(e))
+            notifier.send_error_notification(today, str(e))
             print(f"❌ 執行錯誤: {e}")
             import traceback
             traceback.print_exc()
