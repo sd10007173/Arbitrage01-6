@@ -537,7 +537,7 @@ class MasterController:
         # 發送開始通知
         if args and not args.no_telegram:
             start_time_utc = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')
-            message = f"🎛️ master_controller開始執行\n⏰ 開始時間: {start_time_utc}"
+            message = f"master_controller開始執行\n開始時間: {start_time_utc}"
             self.send_telegram_notification(message)
         
         print("\n🚀 開始執行完整的資金費率分析流程")
@@ -546,6 +546,12 @@ class MasterController:
         overall_start_time = time.time()
         
         for i in range(len(self.steps)):
+            # 檢查是否跳過收益圖表生成（第7步，索引6）
+            if i == 6 and args and args.no_charts:
+                print(f"\n⏭️  跳過步驟 {i + 1}/7: {self.steps[i]['name']}")
+                print(f"   📝 已通過 --no-charts 參數跳過")
+                continue
+            
             success = self.run_step(i, exchanges, top_n, start_date, end_date, strategy)
             
             if not success:
@@ -554,7 +560,7 @@ class MasterController:
                 # 發送失敗通知
                 if args and not args.no_telegram:
                     end_time_utc = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')
-                    message = f"❌ master_controller執行失敗\n⏰ 失敗時間: {end_time_utc}"
+                    message = f"master_controller執行失敗\n失敗時間: {end_time_utc}"
                     self.send_telegram_notification(message)
                 
                 return False
@@ -566,7 +572,7 @@ class MasterController:
         if args and not args.no_telegram:
             end_time_utc = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')
             elapsed_minutes = total_elapsed / 60
-            message = f"🎉 master_controller執行完成\n⏰ 完成時間: {end_time_utc}\n⏱️ 總耗時: {elapsed_minutes:.1f}分鐘"
+            message = f"master_controller執行完成\n完成時間: {end_time_utc}\n總耗時: {elapsed_minutes:.1f}分鐘"
             self.send_telegram_notification(message)
         
         print("\n" + "="*60)
@@ -588,6 +594,7 @@ def main():
   python master_controller.py --exchanges binance bybit --top_n 1000 --start_date 2025-07-01 --end_date 2025-07-09 --strategy all
   python master_controller.py --exchanges binance bybit --top_n 100 --start_date up_to_date --end_date up_to_date --strategy 1
   python master_controller.py --exchanges binance bybit --top_n 750 --start_date up_to_date --end_date up_to_date --strategy all --yes
+  python master_controller.py --exchanges binance bybit --top_n 750 --start_date up_to_date --end_date up_to_date --strategy all --yes --no-charts
 
 注意事項:
 - top_n 參數必須是正整數，不能是 'all'，因為需要調用 CoinGecko API
@@ -604,6 +611,7 @@ def main():
     parser.add_argument('--strategy', help='策略選擇 (策略名稱、編號或 all)')
     parser.add_argument('--yes', action='store_true', help='自動確認執行，跳過手動確認步驟（適用於crontab自動化）')
     parser.add_argument('--no-telegram', action='store_true', help='禁用 Telegram 通知')
+    parser.add_argument('--no-charts', action='store_true', help='跳過收益圖表生成')
     
     args = parser.parse_args()
     
@@ -678,7 +686,10 @@ def main():
     if success:
         print("\n🎊 資金費率分析完成！")
         print("💡 你可以使用 view_database_simple.py 查看結果")
-        print("📊 收益圖表已保存到 data/picture/ 目錄")
+        if not args.no_charts:
+            print("📊 收益圖表已保存到 data/picture/ 目錄")
+        else:
+            print("📊 已跳過收益圖表生成")
     else:
         print("\n💥 分析過程中出現錯誤，請檢查日誌")
 
