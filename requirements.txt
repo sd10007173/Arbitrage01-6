@@ -1,8 +1,22 @@
-pandas>=1.3.0
-numpy>=1.21.0
-requests>=2.25.0
-matplotlib>=3.3.0
-pycoingecko
-ccxt
-certifi
-aiohttp>=3.8.0 
+# 資金費率套利系統 - 套件依賴清單
+# 更新日期: 2025-07-16
+
+# 數據處理和分析
+pandas>=1.3.0              # 數據處理和分析 (所有核心模組)
+numpy>=1.21.0              # 數值計算 (排名引擎、回測、收益計算)
+
+# 網路請求和API
+requests>=2.25.0           # HTTP請求 (master_controller, market_cap_trading_pair)
+aiohttp>=3.8.0             # 異步HTTP請求 (fetch_FR_history_group_v2)
+certifi                    # SSL證書驗證 (fetch_FR_history_group_v2)
+
+# 交易所API和市場數據
+ccxt>=3.0.0                # 交易所API (exchange_trading_pair_v10)
+pycoingecko>=3.0.0         # CoinGecko API (market_cap_trading_pair)
+
+# 數據視覺化
+matplotlib>=3.3.0          # 圖表繪製 (draw_return_metrics_v3, backtest_v5)
+
+# 開發和測試輔助 (可選)
+# pytest>=6.0.0           # 單元測試 (如需要)
+# jupyter>=1.0.0           # 資料分析筆記本 (如需要) 
