@@ -382,53 +382,33 @@ def generate_strategy_ranking_for_specific_pairs(strategy_name, strategy_config,
             log_error(f"{date} 沒有需要處理的交易對數據")
             return pd.DataFrame()
         
-        # 使用 RankingEngine 計算排名
+        # 使用 RankingEngine 計算排名 - 批量處理所有缺失的交易對
         ranking_engine = RankingEngine(strategy_name)
         
-        # 為每個交易對單獨處理，實現錯誤隔離
-        successful_results = []
-        failed_pairs = []
-        
-        for trading_pair in missing_pairs:
-            try:
-                # 獲取該交易對的數據
-                pair_data = daily_data[daily_data['Trading_Pair'] == trading_pair].copy()
+        try:
+            # 批量處理所有缺失的交易對，這樣 RankingEngine 能正確進行標準化
+            ranked_df = ranking_engine.calculate_final_ranking(daily_data)
+            
+            if ranked_df.empty:
+                log_error(f"{date} 排名計算結果為空")
+                return pd.DataFrame()
+            
+            # 添加排名位置
+            ranked_df['Rank'] = range(1, len(ranked_df) + 1)
+            
+            final_result = ranked_df
+            successful_pairs = ranked_df['Trading_Pair'].tolist()
+            failed_pairs = [pair for pair in missing_pairs if pair not in successful_pairs]
+            
+            print(f"   ✅ 成功處理 {len(successful_pairs)} 個交易對")
+            
+            if failed_pairs:
+                print(f"   ❌ 失敗 {len(failed_pairs)} 個交易對: {failed_pairs}")
+                log_info(f"{strategy_name} {date} 失敗的交易對: {failed_pairs}")
                 
-                if pair_data.empty:
-                    log_error(f"{trading_pair} 在 {date} 沒有數據")
-                    failed_pairs.append(trading_pair)
-                    continue
-                
-                # 計算排名分數
-                ranked_df = ranking_engine.calculate_final_ranking(pair_data)
-                
-                if ranked_df.empty:
-                    log_error(f"{trading_pair} 排名計算結果為空")
-                    failed_pairs.append(trading_pair)
-                    continue
-                
-                # 添加排名位置（這裡暫時設為1，實際排名需要與其他交易對比較）
-                ranked_df['Rank'] = 1
-                
-                successful_results.append(ranked_df)
-                print(f"      ✅ {trading_pair}")
-                
-            except Exception as e:
-                log_error(f"{trading_pair} 排名計算失敗: {e}")
-                failed_pairs.append(trading_pair)
-                continue
-        
-        # 合併成功的結果
-        if successful_results:
-            final_result = pd.concat(successful_results, ignore_index=True)
-            print(f"   ✅ 成功處理 {len(successful_results)} 個交易對")
-        else:
-            final_result = pd.DataFrame()
-            print(f"   ❌ 沒有成功處理任何交易對")
-        
-        if failed_pairs:
-            print(f"   ❌ 失敗 {len(failed_pairs)} 個交易對")
-            log_info(f"{strategy_name} {date} 失敗的交易對: {failed_pairs}")
+        except Exception as e:
+            log_error(f"{date} 排名計算失敗: {e}")
+            return pd.DataFrame()
         
         return final_result
         
