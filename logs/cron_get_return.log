@@ -76,3 +76,114 @@
    總記錄數: 1
    涉及交易對: 1
    總淨損益: $8.07
+/Users/chenhourun/opt/anaconda3/lib/python3.9/site-packages/pandas/core/computation/expressions.py:21: UserWarning: Pandas requires version '2.8.4' or newer of 'numexpr' (version '2.7.3' currently installed).
+  from pandas.core.computation.check import NUMEXPR_INSTALLED
+/Users/chenhourun/opt/anaconda3/lib/python3.9/site-packages/pandas/core/arrays/masked.py:61: UserWarning: Pandas requires version '1.3.6' or newer of 'bottleneck' (version '1.3.2' currently installed).
+  from pandas.core import (
+🤖 自動模式：分析 2025-07-16 的收益
+開始分析 2025-07-16 到 2025-07-16 的數據...
+獲取幣安資金費用...
+獲取幣安手續費...
+獲取Bybit資金費用...
+   Bybit查詢: 2025-07-16
+   正在查詢第2頁...
+   找到 5 筆記錄
+   Bybit總計: 5 筆資金費用記錄
+獲取Bybit手續費...
+   Bybit手續費查詢: 2025-07-16
+   該日期無手續費記錄
+   Bybit手續費總計: 0 筆記錄
+找到 1 個交易對
+🔄 檢測到分析範圍包含今天，先更新當日保證金數據...
+📊 獲取當前保證金數據...
+💾 保證金數據已保存到 csv/Return/margin_history.csv
+✅ 保證金數據已更新: 2025-07-16 16:02:07
+處理日期: 2025-07-16
+
+✅ 結果已保存:
+   csv/Return/Total_detail_2025_07_16.csv
+   csv/Return/binance_detail_2025_07_16.csv
+   csv/Return/bybit_detail_2025_07_16.csv
+   csv/Return/Total_daily_2025_07_16.csv
+✅ Telegram通知已發送
+
+📊 統計資訊:
+   總記錄數: 1
+   涉及交易對: 1
+   總淨損益: $7.80
+   總倉位保證金: $3735.92
+   等效年化收益率: 76.16%
+/Users/chenhourun/opt/anaconda3/lib/python3.9/site-packages/pandas/core/computation/expressions.py:21: UserWarning: Pandas requires version '2.8.4' or newer of 'numexpr' (version '2.7.3' currently installed).
+  from pandas.core.computation.check import NUMEXPR_INSTALLED
+/Users/chenhourun/opt/anaconda3/lib/python3.9/site-packages/pandas/core/arrays/masked.py:61: UserWarning: Pandas requires version '1.3.6' or newer of 'bottleneck' (version '1.3.2' currently installed).
+  from pandas.core import (
+🤖 自動模式：分析 2025-07-16 的收益
+開始分析 2025-07-16 到 2025-07-16 的數據...
+獲取幣安資金費用...
+獲取幣安手續費...
+獲取Bybit資金費用...
+   Bybit查詢: 2025-07-16
+   正在查詢第2頁...
+   找到 5 筆記錄
+   Bybit總計: 5 筆資金費用記錄
+獲取Bybit手續費...
+   Bybit手續費查詢: 2025-07-16
+   該日期無手續費記錄
+   Bybit手續費總計: 0 筆記錄
+找到 1 個交易對
+🔄 檢測到分析範圍包含今天，先更新當日保證金數據...
+📊 獲取當前保證金數據...
+💾 保證金數據已保存到 csv/Return/margin_history.csv
+✅ 保證金數據已更新: 2025-07-16 16:18:05
+處理日期: 2025-07-16
+
+✅ 結果已保存:
+   csv/Return/Total_detail_2025_07_16.csv
+   csv/Return/binance_detail_2025_07_16.csv
+   csv/Return/bybit_detail_2025_07_16.csv
+   csv/Return/Total_daily_2025_07_16.csv
+✅ Telegram通知已發送
+
+📊 統計資訊:
+   總記錄數: 1
+   涉及交易對: 1
+   總淨損益: $7.80
+   總倉位保證金: $3734.38
+   等效年化收益率: 76.19%
+/Users/chenhourun/opt/anaconda3/lib/python3.9/site-packages/pandas/core/computation/expressions.py:21: UserWarning: Pandas requires version '2.8.4' or newer of 'numexpr' (version '2.7.3' currently installed).
+  from pandas.core.computation.check import NUMEXPR_INSTALLED
+/Users/chenhourun/opt/anaconda3/lib/python3.9/site-packages/pandas/core/arrays/masked.py:61: UserWarning: Pandas requires version '1.3.6' or newer of 'bottleneck' (version '1.3.2' currently installed).
+  from pandas.core import (
+🤖 自動模式：分析 2025-07-16 的收益
+開始分析 2025-07-16 到 2025-07-16 的數據...
+獲取幣安資金費用...
+獲取幣安手續費...
+獲取Bybit資金費用...
+   Bybit查詢: 2025-07-16
+   正在查詢第2頁...
+   找到 6 筆記錄
+   Bybit總計: 6 筆資金費用記錄
+獲取Bybit手續費...
+   Bybit手續費查詢: 2025-07-16
+   該日期無手續費記錄
+   Bybit手續費總計: 0 筆記錄
+找到 1 個交易對
+🔄 檢測到分析範圍包含今天，先更新當日保證金數據...
+📊 獲取當前保證金數據...
+💾 保證金數據已保存到 csv/Return/margin_history.csv
+✅ 保證金數據已更新: 2025-07-16 23:55:17
+處理日期: 2025-07-16
+
+✅ 結果已保存:
+   csv/Return/Total_detail_2025_07_16.csv
+   csv/Return/binance_detail_2025_07_16.csv
+   csv/Return/bybit_detail_2025_07_16.csv
+   csv/Return/Total_daily_2025_07_16.csv
+✅ Telegram通知已發送
+
+📊 統計資訊:
+   總記錄數: 1
+   涉及交易對: 1
+   總淨損益: $10.33
+   總倉位保證金: $3734.26
+   等效年化收益率: 100.95%
