@@ -3,7 +3,13 @@
     "allow": [
       "Bash(python:*)",
       "Bash(sqlite3:*)",
-      "Bash(cp:*)"
+      "Bash(cp:*)",
+      "Bash(echo $CONDA_DEFAULT_ENV)",
+      "Bash(echo $VIRTUAL_ENV)",
+      "Bash(conda:*)",
+      "Bash(pip show:*)",
+      "Bash(ls:*)",
+      "Bash(pip freeze)"
     ],
     "deny": []
   }
