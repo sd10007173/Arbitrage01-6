@@ -764,6 +764,11 @@ class MasterControllerV3:
 
 def main():
     """主函數"""
+    # 記錄程式開始時間
+    program_start_time = time.time()
+    start_time_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    print(f"========== 開始執行: {start_time_str} ==========")
+    
     parser = argparse.ArgumentParser(
         description='資金費率分析系統總控程式 V3.0',
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -907,6 +912,22 @@ V3.0 新功能:
             print("📱 未發送 Telegram 圖片（設定為0）")
     else:
         print("\n💥 分析過程中出現錯誤，請檢查日誌")
+    
+    # 記錄程式結束時間並計算耗時
+    program_end_time = time.time()
+    total_elapsed = program_end_time - program_start_time
+    end_time_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    
+    # 計算耗時的分鐘和秒數
+    elapsed_minutes = int(total_elapsed // 60)
+    elapsed_seconds = int(total_elapsed % 60)
+    
+    if elapsed_minutes > 0:
+        elapsed_str = f"{elapsed_minutes}分{elapsed_seconds}秒"
+    else:
+        elapsed_str = f"{elapsed_seconds}秒"
+    
+    print(f"========== 結束執行: {end_time_str} (耗時: {elapsed_str}) ==========")
 
 if __name__ == "__main__":
     main() 

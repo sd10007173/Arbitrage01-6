@@ -187,3 +187,1009 @@
    總淨損益: $10.33
    總倉位保證金: $3734.26
    等效年化收益率: 100.95%
+/Users/chenhourun/Desktop/Arbitrage01-3/get_return_v2.py:525: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  date_df['Timestamp_dt'] = pd.to_datetime(date_df['Timestamp'])
+🤖 自動模式：分析 2025-07-18 的收益
+開始分析 2025-07-18 到 2025-07-18 的數據...
+獲取幣安資金費用...
+獲取幣安手續費...
+獲取Bybit資金費用...
+   Bybit查詢: 2025-07-18
+   正在查詢第2頁...
+   找到 4 筆記錄
+   Bybit總計: 4 筆資金費用記錄
+獲取Bybit手續費...
+   Bybit手續費查詢: 2025-07-18
+   該日期無手續費記錄
+   Bybit手續費總計: 0 筆記錄
+找到 1 個交易對
+🔄 檢測到分析範圍包含今天，先更新當日保證金數據...
+📊 獲取當前保證金數據...
+💾 保證金數據已保存到 csv/Return/margin_history.csv
+✅ 保證金數據已更新: 2025-07-18 14:34:06
+處理日期: 2025-07-18
+
+✅ 結果已保存:
+   csv/Return/Total_detail_2025_07_18.csv
+   csv/Return/binance_detail_2025_07_18.csv
+   csv/Return/bybit_detail_2025_07_18.csv
+   csv/Return/Total_daily_2025_07_18.csv
+✅ Telegram通知已發送
+
+📊 統計資訊:
+   總記錄數: 1
+   涉及交易對: 1
+   總淨損益: $10.40
+   總倉位保證金: $3754.62
+   等效年化收益率: 101.14%
+/Users/chenhourun/Desktop/Arbitrage01-3/get_return_v2.py:525: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  date_df['Timestamp_dt'] = pd.to_datetime(date_df['Timestamp'])
+🤖 自動模式：分析 2025-07-18 的收益
+開始分析 2025-07-18 到 2025-07-18 的數據...
+獲取幣安資金費用...
+獲取幣安手續費...
+獲取Bybit資金費用...
+   Bybit查詢: 2025-07-18
+   正在查詢第2頁...
+   找到 4 筆記錄
+   Bybit總計: 4 筆資金費用記錄
+獲取Bybit手續費...
+   Bybit手續費查詢: 2025-07-18
+   該日期無手續費記錄
+   Bybit手續費總計: 0 筆記錄
+找到 1 個交易對
+🔄 檢測到分析範圍包含今天，先更新當日保證金數據...
+📊 獲取當前保證金數據...
+💾 保證金數據已保存到 csv/Return/margin_history.csv
+✅ 保證金數據已更新: 2025-07-18 14:45:05
+處理日期: 2025-07-18
+
+✅ 結果已保存:
+   csv/Return/Total_detail_2025_07_18.csv
+   csv/Return/binance_detail_2025_07_18.csv
+   csv/Return/bybit_detail_2025_07_18.csv
+   csv/Return/Total_daily_2025_07_18.csv
+✅ Telegram通知已發送
+
+📊 統計資訊:
+   總記錄數: 1
+   涉及交易對: 1
+   總淨損益: $10.40
+   總倉位保證金: $3759.57
+   等效年化收益率: 101.01%
+/Users/chenhourun/Desktop/Arbitrage01-3/get_return_v2.py:525: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  date_df['Timestamp_dt'] = pd.to_datetime(date_df['Timestamp'])
+🤖 自動模式：分析 2025-07-18 的收益
+開始分析 2025-07-18 到 2025-07-18 的數據...
+獲取幣安資金費用...
+獲取幣安手續費...
+獲取Bybit資金費用...
+   Bybit查詢: 2025-07-18
+   正在查詢第2頁...
+   找到 4 筆記錄
+   Bybit總計: 4 筆資金費用記錄
+獲取Bybit手續費...
+   Bybit手續費查詢: 2025-07-18
+   該日期無手續費記錄
+   Bybit手續費總計: 0 筆記錄
+找到 1 個交易對
+🔄 檢測到分析範圍包含今天，先更新當日保證金數據...
+📊 獲取當前保證金數據...
+💾 保證金數據已保存到 csv/Return/margin_history.csv
+✅ 保證金數據已更新: 2025-07-18 15:24:08
+處理日期: 2025-07-18
+
+✅ 結果已保存:
+   csv/Return/Total_detail_2025_07_18.csv
+   csv/Return/binance_detail_2025_07_18.csv
+   csv/Return/bybit_detail_2025_07_18.csv
+   csv/Return/Total_daily_2025_07_18.csv
+✅ Telegram通知已發送
+
+📊 統計資訊:
+   總記錄數: 1
+   涉及交易對: 1
+   總淨損益: $10.40
+   總倉位保證金: $3737.66
+   等效年化收益率: 101.60%
+/bin/sh: /Users/chenhourun/miniconda3/bin/python3: No such file or directory
+/Users/chenhourun/Desktop/Arbitrage01-3/get_return_v2.py:525: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  date_df['Timestamp_dt'] = pd.to_datetime(date_df['Timestamp'])
+🤖 自動模式：分析 2025-07-20 的收益
+開始分析 2025-07-20 到 2025-07-20 的數據...
+獲取幣安資金費用...
+獲取幣安手續費...
+獲取Bybit資金費用...
+   Bybit查詢: 2025-07-20
+   正在查詢第2頁...
+   找到 2 筆記錄
+   Bybit總計: 2 筆資金費用記錄
+獲取Bybit手續費...
+   Bybit手續費查詢: 2025-07-20
+   該日期無手續費記錄
+   Bybit手續費總計: 0 筆記錄
+找到 2 個交易對
+🔄 檢測到分析範圍包含今天，先更新當日保證金數據...
+📊 獲取當前保證金數據...
+💾 保證金數據已保存到 csv/Return/margin_history.csv
+✅ 保證金數據已更新: 2025-07-20 03:22:08
+處理日期: 2025-07-20
+
+✅ 結果已保存:
+   csv/Return/Total_detail_2025_07_20.csv
+   csv/Return/binance_detail_2025_07_20.csv
+   csv/Return/bybit_detail_2025_07_20.csv
+   csv/Return/Total_daily_2025_07_20.csv
+✅ Telegram通知已發送
+
+📊 統計資訊:
+   總記錄數: 2
+   涉及交易對: 2
+   總淨損益: $1.77
+   總倉位保證金: $7266.80
+   等效年化收益率: 8.91%
+/Users/chenhourun/Desktop/Arbitrage01-3/get_return_v2.py:525: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  date_df['Timestamp_dt'] = pd.to_datetime(date_df['Timestamp'])
+🤖 自動模式：分析 2025-07-20 的收益
+開始分析 2025-07-20 到 2025-07-20 的數據...
+獲取幣安資金費用...
+獲取幣安手續費...
+獲取Bybit資金費用...
+   Bybit查詢: 2025-07-20
+   正在查詢第2頁...
+   找到 2 筆記錄
+   Bybit總計: 2 筆資金費用記錄
+獲取Bybit手續費...
+   Bybit手續費查詢: 2025-07-20
+   該日期無手續費記錄
+   Bybit手續費總計: 0 筆記錄
+找到 2 個交易對
+🔄 檢測到分析範圍包含今天，先更新當日保證金數據...
+📊 獲取當前保證金數據...
+💾 保證金數據已保存到 csv/Return/margin_history.csv
+✅ 保證金數據已更新: 2025-07-20 03:24:05
+處理日期: 2025-07-20
+
+✅ 結果已保存:
+   csv/Return/Total_detail_2025_07_20.csv
+   csv/Return/binance_detail_2025_07_20.csv
+   csv/Return/bybit_detail_2025_07_20.csv
+   csv/Return/Total_daily_2025_07_20.csv
+✅ Telegram通知已發送
+
+📊 統計資訊:
+   總記錄數: 2
+   涉及交易對: 2
+   總淨損益: $1.77
+   總倉位保證金: $7262.12
+   等效年化收益率: 8.92%
+/Users/chenhourun/Desktop/Arbitrage01-3/get_return_v2.py:525: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  date_df['Timestamp_dt'] = pd.to_datetime(date_df['Timestamp'])
+🤖 自動模式：分析 2025-07-20 的收益
+開始分析 2025-07-20 到 2025-07-20 的數據...
+獲取幣安資金費用...
+獲取幣安手續費...
+獲取Bybit資金費用...
+   Bybit查詢: 2025-07-20
+   正在查詢第2頁...
+   找到 12 筆記錄
+   Bybit總計: 12 筆資金費用記錄
+獲取Bybit手續費...
+   Bybit手續費查詢: 2025-07-20
+   該日期無手續費記錄
+   Bybit手續費總計: 0 筆記錄
+找到 2 個交易對
+🔄 檢測到分析範圍包含今天，先更新當日保證金數據...
+📊 獲取當前保證金數據...
+💾 保證金數據已保存到 csv/Return/margin_history.csv
+✅ 保證金數據已更新: 2025-07-20 23:55:05
+處理日期: 2025-07-20
+
+✅ 結果已保存:
+   csv/Return/Total_detail_2025_07_20.csv
+   csv/Return/binance_detail_2025_07_20.csv
+   csv/Return/bybit_detail_2025_07_20.csv
+   csv/Return/Total_daily_2025_07_20.csv
+✅ Telegram通知已發送
+
+📊 統計資訊:
+   總記錄數: 2
+   涉及交易對: 2
+   總淨損益: $14.74
+   總倉位保證金: $7177.66
+   等效年化收益率: 74.95%
+/Users/chenhourun/Desktop/Arbitrage01-3/get_return_v2.py:525: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  date_df['Timestamp_dt'] = pd.to_datetime(date_df['Timestamp'])
+🤖 自動模式：分析 2025-07-21 的收益
+開始分析 2025-07-21 到 2025-07-21 的數據...
+獲取幣安資金費用...
+獲取幣安手續費...
+獲取Bybit資金費用...
+   Bybit查詢: 2025-07-21
+   正在查詢第2頁...
+   找到 12 筆記錄
+   Bybit總計: 12 筆資金費用記錄
+獲取Bybit手續費...
+   Bybit手續費查詢: 2025-07-21
+   該日期無手續費記錄
+   Bybit手續費總計: 0 筆記錄
+找到 2 個交易對
+🔄 檢測到分析範圍包含今天，先更新當日保證金數據...
+📊 獲取當前保證金數據...
+💾 保證金數據已保存到 csv/Return/margin_history.csv
+✅ 保證金數據已更新: 2025-07-21 23:55:05
+處理日期: 2025-07-21
+
+✅ 結果已保存:
+   csv/Return/Total_detail_2025_07_21.csv
+   csv/Return/binance_detail_2025_07_21.csv
+   csv/Return/bybit_detail_2025_07_21.csv
+   csv/Return/Total_daily_2025_07_21.csv
+✅ Telegram通知已發送
+
+📊 統計資訊:
+   總記錄數: 2
+   涉及交易對: 2
+   總淨損益: $19.56
+   總倉位保證金: $7304.21
+   等效年化收益率: 97.74%
+/Users/chenhourun/Desktop/Arbitrage01-3/get_return_v2.py:525: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  date_df['Timestamp_dt'] = pd.to_datetime(date_df['Timestamp'])
+🤖 自動模式：分析 2025-07-22 的收益
+開始分析 2025-07-22 到 2025-07-22 的數據...
+獲取幣安資金費用...
+獲取幣安手續費...
+獲取Bybit資金費用...
+   Bybit查詢: 2025-07-22
+   正在查詢第2頁...
+   找到 12 筆記錄
+   Bybit總計: 12 筆資金費用記錄
+獲取Bybit手續費...
+   Bybit手續費查詢: 2025-07-22
+   正在查詢第2頁...
+   正在查詢第3頁...
+   找到 86 筆手續費記錄
+   Bybit手續費總計: 86 筆記錄
+找到 2 個交易對
+🔄 檢測到分析範圍包含今天，先更新當日保證金數據...
+📊 獲取當前保證金數據...
+💾 保證金數據已保存到 csv/Return/margin_history.csv
+✅ 保證金數據已更新: 2025-07-22 23:55:07
+處理日期: 2025-07-22
+
+✅ 結果已保存:
+   csv/Return/Total_detail_2025_07_22.csv
+   csv/Return/binance_detail_2025_07_22.csv
+   csv/Return/bybit_detail_2025_07_22.csv
+   csv/Return/Total_daily_2025_07_22.csv
+✅ Telegram通知已發送
+
+📊 統計資訊:
+   總記錄數: 2
+   涉及交易對: 2
+   總淨損益: $12.42
+   總倉位保證金: $11218.25
+   等效年化收益率: 40.42%
+/Users/chenhourun/Desktop/Arbitrage01-3/get_return_v2.py:525: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  date_df['Timestamp_dt'] = pd.to_datetime(date_df['Timestamp'])
+🤖 自動模式：分析 2025-07-23 的收益
+開始分析 2025-07-23 到 2025-07-23 的數據...
+獲取幣安資金費用...
+獲取幣安手續費...
+獲取Bybit資金費用...
+   Bybit查詢: 2025-07-23
+   正在查詢第2頁...
+   找到 12 筆記錄
+   Bybit總計: 12 筆資金費用記錄
+獲取Bybit手續費...
+   Bybit手續費查詢: 2025-07-23
+   正在查詢第2頁...
+   正在查詢第3頁...
+   找到 73 筆手續費記錄
+   Bybit手續費總計: 73 筆記錄
+找到 2 個交易對
+🔄 檢測到分析範圍包含今天，先更新當日保證金數據...
+📊 獲取當前保證金數據...
+💾 保證金數據已保存到 csv/Return/margin_history.csv
+✅ 保證金數據已更新: 2025-07-23 23:55:08
+處理日期: 2025-07-23
+
+✅ 結果已保存:
+   csv/Return/Total_detail_2025_07_23.csv
+   csv/Return/binance_detail_2025_07_23.csv
+   csv/Return/bybit_detail_2025_07_23.csv
+   csv/Return/Total_daily_2025_07_23.csv
+✅ Telegram通知已發送
+
+📊 統計資訊:
+   總記錄數: 2
+   涉及交易對: 2
+   總淨損益: $22.13
+   總倉位保證金: $13540.71
+   等效年化收益率: 59.66%
+/Users/chenhourun/Desktop/Arbitrage01-3/get_return_v2.py:525: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  date_df['Timestamp_dt'] = pd.to_datetime(date_df['Timestamp'])
+🤖 自動模式：分析 2025-07-24 的收益
+開始分析 2025-07-24 到 2025-07-24 的數據...
+獲取幣安資金費用...
+獲取幣安手續費...
+獲取Bybit資金費用...
+   Bybit查詢: 2025-07-24
+   正在查詢第2頁...
+   找到 12 筆記錄
+   Bybit總計: 12 筆資金費用記錄
+獲取Bybit手續費...
+   Bybit手續費查詢: 2025-07-24
+   正在查詢第2頁...
+   正在查詢第3頁...
+   正在查詢第4頁...
+   找到 141 筆手續費記錄
+   Bybit手續費總計: 141 筆記錄
+找到 2 個交易對
+🔄 檢測到分析範圍包含今天，先更新當日保證金數據...
+📊 獲取當前保證金數據...
+💾 保證金數據已保存到 csv/Return/margin_history.csv
+✅ 保證金數據已更新: 2025-07-24 23:55:07
+處理日期: 2025-07-24
+
+✅ 結果已保存:
+   csv/Return/Total_detail_2025_07_24.csv
+   csv/Return/binance_detail_2025_07_24.csv
+   csv/Return/bybit_detail_2025_07_24.csv
+   csv/Return/Total_daily_2025_07_24.csv
+✅ Telegram通知已發送
+
+📊 統計資訊:
+   總記錄數: 2
+   涉及交易對: 2
+   總淨損益: $13.82
+   總倉位保證金: $16988.63
+   等效年化收益率: 29.70%
+/Users/chenhourun/Desktop/Arbitrage01-3/get_return_v2.py:525: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  date_df['Timestamp_dt'] = pd.to_datetime(date_df['Timestamp'])
+🤖 自動模式：分析 2025-07-25 的收益
+開始分析 2025-07-25 到 2025-07-25 的數據...
+獲取幣安資金費用...
+獲取幣安手續費...
+獲取Bybit資金費用...
+   Bybit查詢: 2025-07-25
+   正在查詢第2頁...
+   找到 12 筆記錄
+   Bybit總計: 12 筆資金費用記錄
+獲取Bybit手續費...
+   Bybit手續費查詢: 2025-07-25
+   正在查詢第2頁...
+   正在查詢第3頁...
+   正在查詢第4頁...
+   正在查詢第5頁...
+   正在查詢第6頁...
+   正在查詢第7頁...
+   正在查詢第8頁...
+   正在查詢第9頁...
+   找到 351 筆手續費記錄
+   Bybit手續費總計: 351 筆記錄
+找到 2 個交易對
+🔄 檢測到分析範圍包含今天，先更新當日保證金數據...
+📊 獲取當前保證金數據...
+💾 保證金數據已保存到 csv/Return/margin_history.csv
+✅ 保證金數據已更新: 2025-07-25 23:55:15
+處理日期: 2025-07-25
+
+✅ 結果已保存:
+   csv/Return/Total_detail_2025_07_25.csv
+   csv/Return/binance_detail_2025_07_25.csv
+   csv/Return/bybit_detail_2025_07_25.csv
+   csv/Return/Total_daily_2025_07_25.csv
+✅ Telegram通知已發送
+
+📊 統計資訊:
+   總記錄數: 2
+   涉及交易對: 2
+   總淨損益: $7.84
+   總倉位保證金: $15641.42
+   等效年化收益率: 18.30%
+/Users/chenhourun/Desktop/Arbitrage01-3/get_return_v2.py:525: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  date_df['Timestamp_dt'] = pd.to_datetime(date_df['Timestamp'])
+🤖 自動模式：分析 2025-07-26 的收益
+開始分析 2025-07-26 到 2025-07-26 的數據...
+獲取幣安資金費用...
+獲取幣安手續費...
+獲取Bybit資金費用...
+   Bybit查詢: 2025-07-26
+   正在查詢第2頁...
+   找到 12 筆記錄
+   Bybit總計: 12 筆資金費用記錄
+獲取Bybit手續費...
+   Bybit手續費查詢: 2025-07-26
+   該日期無手續費記錄
+   Bybit手續費總計: 0 筆記錄
+找到 2 個交易對
+🔄 檢測到分析範圍包含今天，先更新當日保證金數據...
+📊 獲取當前保證金數據...
+💾 保證金數據已保存到 csv/Return/margin_history.csv
+✅ 保證金數據已更新: 2025-07-26 23:55:06
+處理日期: 2025-07-26
+
+✅ 結果已保存:
+   csv/Return/Total_detail_2025_07_26.csv
+   csv/Return/binance_detail_2025_07_26.csv
+   csv/Return/bybit_detail_2025_07_26.csv
+   csv/Return/Total_daily_2025_07_26.csv
+✅ Telegram通知已發送
+
+📊 統計資訊:
+   總記錄數: 2
+   涉及交易對: 2
+   總淨損益: $37.13
+   總倉位保證金: $15610.40
+   等效年化收益率: 86.82%
+/Users/chenhourun/Desktop/Arbitrage01-3/get_return_v2.py:525: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  date_df['Timestamp_dt'] = pd.to_datetime(date_df['Timestamp'])
+🤖 自動模式：分析 2025-07-27 的收益
+開始分析 2025-07-27 到 2025-07-27 的數據...
+獲取幣安資金費用...
+獲取幣安手續費...
+獲取Bybit資金費用...
+   Bybit查詢: 2025-07-27
+   正在查詢第2頁...
+   找到 12 筆記錄
+   Bybit總計: 12 筆資金費用記錄
+獲取Bybit手續費...
+   Bybit手續費查詢: 2025-07-27
+   該日期無手續費記錄
+   Bybit手續費總計: 0 筆記錄
+找到 2 個交易對
+🔄 檢測到分析範圍包含今天，先更新當日保證金數據...
+📊 獲取當前保證金數據...
+💾 保證金數據已保存到 csv/Return/margin_history.csv
+✅ 保證金數據已更新: 2025-07-27 23:55:06
+處理日期: 2025-07-27
+
+✅ 結果已保存:
+   csv/Return/Total_detail_2025_07_27.csv
+   csv/Return/binance_detail_2025_07_27.csv
+   csv/Return/bybit_detail_2025_07_27.csv
+   csv/Return/Total_daily_2025_07_27.csv
+✅ Telegram通知已發送
+
+📊 統計資訊:
+   總記錄數: 2
+   涉及交易對: 2
+   總淨損益: $15.52
+   總倉位保證金: $15063.75
+   等效年化收益率: 37.61%
+/Users/chenhourun/Desktop/Arbitrage01-3/get_return_v2.py:525: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  date_df['Timestamp_dt'] = pd.to_datetime(date_df['Timestamp'])
+🤖 自動模式：分析 2025-07-28 的收益
+開始分析 2025-07-28 到 2025-07-28 的數據...
+獲取幣安資金費用...
+獲取幣安手續費...
+獲取Bybit資金費用...
+   Bybit查詢: 2025-07-28
+   正在查詢第2頁...
+   找到 12 筆記錄
+   Bybit總計: 12 筆資金費用記錄
+獲取Bybit手續費...
+   Bybit手續費查詢: 2025-07-28
+   正在查詢第2頁...
+   正在查詢第3頁...
+   正在查詢第4頁...
+   正在查詢第5頁...
+   找到 165 筆手續費記錄
+   Bybit手續費總計: 165 筆記錄
+找到 2 個交易對
+🔄 檢測到分析範圍包含今天，先更新當日保證金數據...
+📊 獲取當前保證金數據...
+💾 保證金數據已保存到 csv/Return/margin_history.csv
+✅ 保證金數據已更新: 2025-07-28 23:55:09
+處理日期: 2025-07-28
+
+✅ 結果已保存:
+   csv/Return/Total_detail_2025_07_28.csv
+   csv/Return/binance_detail_2025_07_28.csv
+   csv/Return/bybit_detail_2025_07_28.csv
+   csv/Return/Total_daily_2025_07_28.csv
+✅ Telegram通知已發送
+
+📊 統計資訊:
+   總記錄數: 2
+   涉及交易對: 2
+   總淨損益: $19.11
+   總倉位保證金: $16766.95
+   等效年化收益率: 41.61%
+/Users/chenhourun/Desktop/Arbitrage01-3/get_return_v2.py:525: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  date_df['Timestamp_dt'] = pd.to_datetime(date_df['Timestamp'])
+🤖 自動模式：分析 2025-07-29 的收益
+開始分析 2025-07-29 到 2025-07-29 的數據...
+獲取幣安資金費用...
+獲取幣安手續費...
+獲取Bybit資金費用...
+   Bybit查詢: 2025-07-29
+   正在查詢第2頁...
+   找到 12 筆記錄
+   Bybit總計: 12 筆資金費用記錄
+獲取Bybit手續費...
+   Bybit手續費查詢: 2025-07-29
+   正在查詢第2頁...
+   正在查詢第3頁...
+   正在查詢第4頁...
+   正在查詢第5頁...
+   找到 173 筆手續費記錄
+   Bybit手續費總計: 173 筆記錄
+找到 4 個交易對
+🔄 檢測到分析範圍包含今天，先更新當日保證金數據...
+📊 獲取當前保證金數據...
+💾 保證金數據已保存到 csv/Return/margin_history.csv
+✅ 保證金數據已更新: 2025-07-29 23:55:09
+處理日期: 2025-07-29
+
+✅ 結果已保存:
+   csv/Return/Total_detail_2025_07_29.csv
+   csv/Return/binance_detail_2025_07_29.csv
+   csv/Return/bybit_detail_2025_07_29.csv
+   csv/Return/Total_daily_2025_07_29.csv
+✅ Telegram通知已發送
+
+📊 統計資訊:
+   總記錄數: 4
+   涉及交易對: 4
+   總淨損益: $14.10
+   總倉位保證金: $19254.59
+   等效年化收益率: 26.74%
+/Users/chenhourun/Desktop/Arbitrage01-3/get_return_v2.py:525: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  date_df['Timestamp_dt'] = pd.to_datetime(date_df['Timestamp'])
+🤖 自動模式：分析 2025-07-30 的收益
+開始分析 2025-07-30 到 2025-07-30 的數據...
+獲取幣安資金費用...
+獲取幣安手續費...
+獲取Bybit資金費用...
+   Bybit查詢: 2025-07-30
+   正在查詢第2頁...
+   找到 12 筆記錄
+   Bybit總計: 12 筆資金費用記錄
+獲取Bybit手續費...
+   Bybit手續費查詢: 2025-07-30
+   正在查詢第2頁...
+   找到 10 筆手續費記錄
+   Bybit手續費總計: 10 筆記錄
+找到 3 個交易對
+🔄 檢測到分析範圍包含今天，先更新當日保證金數據...
+📊 獲取當前保證金數據...
+💾 保證金數據已保存到 csv/Return/margin_history.csv
+✅ 保證金數據已更新: 2025-07-30 23:55:07
+處理日期: 2025-07-30
+
+✅ 結果已保存:
+   csv/Return/Total_detail_2025_07_30.csv
+   csv/Return/binance_detail_2025_07_30.csv
+   csv/Return/bybit_detail_2025_07_30.csv
+   csv/Return/Total_daily_2025_07_30.csv
+✅ Telegram通知已發送
+
+📊 統計資訊:
+   總記錄數: 3
+   涉及交易對: 3
+   總淨損益: $38.53
+   總倉位保證金: $25054.32
+   等效年化收益率: 56.14%
+/Users/chenhourun/Desktop/Arbitrage01-3/get_return_v2.py:525: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  date_df['Timestamp_dt'] = pd.to_datetime(date_df['Timestamp'])
+🤖 自動模式：分析 2025-07-31 的收益
+開始分析 2025-07-31 到 2025-07-31 的數據...
+獲取幣安資金費用...
+獲取幣安手續費...
+獲取Bybit資金費用...
+   Bybit查詢: 2025-07-31
+   正在查詢第2頁...
+   找到 12 筆記錄
+   Bybit總計: 12 筆資金費用記錄
+獲取Bybit手續費...
+   Bybit手續費查詢: 2025-07-31
+   正在查詢第2頁...
+   正在查詢第3頁...
+   正在查詢第4頁...
+   找到 110 筆手續費記錄
+   Bybit手續費總計: 110 筆記錄
+找到 2 個交易對
+🔄 檢測到分析範圍包含今天，先更新當日保證金數據...
+📊 獲取當前保證金數據...
+💾 保證金數據已保存到 csv/Return/margin_history.csv
+✅ 保證金數據已更新: 2025-07-31 23:55:08
+處理日期: 2025-07-31
+
+✅ 結果已保存:
+   csv/Return/Total_detail_2025_07_31.csv
+   csv/Return/binance_detail_2025_07_31.csv
+   csv/Return/bybit_detail_2025_07_31.csv
+   csv/Return/Total_daily_2025_07_31.csv
+✅ Telegram通知已發送
+
+📊 統計資訊:
+   總記錄數: 2
+   涉及交易對: 2
+   總淨損益: $48.84
+   總倉位保證金: $26692.76
+   等效年化收益率: 66.78%
+/Users/chenhourun/Desktop/Arbitrage01-3/get_return_v2.py:525: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  date_df['Timestamp_dt'] = pd.to_datetime(date_df['Timestamp'])
+🤖 自動模式：分析 2025-08-01 的收益
+開始分析 2025-08-01 到 2025-08-01 的數據...
+獲取幣安資金費用...
+獲取幣安手續費...
+獲取Bybit資金費用...
+   Bybit查詢: 2025-08-01
+   正在查詢第2頁...
+   找到 12 筆記錄
+   Bybit總計: 12 筆資金費用記錄
+獲取Bybit手續費...
+   Bybit手續費查詢: 2025-08-01
+   該日期無手續費記錄
+   Bybit手續費總計: 0 筆記錄
+找到 2 個交易對
+🔄 檢測到分析範圍包含今天，先更新當日保證金數據...
+📊 獲取當前保證金數據...
+💾 保證金數據已保存到 csv/Return/margin_history.csv
+✅ 保證金數據已更新: 2025-08-01 23:55:06
+處理日期: 2025-08-01
+
+✅ 結果已保存:
+   csv/Return/Total_detail_2025_08_01.csv
+   csv/Return/binance_detail_2025_08_01.csv
+   csv/Return/bybit_detail_2025_08_01.csv
+   csv/Return/Total_daily_2025_08_01.csv
+✅ Telegram通知已發送
+
+📊 統計資訊:
+   總記錄數: 2
+   涉及交易對: 2
+   總淨損益: $16.54
+   總倉位保證金: $26831.38
+   等效年化收益率: 22.51%
+/Users/chenhourun/Desktop/Arbitrage01-3/get_return_v2.py:525: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  date_df['Timestamp_dt'] = pd.to_datetime(date_df['Timestamp'])
+🤖 自動模式：分析 2025-08-02 的收益
+開始分析 2025-08-02 到 2025-08-02 的數據...
+獲取幣安資金費用...
+獲取幣安手續費...
+獲取Bybit資金費用...
+   Bybit查詢: 2025-08-02
+   正在查詢第2頁...
+   找到 12 筆記錄
+   Bybit總計: 12 筆資金費用記錄
+獲取Bybit手續費...
+   Bybit手續費查詢: 2025-08-02
+   正在查詢第2頁...
+   找到 6 筆手續費記錄
+   Bybit手續費總計: 6 筆記錄
+找到 3 個交易對
+🔄 檢測到分析範圍包含今天，先更新當日保證金數據...
+📊 獲取當前保證金數據...
+💾 保證金數據已保存到 csv/Return/margin_history.csv
+✅ 保證金數據已更新: 2025-08-02 23:55:08
+處理日期: 2025-08-02
+
+✅ 結果已保存:
+   csv/Return/Total_detail_2025_08_02.csv
+   csv/Return/binance_detail_2025_08_02.csv
+   csv/Return/bybit_detail_2025_08_02.csv
+   csv/Return/Total_daily_2025_08_02.csv
+✅ Telegram通知已發送
+
+📊 統計資訊:
+   總記錄數: 3
+   涉及交易對: 3
+   總淨損益: $61.27
+   總倉位保證金: $26277.90
+   等效年化收益率: 85.11%
+/Users/chenhourun/Desktop/Arbitrage01-3/get_return_v2.py:525: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  date_df['Timestamp_dt'] = pd.to_datetime(date_df['Timestamp'])
+🤖 自動模式：分析 2025-08-03 的收益
+開始分析 2025-08-03 到 2025-08-03 的數據...
+獲取幣安資金費用...
+獲取幣安手續費...
+獲取Bybit資金費用...
+   Bybit查詢: 2025-08-03
+   正在查詢第2頁...
+   找到 12 筆記錄
+   Bybit總計: 12 筆資金費用記錄
+獲取Bybit手續費...
+   Bybit手續費查詢: 2025-08-03
+   正在查詢第2頁...
+   找到 1 筆手續費記錄
+   Bybit手續費總計: 1 筆記錄
+找到 2 個交易對
+🔄 檢測到分析範圍包含今天，先更新當日保證金數據...
+📊 獲取當前保證金數據...
+💾 保證金數據已保存到 csv/Return/margin_history.csv
+✅ 保證金數據已更新: 2025-08-03 23:55:06
+處理日期: 2025-08-03
+
+✅ 結果已保存:
+   csv/Return/Total_detail_2025_08_03.csv
+   csv/Return/binance_detail_2025_08_03.csv
+   csv/Return/bybit_detail_2025_08_03.csv
+   csv/Return/Total_daily_2025_08_03.csv
+✅ Telegram通知已發送
+
+📊 統計資訊:
+   總記錄數: 2
+   涉及交易對: 2
+   總淨損益: $11.32
+   總倉位保證金: $26231.81
+   等效年化收益率: 15.75%
+/Users/chenhourun/Desktop/Arbitrage01-3/get_return_v2.py:525: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  date_df['Timestamp_dt'] = pd.to_datetime(date_df['Timestamp'])
+🤖 自動模式：分析 2025-08-04 的收益
+開始分析 2025-08-04 到 2025-08-04 的數據...
+獲取幣安資金費用...
+獲取幣安手續費...
+獲取Bybit資金費用...
+   Bybit查詢: 2025-08-04
+   正在查詢第2頁...
+   找到 12 筆記錄
+   Bybit總計: 12 筆資金費用記錄
+獲取Bybit手續費...
+   Bybit手續費查詢: 2025-08-04
+   該日期無手續費記錄
+   Bybit手續費總計: 0 筆記錄
+找到 2 個交易對
+🔄 檢測到分析範圍包含今天，先更新當日保證金數據...
+📊 獲取當前保證金數據...
+💾 保證金數據已保存到 csv/Return/margin_history.csv
+✅ 保證金數據已更新: 2025-08-04 23:55:07
+處理日期: 2025-08-04
+
+✅ 結果已保存:
+   csv/Return/Total_detail_2025_08_04.csv
+   csv/Return/binance_detail_2025_08_04.csv
+   csv/Return/bybit_detail_2025_08_04.csv
+   csv/Return/Total_daily_2025_08_04.csv
+✅ Telegram通知已發送
+
+📊 統計資訊:
+   總記錄數: 2
+   涉及交易對: 2
+   總淨損益: $16.63
+   總倉位保證金: $26396.31
+   等效年化收益率: 22.99%
+/Users/chenhourun/Desktop/Arbitrage01-3/get_return_v2.py:525: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  date_df['Timestamp_dt'] = pd.to_datetime(date_df['Timestamp'])
+🤖 自動模式：分析 2025-08-05 的收益
+開始分析 2025-08-05 到 2025-08-05 的數據...
+獲取幣安資金費用...
+獲取幣安手續費...
+獲取Bybit資金費用...
+   Bybit查詢: 2025-08-05
+   正在查詢第2頁...
+   找到 12 筆記錄
+   Bybit總計: 12 筆資金費用記錄
+獲取Bybit手續費...
+   Bybit手續費查詢: 2025-08-05
+   該日期無手續費記錄
+   Bybit手續費總計: 0 筆記錄
+找到 2 個交易對
+🔄 檢測到分析範圍包含今天，先更新當日保證金數據...
+📊 獲取當前保證金數據...
+💾 保證金數據已保存到 csv/Return/margin_history.csv
+✅ 保證金數據已更新: 2025-08-05 23:55:06
+處理日期: 2025-08-05
+
+✅ 結果已保存:
+   csv/Return/Total_detail_2025_08_05.csv
+   csv/Return/binance_detail_2025_08_05.csv
+   csv/Return/bybit_detail_2025_08_05.csv
+   csv/Return/Total_daily_2025_08_05.csv
+✅ Telegram通知已發送
+
+📊 統計資訊:
+   總記錄數: 2
+   涉及交易對: 2
+   總淨損益: $48.38
+   總倉位保證金: $25772.72
+   等效年化收益率: 68.51%
+/Users/chenhourun/Desktop/Arbitrage01-3/get_return_v2.py:525: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  date_df['Timestamp_dt'] = pd.to_datetime(date_df['Timestamp'])
+🤖 自動模式：分析 2025-08-07 的收益
+開始分析 2025-08-07 到 2025-08-07 的數據...
+獲取幣安資金費用...
+獲取幣安手續費...
+獲取Bybit資金費用...
+   Bybit查詢: 2025-08-07
+   正在查詢第2頁...
+   找到 12 筆記錄
+   Bybit總計: 12 筆資金費用記錄
+獲取Bybit手續費...
+   Bybit手續費查詢: 2025-08-07
+   該日期無手續費記錄
+   Bybit手續費總計: 0 筆記錄
+找到 2 個交易對
+🔄 檢測到分析範圍包含今天，先更新當日保證金數據...
+📊 獲取當前保證金數據...
+💾 保證金數據已保存到 csv/Return/margin_history.csv
+✅ 保證金數據已更新: 2025-08-07 23:55:07
+處理日期: 2025-08-07
+
+✅ 結果已保存:
+   csv/Return/Total_detail_2025_08_07.csv
+   csv/Return/binance_detail_2025_08_07.csv
+   csv/Return/bybit_detail_2025_08_07.csv
+   csv/Return/Total_daily_2025_08_07.csv
+✅ Telegram通知已發送
+
+📊 統計資訊:
+   總記錄數: 2
+   涉及交易對: 2
+   總淨損益: $57.50
+   總倉位保證金: $25903.60
+   等效年化收益率: 81.02%
+/Users/chenhourun/Desktop/Arbitrage01-3/get_return_v2.py:525: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  date_df['Timestamp_dt'] = pd.to_datetime(date_df['Timestamp'])
+🤖 自動模式：分析 2025-08-08 的收益
+開始分析 2025-08-08 到 2025-08-08 的數據...
+獲取幣安資金費用...
+獲取幣安手續費...
+獲取Bybit資金費用...
+   Bybit查詢: 2025-08-08
+   正在查詢第2頁...
+   找到 12 筆記錄
+   Bybit總計: 12 筆資金費用記錄
+獲取Bybit手續費...
+   Bybit手續費查詢: 2025-08-08
+   正在查詢第2頁...
+   找到 31 筆手續費記錄
+   Bybit手續費總計: 31 筆記錄
+找到 2 個交易對
+🔄 檢測到分析範圍包含今天，先更新當日保證金數據...
+📊 獲取當前保證金數據...
+💾 保證金數據已保存到 csv/Return/margin_history.csv
+✅ 保證金數據已更新: 2025-08-08 23:55:06
+處理日期: 2025-08-08
+
+✅ 結果已保存:
+   csv/Return/Total_detail_2025_08_08.csv
+   csv/Return/binance_detail_2025_08_08.csv
+   csv/Return/bybit_detail_2025_08_08.csv
+   csv/Return/Total_daily_2025_08_08.csv
+✅ Telegram通知已發送
+
+📊 統計資訊:
+   總記錄數: 2
+   涉及交易對: 2
+   總淨損益: $60.95
+   總倉位保證金: $26260.04
+   等效年化收益率: 84.72%
+/Users/chenhourun/Desktop/Arbitrage01-3/get_return_v2.py:525: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  date_df['Timestamp_dt'] = pd.to_datetime(date_df['Timestamp'])
+🤖 自動模式：分析 2025-08-09 的收益
+開始分析 2025-08-09 到 2025-08-09 的數據...
+獲取幣安資金費用...
+獲取幣安手續費...
+獲取Bybit資金費用...
+   Bybit查詢: 2025-08-09
+   正在查詢第2頁...
+   找到 12 筆記錄
+   Bybit總計: 12 筆資金費用記錄
+獲取Bybit手續費...
+   Bybit手續費查詢: 2025-08-09
+   該日期無手續費記錄
+   Bybit手續費總計: 0 筆記錄
+找到 2 個交易對
+🔄 檢測到分析範圍包含今天，先更新當日保證金數據...
+📊 獲取當前保證金數據...
+💾 保證金數據已保存到 csv/Return/margin_history.csv
+✅ 保證金數據已更新: 2025-08-09 23:55:06
+處理日期: 2025-08-09
+
+✅ 結果已保存:
+   csv/Return/Total_detail_2025_08_09.csv
+   csv/Return/binance_detail_2025_08_09.csv
+   csv/Return/bybit_detail_2025_08_09.csv
+   csv/Return/Total_daily_2025_08_09.csv
+✅ Telegram通知已發送
+
+📊 統計資訊:
+   總記錄數: 2
+   涉及交易對: 2
+   總淨損益: $53.10
+   總倉位保證金: $26173.78
+   等效年化收益率: 74.04%

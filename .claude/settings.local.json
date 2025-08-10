@@ -9,7 +9,11 @@
       "Bash(conda:*)",
       "Bash(pip show:*)",
       "Bash(ls:*)",
-      "Bash(pip freeze)"
+      "Bash(pip freeze)",
+      "Bash(sudo grep -i cron /var/log/system.log)",
+      "Bash(ls:*)",
+      "Bash(/Users/chenhourun/Desktop/Arbitrage01-3/venv/bin/python --version)",
+      "Bash(/Users/chenhourun/Desktop/Arbitrage01-3/venv/bin/python /Users/chenhourun/Desktop/Arbitrage01-3/master_controller_v3.py --help)"
     ],
     "deny": []
   }

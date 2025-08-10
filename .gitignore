@@ -23,3 +23,12 @@ crontab_backup_*.txt
 # Log files
 logs/
 *.log
+
+# Temporary and test files
+*test*
+test_*
+*_test.*
+new_*.txt
+unified_*.txt
+temp_*
+tmp_*

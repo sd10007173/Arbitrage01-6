@@ -13,17 +13,17 @@ from database_operations import DatabaseManager
 
 # ===== 策略參數設定（在這裡修改你的參數）=====
 INITIAL_CAPITAL = 10000  # 初始資金
-POSITION_SIZE = 0.25  # 每次進場資金比例 (25%)
+POSITION_SIZE = 0.33  # 每次進場資金比例 (25%)
 FEE_RATE = 0.001  # 手續費率 (0.1%)
 EXIT_SIZE = 1.0  # 每次離場資金比例 (100%)
-MAX_POSITIONS = 4  # 最大持倉數 <<<--- 在這裡修改
-ENTRY_TOP_N = 4  # 進場條件: 綜合評分前N名 <<<--- 在這裡修改
-EXIT_THRESHOLD = 10  # 離場條件: 排名跌出前N名
+MAX_POSITIONS = 5  # 最大持倉數 <<<--- 在這裡修改
+ENTRY_TOP_N = 5  # 進場條件: 綜合評分前N名 <<<--- 在這裡修改
+EXIT_THRESHOLD = 20  # 離場條件: 排名跌出前N名
 POSITION_MODE = 'percentage_based'  # v5新增：進場模式 ('fixed_amount' 或 'percentage_based')
 
 # ===== 回測期間設定 =====
-START_DATE = "2024-01-01"  # 開始日期 (修改為有數據的日期)
-END_DATE = "2025-06-20"  # 結束日期 - 延長至3天以看到完整回測效果
+START_DATE = "2024-07-07"  # 開始日期 (修改為有數據的日期)
+END_DATE = "2025-08-24"  # 結束日期 - 延長至3天以看到完整回測效果
 # 移除CSV依賴，全部使用數據庫
 
 

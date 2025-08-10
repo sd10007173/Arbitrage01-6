@@ -40,9 +40,9 @@ def run_user_analysis(env_file, user_name):
     print(f"{'='*60}")
     
     try:
-        # 執行分析命令 - 使用統一的 Python 路徑
+        # 執行分析命令 - 使用專案虛擬環境的 Python
         cmd = [
-            "/Library/Frameworks/Python.framework/Versions/3.11/bin/python3",
+            "/Users/chenhourun/Desktop/Arbitrage01-3/venv/bin/python3",
             "get_return_multi_user.py",
             "--auto",
             "--user",
