@@ -7,3 +7,19 @@ archived/
 csv/
 data/
 venv/
+
+# Environment files containing API keys and sensitive information
+.env
+.env.*
+!.env.example
+!.env.template
+
+# API configuration files
+api_config.py
+
+# Crontab backup files
+crontab_backup_*.txt
+
+# Log files
+logs/
+*.log

@@ -1,0 +1,52 @@
+#!/bin/bash
+# Crontab example for multi-user setup
+# 
+# Usage:
+# 1. Copy this file and modify as needed
+# 2. Add these lines to your crontab using: crontab -e
+# 3. Ensure Python path and project path are correct
+
+# ========================================
+# Multi-User Crontab Configuration Example
+# ========================================
+
+# User 1 - Daily at 23:55 (11:55 PM)
+55 23 * * * cd /Users/chenhourun/Desktop/Arbitrage01-3 && /Library/Frameworks/Python.framework/Versions/3.11/bin/python3 get_return_multi_user.py --auto --user user1 >> logs/cron_get_return_user1.log 2>&1
+
+# User 2 - Daily at 23:56 (11:56 PM)
+56 23 * * * cd /Users/chenhourun/Desktop/Arbitrage01-3 && /Library/Frameworks/Python.framework/Versions/3.11/bin/python3 get_return_multi_user.py --auto --user user2 >> logs/cron_get_return_user2.log 2>&1
+
+# Alternative: Using full env file path
+# 57 23 * * * cd /Users/chenhourun/Desktop/Arbitrage01-3 && /Library/Frameworks/Python.framework/Versions/3.11/bin/python3 get_return_multi_user.py --auto --env /path/to/.env.custom >> logs/cron_get_return_custom.log 2>&1
+
+# ========================================
+# Multiple runs per day example
+# ========================================
+
+# User 1 - Every 8 hours (00:00, 08:00, 16:00)
+# 0 */8 * * * cd /Users/chenhourun/Desktop/Arbitrage01-3 && /Library/Frameworks/Python.framework/Versions/3.11/bin/python3 get_return_multi_user.py --auto --user user1 >> logs/cron_get_return_user1.log 2>&1
+
+# User 2 - Every 12 hours (06:00, 18:00)
+# 0 6,18 * * * cd /Users/chenhourun/Desktop/Arbitrage01-3 && /Library/Frameworks/Python.framework/Versions/3.11/bin/python3 get_return_multi_user.py --auto --user user2 >> logs/cron_get_return_user2.log 2>&1
+
+# ========================================
+# Notes:
+# ========================================
+# 1. Ensure the Python path matches your system
+# 2. Create separate log files for each user
+# 3. Stagger execution times to avoid API rate limits
+# 4. Test commands manually first before adding to crontab
+# 5. Check logs regularly for any errors
+# 6. Make sure .env.{username} files exist and have correct permissions
+
+# ========================================
+# Manual testing commands:
+# ========================================
+# Test User 1:
+# cd /Users/chenhourun/Desktop/Arbitrage01-3 && /Library/Frameworks/Python.framework/Versions/3.11/bin/python3 get_return_multi_user.py --auto --user user1
+
+# Test User 2:
+# cd /Users/chenhourun/Desktop/Arbitrage01-3 && /Library/Frameworks/Python.framework/Versions/3.11/bin/python3 get_return_multi_user.py --auto --user user2
+
+# Test with custom env file:
+# cd /Users/chenhourun/Desktop/Arbitrage01-3 && /Library/Frameworks/Python.framework/Versions/3.11/bin/python3 get_return_multi_user.py --auto --env .env.custom

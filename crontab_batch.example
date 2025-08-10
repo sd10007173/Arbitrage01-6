@@ -1,0 +1,60 @@
+#!/bin/bash
+# =========================================
+# Crontab 設定 - 批次執行所有用戶
+# =========================================
+#
+# 使用方式：
+# 1. 編輯 crontab: crontab -e
+# 2. 加入以下行之一（選擇適合的時間）
+# 3. 確保路徑正確
+
+# =========================================
+# 選項 1: 使用 Python 批次腳本
+# =========================================
+
+# 每天 23:55 執行所有用戶 (Python 版本)
+55 23 * * * cd /Users/chenhourun/Desktop/Arbitrage01-3 && /usr/bin/python3 run_all_users.py >> logs/batch_execution_$(date +\%Y-\%m-\%d).log 2>&1
+
+# =========================================
+# 選項 2: 使用 Shell 批次腳本
+# =========================================
+
+# 每天 23:55 執行所有用戶 (Shell 版本)
+# 55 23 * * * /Users/chenhourun/Desktop/Arbitrage01-3/run_all_users.sh
+
+# =========================================
+# 選項 3: 多次執行（每8小時）
+# =========================================
+
+# 每8小時執行一次 (00:00, 08:00, 16:00)
+# 0 */8 * * * cd /Users/chenhourun/Desktop/Arbitrage01-3 && /usr/bin/python3 run_all_users.py >> logs/batch_execution_$(date +\%Y-\%m-\%d).log 2>&1
+
+# =========================================
+# 選項 4: 錯開時間執行個別用戶
+# =========================================
+
+# 如果您想要錯開執行時間，避免同時發送太多 Telegram 訊息
+# 55 23 * * * cd /Users/chenhourun/Desktop/Arbitrage01-3 && /usr/bin/python3 get_return_multi_user.py --auto --user wayne >> logs/cron_wayne_$(date +\%Y-\%m-\%d).log 2>&1
+# 56 23 * * * cd /Users/chenhourun/Desktop/Arbitrage01-3 && /usr/bin/python3 get_return_multi_user.py --auto --user vincent >> logs/cron_vincent_$(date +\%Y-\%m-\%d).log 2>&1
+# 57 23 * * * cd /Users/chenhourun/Desktop/Arbitrage01-3 && /usr/bin/python3 get_return_multi_user.py --auto --user kiki >> logs/cron_kiki_$(date +\%Y-\%m-\%d).log 2>&1
+# 58 23 * * * cd /Users/chenhourun/Desktop/Arbitrage01-3 && /usr/bin/python3 get_return_multi_user.py --auto --user user1 >> logs/cron_user1_$(date +\%Y-\%m-\%d).log 2>&1
+
+# =========================================
+# 測試命令（手動執行）
+# =========================================
+
+# Python 版本測試:
+# cd /Users/chenhourun/Desktop/Arbitrage01-3 && /usr/bin/python3 run_all_users.py
+
+# Shell 版本測試:
+# /Users/chenhourun/Desktop/Arbitrage01-3/run_all_users.sh
+
+# =========================================
+# 注意事項
+# =========================================
+# 1. 確保 Python 路徑正確（使用 which python3 確認）
+# 2. 確保專案路徑正確
+# 3. logs 目錄會自動創建
+# 4. 使用 $(date +\%Y-\%m-\%d) 可以每天創建新的日誌檔案
+# 5. 檢查 crontab 是否正常運行: tail -f /var/mail/$USER
+# 6. 確保所有 .env.* 檔案都有正確的 API 金鑰
