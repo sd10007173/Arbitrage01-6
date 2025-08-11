@@ -9,6 +9,7 @@ numpy>=1.21.0              # 數值計算 (排名引擎、回測、收益計算)
 requests>=2.25.0           # HTTP請求 (master_controller, market_cap_trading_pair)
 aiohttp>=3.8.0             # 異步HTTP請求 (fetch_FR_history_group_v2)
 certifi                    # SSL證書驗證 (fetch_FR_history_group_v2)
+python-dotenv>=0.19.0      # 環境變數管理 (get_return_multi_user)
 
 # 交易所API和市場數據
 ccxt>=3.0.0                # 交易所API (exchange_trading_pair_v10)

@@ -41,20 +41,34 @@ def run_user_analysis(env_file, user_name):
     
     try:
         # 執行分析命令 - 使用專案虛擬環境的 Python
+        # 動態獲取當前專案的Python路徑
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        python_path = os.path.join(script_dir, "venv", "bin", "python3")
+        
+        # 如果虛擬環境Python不存在，回退到系統Python
+        if not os.path.exists(python_path):
+            # 嘗試使用python3.12
+            python312_path = os.path.join(script_dir, "venv", "bin", "python3.12")
+            if os.path.exists(python312_path):
+                python_path = python312_path
+            else:
+                python_path = "python3"
+        
         cmd = [
-            "/Users/chenhourun/Desktop/Arbitrage01-3/venv/bin/python3",
-            "get_return_multi_user.py",
+            python_path,
+            os.path.join(script_dir, "get_return_multi_user.py"),
             "--auto",
             "--user",
             user_name
         ]
         
-        # 執行命令並捕獲輸出
+        # 切換到專案目錄並執行命令
         result = subprocess.run(
             cmd,
             capture_output=True,
             text=True,
-            timeout=300  # 5分鐘超時
+            timeout=300,  # 5分鐘超時
+            cwd=script_dir  # 確保在專案目錄中執行
         )
         
         # 顯示輸出
