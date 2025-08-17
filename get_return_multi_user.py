@@ -155,35 +155,119 @@ class BinanceDataCollector:
             print(f"Binance API異常: {str(e)}")
             return None
 
+    def _get_income_with_pagination(self, start_ts, end_ts, income_type, max_retries=3):
+        """分頁查詢收入數據以處理超過1000筆的情況"""
+        all_records = []
+        current_start_ts = start_ts
+        page_count = 0
+        
+        while current_start_ts <= end_ts:
+            page_count += 1
+            retry_count = 0
+            
+            while retry_count < max_retries:
+                try:
+                    params = {
+                        'startTime': current_start_ts,
+                        'endTime': end_ts,
+                        'incomeType': income_type,
+                        'limit': 1000
+                    }
+                    
+                    result = self._make_request('/fapi/v1/income', params)
+                    
+                    if result is None:
+                        retry_count += 1
+                        print(f"   第{page_count}頁查詢失敗，重試 {retry_count}/{max_retries}")
+                        time.sleep(1)
+                        continue
+                    
+                    if not result:  # 空結果
+                        return all_records
+                    
+                    print(f"   第{page_count}頁: 獲取到 {len(result)} 筆記錄")
+                    all_records.extend(result)
+                    
+                    # 如果返回的記錄少於1000筆，說明已經到最後一頁
+                    if len(result) < 1000:
+                        return all_records
+                    
+                    # 更新下次查詢的開始時間為最後一筆記錄的時間+1毫秒
+                    last_record_time = result[-1]['time']
+                    current_start_ts = last_record_time + 1
+                    
+                    # 檢查是否已經超出查詢範圍
+                    if current_start_ts > end_ts:
+                        return all_records
+                    
+                    break  # 成功，跳出重試循環
+                    
+                except Exception as e:
+                    retry_count += 1
+                    print(f"   第{page_count}頁查詢異常: {str(e)}，重試 {retry_count}/{max_retries}")
+                    if retry_count < max_retries:
+                        time.sleep(1)
+                    else:
+                        print(f"   第{page_count}頁查詢失敗，已達到最大重試次數")
+                        return all_records
+            
+            time.sleep(0.2)  # 分頁間隔，避免請求過於頻繁
+        
+        return all_records
+
     def get_funding_fee_history(self, start_date, end_date):
-        """獲取資金費用歷史"""
-        start_ts = int(datetime.strptime(start_date, '%Y-%m-%d').replace(tzinfo=timezone.utc).timestamp() * 1000)
-        end_ts = int(datetime.strptime(end_date + ' 23:59:59', '%Y-%m-%d %H:%M:%S').replace(tzinfo=timezone.utc).timestamp() * 1000)
-
-        params = {
-            'startTime': start_ts,
-            'endTime': end_ts,
-            'incomeType': 'FUNDING_FEE',
-            'limit': 1000
-        }
-
-        result = self._make_request('/fapi/v1/income', params)
-        return result if result else []
+        """獲取資金費用歷史（支持分頁查詢處理大量數據）"""
+        start_dt = datetime.strptime(start_date, '%Y-%m-%d')
+        end_dt = datetime.strptime(end_date, '%Y-%m-%d')
+        
+        all_records = []
+        current_dt = start_dt
+        
+        # 分批查詢，每次查詢7天避免單次查詢數據過多
+        while current_dt <= end_dt:
+            batch_end_dt = min(current_dt + timedelta(days=6), end_dt)
+            
+            start_ts = int(current_dt.replace(tzinfo=timezone.utc).timestamp() * 1000)
+            end_ts = int((batch_end_dt + timedelta(days=1) - timedelta(seconds=1)).replace(tzinfo=timezone.utc).timestamp() * 1000)
+            
+            print(f"   Binance資金費用查詢: {current_dt.strftime('%Y-%m-%d')} 至 {batch_end_dt.strftime('%Y-%m-%d')}")
+            
+            # 使用分頁查詢獲取該時間段的所有記錄
+            page_records = self._get_income_with_pagination(start_ts, end_ts, 'FUNDING_FEE')
+            all_records.extend(page_records)
+            
+            current_dt = batch_end_dt + timedelta(days=1)
+            time.sleep(0.5)  # 避免API請求過於頻繁
+        
+        print(f"   Binance資金費用總計: {len(all_records)} 筆記錄")
+        return all_records
 
     def get_trading_fee_history(self, start_date, end_date):
-        """獲取手續費歷史"""
-        start_ts = int(datetime.strptime(start_date, '%Y-%m-%d').replace(tzinfo=timezone.utc).timestamp() * 1000)
-        end_ts = int(datetime.strptime(end_date + ' 23:59:59', '%Y-%m-%d %H:%M:%S').replace(tzinfo=timezone.utc).timestamp() * 1000)
-
-        params = {
-            'startTime': start_ts,
-            'endTime': end_ts,
-            'incomeType': 'COMMISSION',
-            'limit': 1000
-        }
-
-        result = self._make_request('/fapi/v1/income', params)
-        return result if result else []
+        """獲取手續費歷史（支持分頁查詢處理大量數據）"""
+        start_dt = datetime.strptime(start_date, '%Y-%m-%d')
+        end_dt = datetime.strptime(end_date, '%Y-%m-%d')
+        
+        all_records = []
+        current_dt = start_dt
+        
+        # 分批查詢，每次查詢7天避免單次查詢數據過多
+        while current_dt <= end_dt:
+            batch_end_dt = min(current_dt + timedelta(days=6), end_dt)
+            
+            start_ts = int(current_dt.replace(tzinfo=timezone.utc).timestamp() * 1000)
+            end_ts = int((batch_end_dt + timedelta(days=1) - timedelta(seconds=1)).replace(tzinfo=timezone.utc).timestamp() * 1000)
+            
+            print(f"   Binance手續費查詢: {current_dt.strftime('%Y-%m-%d')} 至 {batch_end_dt.strftime('%Y-%m-%d')}")
+            
+            # 使用分頁查詢獲取該時間段的所有記錄
+            page_records = self._get_income_with_pagination(start_ts, end_ts, 'COMMISSION')
+            all_records.extend(page_records)
+            
+            current_dt = batch_end_dt + timedelta(days=1)
+            time.sleep(0.5)  # 避免API請求過於頻繁
+        
+        print(f"   Binance手續費總計: {len(all_records)} 筆記錄")
+        return all_records
 
     def get_current_positions(self):
         """獲取當前持倉保證金"""
@@ -528,7 +612,7 @@ class ArbitrageAnalyzer:
             
             # 篩選指定日期的數據
             df['Date'] = pd.to_datetime(df['Timestamp']).dt.strftime('%Y-%m-%d')
-            date_df = df[df['Date'] == date_str]
+            date_df = df[df['Date'] == date_str].copy()  # 使用 .copy() 避免 SettingWithCopyWarning
             
             if date_df.empty:
                 return {}, {}, 'no_margin_data'
