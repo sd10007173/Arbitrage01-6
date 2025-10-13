@@ -205,13 +205,13 @@ class MasterControllerV3:
             },
             {
                 'name': '交易所支持檢查',
-                'script': 'exchange_trading_pair_v11.py',
-                'description': '檢查交易對在各交易所的支持狀態和上市日期（V11：OKX完整支持）'
+                'script': 'exchange_trading_pair_v10.py',
+                'description': '檢查交易對在各交易所的支持狀態和上市日期'
             },
             {
                 'name': '資金費率獲取',
-                'script': 'fetch_FR_history_group_v3.py',
-                'description': '獲取指定時間範圍內的資金費率歷史數據（V3：OKX分頁修復）'
+                'script': 'fetch_FR_history_group_v2.py',
+                'description': '獲取指定時間範圍內的資金費率歷史數據'
             },
             {
                 'name': '差異計算',
@@ -619,12 +619,12 @@ class MasterControllerV3:
                 # 步驟1: 市值數據更新
                 cmd = [sys.executable, script, '--top_n', str(top_n)]
                 
-            elif script == 'exchange_trading_pair_v11.py':
-                # 步驟2: 交易所支持檢查（V11：OKX完整支持）
+            elif script == 'exchange_trading_pair_v10.py':
+                # 步驟2: 交易所支持檢查
                 cmd = [sys.executable, script, '--exchanges'] + exchanges + ['--top_n', str(top_n)]
-
-            elif script == 'fetch_FR_history_group_v3.py':
-                # 步驟3: 資金費率獲取（V3：OKX分頁修復）
+                
+            elif script == 'fetch_FR_history_group_v2.py':
+                # 步驟3: 資金費率獲取
                 cmd = [sys.executable, script, '--exchanges'] + exchanges + ['--top_n', str(top_n), '--start_date', start_date, '--end_date', end_date]
                 
             elif script == 'calculate_FR_diff_v3.py':
